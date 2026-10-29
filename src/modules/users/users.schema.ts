@@ -1,0 +1,34 @@
+import { z } from 'zod';
+import { passwordSchema } from '../../utils/password.js';
+import { registerSchema } from '../auth/auth.schema.js';
+import { paginationSchema } from '../../utils/pagination.js';
+
+/** Perfil propio sin campos de privilegios. */
+export const profileSchema = z
+  .object({
+    firstName: z.string().trim().min(1).max(80).optional(),
+    lastName: z.string().trim().max(80).optional(),
+    phone: z.string().max(30).nullable().optional(),
+    avatarUrl: z.url().max(2048).startsWith('https://').nullable().optional(),
+  })
+  .strict();
+/** Alta por administrador con rol explícito opcional. */
+export const createUserSchema = registerSchema.extend({
+  role: z.enum(['client', 'employee', 'admin']).default('client'),
+});
+/** Edición administrativa, separada de promoción/degradación. */
+export const adminPatchSchema = profileSchema.extend({
+  email: z.email().max(254).optional(),
+  isActive: z.boolean().optional(),
+  canRecordPayments: z.boolean().optional(),
+});
+/** Cambio de contraseña exige acreditar la contraseña actual. */
+export const passwordChangeSchema = z
+  .object({ currentPassword: z.string().min(1).max(200), newPassword: passwordSchema })
+  .strict();
+/** Filtro de usuarios administrativo. */
+export const usersQuerySchema = paginationSchema.extend({
+  role: z.enum(['client', 'employee', 'admin']).optional(),
+});
+/** Rol sin posibilidad de incluir campos de perfil. */
+export const roleSchema = z.object({ role: z.enum(['client', 'employee', 'admin']) }).strict();

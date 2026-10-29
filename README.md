@@ -1,71 +1,52 @@
-# lavadero-api
+# Lavadero API 1.0
 
-API del lavadero, separada de la app móvil. **Etapa 1 completada:** base ejecutable,
-MySQL diseñado, migraciones, semillas y sondas HTTP. Auth y CRUD todavía no disponibles.
+Backend independiente de gestión de lavadero: autenticación local y social, permisos de
+Cliente/Empleado/Administrador, vehículos, catálogo, turnos, cobros y reportes.
 
-## Tecnologías y requisitos
+API pública: https://lavadero-api-48m4.onrender.com · [Swagger](https://lavadero-api-48m4.onrender.com/api/docs/).
+Repositorio privado: https://github.com/nehuenparrondo/lavadero-api.
 
-Node.js 24 LTS (mínimo 22.13), Express 5, TypeScript strict, mysql2, Zod, bcrypt.
-MySQL **8.4 LTS**, InnoDB y UTF-8. Se propone Aiven Free para desarrollo y producción académica.
-No requiere instalar ni abrir `lavadero-app`.
+## Ejecutar
 
-## Instalación
+Requiere Node 24 LTS y MySQL 8.4. No necesita el repositorio móvil.
 
 ```powershell
 npm ci
 Copy-Item .env.example .env
-```
-
-Completar `DATABASE_URL`, `DATABASE_TLS=true` y `DATABASE_CA_BASE64` con Aiven.
-Configurar `SEED_ADMIN_EMAIL` y contraseña única de 12–72 bytes. Cada variable está comentada.
-No copiar secretos a la app. Ver [guía paso a paso](docs/installation.md).
-
-```powershell
+# Completar la conexión, CA TLS, JWT y administrador inicial.
 npm run db:migrate
 npm run db:seed
 npm run check
 npm run dev
 ```
 
-La app móvil consume la URL HTTPS de Render. La ejecución local del backend sirve para desarrollo
-y pruebas HTTP; no es la configuración de producción. [Publicar en Render](docs/hosting.md).
+`npm run build` compila; `npm start` ejecuta el resultado. En Render se ejecuta
+`npm run db:migrate:production && npm start`; las semillas se ejecutan una vez,
+con `npm run db:seed:production`. Las migraciones comprueban su checksum.
 
-## Scripts
+## Comportamiento
 
-| Script                                        | Uso                                              |
-| --------------------------------------------- | ------------------------------------------------ |
-| `dev`                                         | API en desarrollo con recarga                    |
-| `typecheck`, `lint`, `test`                   | Tipos, convenciones y pruebas HTTP/configuración |
-| `build`, `start`                              | Compilar a dist y ejecutar el servidor compilado |
-| `check`                                       | Tipos + lint + pruebas + compilación             |
-| `format`, `format:check`                      | Aplicar/verificar formato                        |
-| `db:migrate`, `db:seed`                       | Migraciones y semillas desde TypeScript          |
-| `db:migrate:production`, `db:seed:production` | Herramientas compiladas para Render              |
+- Registro público siempre Cliente. Contraseñas bcrypt; access JWT de 15 minutos y
+  refresh opaco de 30 días, rotado y revocable. Reutilizar refresh revoca su familia.
+- Propiedad y rol se comprueban en cada solicitud. Cambios de rol invalidan sesiones.
+- Reservas bajo transacción: horario, capacidad, propietario y precio se recalculan.
+  Los precios y duraciones históricos permanecen aunque cambie el catálogo.
+- Empleados solo acceden a trabajos asignados. Cobran únicamente si están habilitados.
+- Importes enteros en centavos ARS; fechas UTC y calendario Buenos Aires.
+- Atención inicial lunes a sábado 09:30–16:30, capacidad 1, grilla 5 minutos.
+  Servicios de ejemplo: interior 30, exterior 35 y completo 40 minutos.
 
-## Estructura
+## Documentación
 
-```text
-src/
-  app.ts, server.ts
-  config/, errors/, middlewares/, utils/, types/
-  modules/
-    health/                   # implementado
-    auth/, users/, vehicles/, services/, appointments/
-    payments/, reports/, settings/, vehicleTypes/  # próximas etapas
-database/
-  migrations/, seeds/, migrate.ts, seed.ts, schema.sql
-docs/                         # arquitectura, ER, instalación, hosting y contrato
-tests/                        # sin dependencia de MySQL para npm test
-render.yaml                   # Blueprint gratuito, CA y URI vía panel
-```
+[Contrato por endpoint](API.md), [OpenAPI](docs/openapi.json), [Postman](docs/postman.collection.json),
+[instalación](docs/installation.md), [hosting](docs/hosting.md),
+[arquitectura](docs/architecture.md), [base y ER](docs/database.md),
+[verificación](docs/verification.md), [entrega](docs/delivery.md).
 
-## Documentación y pruebas
+`npm test` ejecuta pruebas unitarias/HTTP sin MySQL. `npm run test:acceptance` usa una
+base exclusiva de pruebas con `NODE_ENV=test`: nunca ejecutarlo sobre producción.
+Ver requisitos en `tests/README.md`.
 
-- [Plan completo](docs/plan.md), [arquitectura](docs/architecture.md), [base de datos](docs/database.md).
-- [API disponible](API.md), [contrato](docs/openapi.json), Swagger: `/api/docs`.
-- [Plan de endpoints de negocio](docs/api-plan.md), [Postman](docs/postman.collection.json).
-- [Verificar etapa 1](docs/stage-1.md), [validaciones realizadas](docs/verification.md).
-- [Instalación](docs/installation.md), [hosting](docs/hosting.md), [URLs de entrega](docs/delivery.md).
-
-La semilla crea un administrador, nunca lo inicia con una contraseña escrita en SQL.
-Los precios son ejemplos ficticios en ARS y se conservan al volver a ejecutar el seed.
+No publicar `.env`, claves, tokens, contraseñas ni copias de la base. OAuth exige
+credenciales reales de cada proveedor; sus pruebas automatizadas usan proveedores
+simulados y no acreditan por sí solas una autorización externa real.

@@ -1,21 +1,57 @@
 {
   "info": {
-    "name": "Lavadero API — Etapa 1",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "name": "Lavadero API v1 — todos los endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Roles, ownership y ejemplos: API.md. Cuenta de ejemplo, nunca credenciales reales."
   },
   "variable": [
     {
       "key": "baseUrl",
-      "value": "",
-      "type": "string"
+      "value": "https://lavadero-api-48m4.onrender.com"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "refreshToken",
+      "value": ""
+    },
+    {
+      "key": "id",
+      "value": "1"
+    },
+    {
+      "key": "typeId",
+      "value": "1"
+    },
+    {
+      "key": "provider",
+      "value": "google"
     }
   ],
   "item": [
     {
-      "name": "Health",
+      "name": "Crear cuenta Cliente",
       "request": {
-        "method": "GET",
-        "url": "{{baseUrl}}/health"
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/auth/register",
+        "description": "Roles: public. El body no admite rol ni permisos.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"cliente@example.com\",\n  \"password\": \"Ejemplo-seguro-2026!\",\n  \"firstName\": \"Ana\",\n  \"lastName\": \"Pérez\",\n  \"phone\": \"1100000000\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
       },
       "event": [
         {
@@ -23,17 +59,33 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test(\"Estado esperado\", function () { pm.response.to.have.status(200); });"
+              "if (pm.response.code < 300) { const s=pm.response.json().data; pm.collectionVariables.set(\"accessToken\",s.accessToken); pm.collectionVariables.set(\"refreshToken\",s.refreshToken); }"
             ]
           }
         }
       ]
     },
     {
-      "name": "Readiness (requiere MySQL)",
+      "name": "Iniciar sesión",
       "request": {
-        "method": "GET",
-        "url": "{{baseUrl}}/ready"
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/auth/login",
+        "description": "Roles: public. Email y contraseña; límite de intentos por origen.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"cliente@example.com\",\n  \"password\": \"Ejemplo-seguro-2026!\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
       },
       "event": [
         {
@@ -41,17 +93,33 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test(\"Estado esperado\", function () { pm.response.to.have.status(200); });"
+              "if (pm.response.code < 300) { const s=pm.response.json().data; pm.collectionVariables.set(\"accessToken\",s.accessToken); pm.collectionVariables.set(\"refreshToken\",s.refreshToken); }"
             ]
           }
         }
       ]
     },
     {
-      "name": "OpenAPI",
+      "name": "Renovar sesión",
       "request": {
-        "method": "GET",
-        "url": "{{baseUrl}}/api/openapi.json"
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/auth/refresh",
+        "description": "Roles: public. Requiere refresh válido. Rotación/revocación de familia, incluso access tokens ya emitidos.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"refreshToken\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
       },
       "event": [
         {
@@ -59,11 +127,1110 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test(\"Estado esperado\", function () { pm.response.to.have.status(200); });"
+              "if (pm.response.code < 300) { const s=pm.response.json().data; pm.collectionVariables.set(\"accessToken\",s.accessToken); pm.collectionVariables.set(\"refreshToken\",s.refreshToken); }"
             ]
           }
         }
       ]
+    },
+    {
+      "name": "Cerrar sesión",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/auth/logout",
+        "description": "Roles: public. Requiere refresh válido. Rotación/revocación de familia, incluso access tokens ya emitidos.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"refreshToken\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Proveedores sociales habilitados",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/auth/providers",
+        "description": "Roles: public. No revela IDs privados ni client secrets."
+      }
+    },
+    {
+      "name": "Iniciar OAuth con PKCE",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/auth/oauth/{{provider}}/authorize?response_type=code&redirect_uri=lavadero://oauth&state=estado-aleatorio-de-al-menos-16-caracteres&code_challenge=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&code_challenge_method=S256",
+        "description": "Roles: public. AuthSession genera state y PKCE S256. redirect_uri debe estar en la allowlist del servidor."
+      }
+    },
+    {
+      "name": "Recibir retorno OAuth",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/auth/oauth/{{provider}}/callback?state=estado-del-proveedor&code=codigo-del-proveedor",
+        "description": "Roles: public. Solo proveedor→backend. Consume state de un uso; email debe estar verificado. Devuelve deep link con código efímero, nunca JWT."
+      }
+    },
+    {
+      "name": "Canjear código móvil por sesión",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/auth/oauth/exchange",
+        "description": "Roles: public. PKCE y código de un solo uso, con vencimiento de 60 segundos.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"code\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n  \"codeVerifier\": \"vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Ver perfil propio",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/users/me",
+        "description": "Roles: client, employee, admin. ",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Editar perfil propio",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/users/me",
+        "description": "Roles: client, employee, admin. No admite rol, email ni privilegios de cobro.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firstName\": \"Ana\",\n  \"lastName\": \"Pérez\",\n  \"phone\": \"1100000000\",\n  \"avatarUrl\": null\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Cambiar contraseña propia",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/users/me/password",
+        "description": "Roles: client, employee, admin. Solo cuentas con contraseña local; revoca las sesiones y requiere volver a ingresar.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"currentPassword\": \"Ejemplo-seguro-2026!\",\n  \"newPassword\": \"Otra-clave-segura-2026!\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Listar/buscar usuarios",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/users?page=1&limit=20&search=Ana&role=client",
+        "description": "Roles: admin. ",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Crear usuario",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/users",
+        "description": "Roles: admin. ",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"empleado@example.com\",\n  \"password\": \"Ejemplo-seguro-2026!\",\n  \"firstName\": \"Luis\",\n  \"lastName\": \"Gómez\",\n  \"role\": \"employee\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Consultar usuario",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/users/{{id}}",
+        "description": "Roles: admin. ",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Editar, activar o desactivar usuario",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/users/{{id}}",
+        "description": "Roles: admin. No permite auto-desactivarse. Serializa con cambios de rol y protege al último administrador. Revoca sesiones del usuario modificado.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"isActive\": true,\n  \"canRecordPayments\": true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Cambiar rol",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/users/{{id}}/role",
+        "description": "Roles: admin. No permite auto-degradación ni dejar al sistema sin admin activo; invalida permisos anteriores.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"role\": \"employee\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Eliminar usuario lógicamente",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/users/{{id}}",
+        "description": "Roles: admin. Nunca destruye su historial; prohíbe eliminarse a sí mismo.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Listar/buscar vehículos",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/vehicles?page=1&limit=20&search=AB123",
+        "description": "Roles: client, admin. Cliente: solo propios. Admin: todos.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Registrar vehículo",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/vehicles",
+        "description": "Roles: client, admin. ownerId opcional exclusivamente para Admin; cliente no puede elegir dueño ajeno.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"plate\": \"AB123CD\",\n  \"brand\": \"Toyota\",\n  \"model\": \"Etios\",\n  \"color\": \"Gris\",\n  \"vehicleTypeId\": \"1\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Consultar vehículo",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/vehicles/{{id}}",
+        "description": "Roles: client, admin. Propio o administrado; un recurso ajeno responde 404.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Editar vehículo",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/vehicles/{{id}}",
+        "description": "Roles: client, admin. Propio o administrado; valida propietario y tipo activo.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"color\": \"Azul\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Eliminar vehículo lógicamente",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/vehicles/{{id}}",
+        "description": "Roles: client, admin. Propio o administrado. 409 si tiene turnos pendientes, confirmados o en proceso.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Listar tipos de vehículo",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/vehicle-types",
+        "description": "Roles: client, employee, admin. Solo activos, salvo Admin que también consulta inactivos.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Crear tipo de vehículo",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/vehicle-types",
+        "description": "Roles: admin. ",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"code\": \"van\",\n  \"name\": \"Utilitario\",\n  \"isActive\": true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Editar tipo de vehículo",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/vehicle-types/{{id}}",
+        "description": "Roles: admin. ",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"code\": \"van\",\n  \"name\": \"Utilitario\",\n  \"isActive\": true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Desactivar tipo de vehículo",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/vehicle-types/{{id}}",
+        "description": "Roles: admin. No elimina vehículos ni tarifas históricas relacionadas.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Ver catálogo y tarifas",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/services",
+        "description": "Roles: client, employee, admin. Descripción, duración y precio por tipo. Admin también ve inactivos.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Ver detalle y tarifas del servicio",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/services/{{id}}",
+        "description": "Roles: client, employee, admin. ",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Crear servicio",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/services",
+        "description": "Roles: admin. ",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"code\": \"exterior-plus\",\n  \"name\": \"Exterior Plus\",\n  \"description\": \"Lavado exterior con secado manual.\",\n  \"durationMinutes\": 35,\n  \"isActive\": true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Editar servicio",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/services/{{id}}",
+        "description": "Roles: admin. No modifica snapshots de turnos guardados.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"durationMinutes\": 40\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Eliminar servicio lógicamente",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/services/{{id}}",
+        "description": "Roles: admin. Conserva todos los servicios ya contratados.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Definir tarifa por tipo",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/services/{{id}}/prices/{{typeId}}",
+        "description": "Roles: admin. Importe entero en centavos ARS: 900000 = ARS 9000. Evita coma flotante.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"priceCents\": 900000\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Consultar atención y política de cancelación",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/business",
+        "description": "Roles: client, employee, admin. Información operativa de lectura para clientes y empleados; no modifica configuración.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Consultar configuración administrativa",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/settings",
+        "description": "Roles: admin. ",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Guardar configuración administrativa",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/settings",
+        "description": "Roles: admin. La semana se guarda atómicamente. Días ausentes quedan cerrados; horarios locales, persistencia de turnos UTC.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"timeZone\": \"America/Argentina/Buenos_Aires\",\n  \"cancellationNoticeMinutes\": 120,\n  \"simultaneousCapacity\": 1,\n  \"slotStepMinutes\": 5,\n  \"hours\": [\n    {\n      \"weekday\": 1,\n      \"opensAt\": \"09:30\",\n      \"closesAt\": \"16:30\"\n    },\n    {\n      \"weekday\": 2,\n      \"opensAt\": \"09:30\",\n      \"closesAt\": \"16:30\"\n    },\n    {\n      \"weekday\": 3,\n      \"opensAt\": \"09:30\",\n      \"closesAt\": \"16:30\"\n    },\n    {\n      \"weekday\": 4,\n      \"opensAt\": \"09:30\",\n      \"closesAt\": \"16:30\"\n    },\n    {\n      \"weekday\": 5,\n      \"opensAt\": \"09:30\",\n      \"closesAt\": \"16:30\"\n    },\n    {\n      \"weekday\": 6,\n      \"opensAt\": \"09:30\",\n      \"closesAt\": \"16:30\"\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Cotizar y consultar horarios",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/availability?date=2026-12-01&vehicleId=1&serviceIds=1,2",
+        "description": "Roles: client, admin. Cliente solo vehículo propio. Suma duración y precios; capacidad se vuelve a comprobar al reservar. Grilla de cinco minutos por defecto.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Listar turnos visibles",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/appointments?page=1&limit=20&date=2026-12-01&status=confirmed&history=false",
+        "description": "Roles: client, employee, admin. Cliente: propios. Empleado: asignados. Admin: todos. Filtros adicionales clientId y employeeId no amplían visibilidad.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Reservar turno",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/appointments",
+        "description": "Roles: client, admin. Admin puede incluir clientId; debe ser titular activo del vehículo. Precio/duración se recalculan y congelan bajo lock de agenda. 409 si otro ocupa el horario.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"vehicleId\": \"1\",\n  \"serviceIds\": [\n    \"1\"\n  ],\n  \"startsAt\": \"2026-12-01T09:30:00-03:00\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Consultar detalle del turno",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/appointments/{{id}}",
+        "description": "Roles: client, employee, admin. Solo propio/asignado o Admin. Empleado recibe nombre/teléfono operativos; importes solo si está habilitado para cobros.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Asignar o reasignar empleado",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/appointments/{{id}}/assignment",
+        "description": "Roles: admin. Empleado activo; no asigna a turnos cerrados ni solapa su agenda.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"employeeId\": \"2\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Cambiar estado",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/appointments/{{id}}/status",
+        "description": "Roles: employee, admin. Empleado asignado: confirmed→in_progress→completed. Admin puede corregir estados respetando empleado/capacidad. Transición inválida: 409.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"in_progress\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Cancelar turno",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/appointments/{{id}}/cancel",
+        "description": "Roles: client, admin. Cliente propietario: pending/confirmed y más de la anticipación configurada. Admin sin restricción horaria. Registra motivo/actor.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"reason\": \"Cambio de planes\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Registrar observación",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/appointments/{{id}}/notes",
+        "description": "Roles: employee, admin. Empleado solo asignados; autor se toma de la sesión.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"body\": \"Raya previa en puerta derecha.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Ver comprobante de servicio",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/appointments/{{id}}/receipt",
+        "description": "Roles: client, admin. Solo turno finalizado y propio/administrado. Es comprobante de trabajo, no factura fiscal.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Ver cobros del turno",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/appointments/{{id}}/payments",
+        "description": "Roles: client, admin. Solo propios/administrados.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Registrar cobro",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/appointments/{{id}}/payments",
+        "description": "Roles: employee, admin. Empleado: asignado y habilitado por Admin. Solo en proceso/finalizado. Mismo reintento no duplica; otro importe con misma clave: 409. Nunca supera saldo.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amountCents\": 900000,\n  \"method\": \"cash\",\n  \"reference\": null,\n  \"idempotencyKey\": \"f6a7d090-2698-4c8f-83be-a0bc369a58c2\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Ver reportes administrativos",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/reports?period=week&date=2026-12-01",
+        "description": "Roles: admin. Lavados por día/semana/mes, ingresos por fecha real de cobro, servicios más pedidos y rendimiento por empleado.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Ver resumen propio de jornada",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/reports/me?date=2026-12-01",
+        "description": "Roles: employee. Solo sus trabajos hechos/pendientes. No revela ingresos del negocio.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
     }
   ]
 }

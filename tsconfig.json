@@ -14,5 +14,11 @@
     "resolveJsonModule": true,
     "types": ["node"]
   },
-  "include": ["src/**/*.ts", "database/**/*.ts", "tests/**/*.ts", "eslint.config.ts"]
+  "include": [
+    "src/**/*.ts",
+    "database/**/*.ts",
+    "tests/**/*.ts",
+    "eslint.config.ts",
+    "scripts/**/*.ts"
+  ]
 }
