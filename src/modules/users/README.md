@@ -1,6 +1,6 @@
-# Módulo users
+# users
 
-Reservado para las próximas etapas. Se implementará por capas: `*.routes.ts` →
-`*.controller.ts` → `*.service.ts` → `*.repository.ts`, con `*.schema.ts` y `*.types.ts`.
-Solo repositories ejecutan SQL parametrizado; controllers no deciden reglas del negocio.
-No hay endpoints de este módulo disponibles en la etapa 1.
+Perfil propio y gestión administrativa. Los cambios de permisos invalidan sesiones. El guard del catálogo de roles serializa cambios que podrían eliminar al último administrador activo.
+
+Rutas → middlewares → controller → service → repository. Validaciones en schema y contratos en types.
+Consultá [API.md](../../../API.md) para métodos, permisos, ejemplos y errores.

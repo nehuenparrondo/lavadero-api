@@ -10,8 +10,15 @@ export const envSchema = z
     DATABASE_CA_BASE64: z.string().optional(),
     DATABASE_POOL_SIZE: z.coerce.number().int().min(1).max(10).default(5),
     CORS_ORIGINS: z.string().default(''),
+    JWT_ACCESS_SECRET: z.string().min(32).optional(),
   })
   .superRefine((value, context) => {
+    if (value.NODE_ENV === 'production' && !value.JWT_ACCESS_SECRET) {
+      context.addIssue({
+        code: 'custom',
+        message: 'Producción requiere una clave JWT segura.',
+      });
+    }
     if (
       value.NODE_ENV === 'production' &&
       (!value.DATABASE_URL || value.DATABASE_TLS !== 'true')

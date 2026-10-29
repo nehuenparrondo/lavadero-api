@@ -1,57 +1,50 @@
-# Arquitectura
+# Arquitectura y decisiones
 
-```mermaid
-flowchart LR
-  Mobile["lavadero-app · Expo / TypeScript"] <-->|"HTTPS · JSON · /api/v1"| API["lavadero-api · Express / TypeScript · Render"]
-  API <-->|"SQL parametrizado · TLS + CA"| DB[("MySQL 8.4 · Aiven")]
-  Mobile -->|"Navegador del sistema · AuthSession"| OAuth["Google · Discord · GitHub"]
-  OAuth -->|"Callback HTTPS · code + state"| API
-  API -->|"Canje de code · client secret solo en API"| OAuth
-  API -->|"Código efímero de retorno; canje por JWT"| Mobile
-```
+Express 5 → router → autenticación/rol/validación → controller → service → repository → MySQL.
+Los controllers adaptan HTTP; las reglas viven en services; únicamente repositories
+e infraestructura usan SQL parametrizado. Zod rechaza propiedades desconocidas.
+`errorHandler` traduce fallos a un contrato uniforme sin exponer consultas ni secretos.
 
-El diagrama describe el sistema objetivo. En la etapa 1 solo se ejecutan salud, readiness,
-Swagger y pantalla inicial. No hay autenticación, roles ni rutas CRUD activas.
+## Autenticación y autorización
 
-## Separación y flujo
+Bcrypt 12 para contraseñas de hasta 72 bytes. JWT HS256 con issuer/audience, vencimiento,
+usuario, rol, auth_version y familia. Cada solicitud verifica la situación actual en SQL.
+Refresh aleatorio de 256 bits: solo su hash SHA-256 se persiste. Rotación con bloqueo de
+fila; detectar reuso confirma primero la revocación y después devuelve 401.
+Logout revoca toda la familia, incluidos JWT aún no vencidos.
 
-Cada raíz tiene package.json, lockfile, tsconfig, lint, entorno, documentación, CI y Git propios.
-La app puede instalarse y probarse sola; la API puede consumirse con Postman/Swagger.
-No hay imports ni directorio compartido entre ambos proyectos.
+Un Cliente nunca elige su rol al registrarse. Se verifica propiedad del vehículo y turno,
+la asignación del empleado y su habilitación de cobro. Admin no puede auto-degradarse,
+desactivarse ni eliminarse. Cambios administrativos serializan el conteo de admins.
 
-Backend: rutas → validación/middlewares → controller → service → repository → MySQL.
-Controllers adaptan HTTP; services deciden reglas; repositories contienen SQL y transacciones.
-Herramientas database/ son infraestructura separada de las peticiones de negocio.
+## Reservas y cobros
 
-Frontend: pantalla → hook → api/services → cliente HTTP. Componentes atómicos reciben props.
-Context administra sesión/tema; tipos propios se ajustan al OpenAPI versionado, sin importar la API.
+Una transacción bloquea la única fila de `business_settings` antes de comprobar la agenda.
+También la usan cambios de estado/asignación y baja/edición de vehículos. Es una exclusión
+simple apropiada para un lavadero de capacidad inicial 1; evita carreras entre conexiones.
+Para mayor escala puede particionarse por fecha con orden de bloqueos estable; la tabla
+`booking_day_locks` queda reservada, no interviene en esta versión.
 
-## Integridad y seguridad previstas
+Los intervalos son [inicio, fin): dos turnos consecutivos son válidos. Un barrido de eventos
+comprueba el máximo simultáneo, además de impedir solapamientos de empleado y vehículo.
+La cotización es informativa: la reserva vuelve a validar horario, capacidad y catálogo.
+Precio, nombre y duración contratados se guardan en `appointment_services`.
 
-- Registro y primer OAuth crean Cliente; ningún body público acepta rol administrativo.
-- JWT corto + refresh rotado y revocable en hash. Auth verifica usuario activo/rol actual,
-  no confía indefinidamente en permisos antiguos del JWT; auth_version invalida cambios.
-- Ownership se aplica dentro de la consulta, además de role guards. Empleado consulta solo asignados.
-- Cambio de último administrador bloquea una fila común de roles y cuenta admins activos en transacción;
-  evita carreras entre dos degradaciones. No basta con COUNT antes de actualizar.
-- Reservar bloquea `booking_day_locks` de cada fecha afectada y comprueba todos los intervalos
-  solapados con el nuevo turno (evento de inicio/fin), capacidad y empleado. Reasignaciones,
-  cancelaciones y reprogramaciones usan el mismo protocolo y orden de locks.
-- Un empleado no puede saltar estados: confirmado → en proceso → finalizado. Cliente cancela
-  solo pendiente/confirmado antes de la ventana configurable. Cualquier transición inválida: 409.
-  Admin puede solicitar estados distintos, respetando invariantes de asignación/capacidad y auditoría.
-- Total histórico = SUM(applied_price_cents). Duración histórica se copia al reservar.
-  Pagos usan idempotency_key; suma cobrada no supera total, controlada bajo lock del turno.
-- OAuth vincula por email **verificado por el proveedor**; si no está verificado o no está presente,
-  se solicita prueba de control/inicio de sesión antes de vincular. Evita tomar cuentas ajenas.
-  Usar state de un solo uso, PKCE y allowlist de callbacks; nunca JWT en query de deep link.
+El cobro bloquea el turno, verifica saldo y una clave UUID de idempotencia global.
+Reintentar la misma operación devuelve su resultado sin duplicar dinero. Los reportes
+separan fecha del trabajo y fecha real de pago para evitar sumar ingresos dos veces.
 
-Estas reglas son criterios de implementación y pruebas de etapas 3–8; el esquema por sí solo
-no implementa permisos, transiciones, capacidad ni protección del último admin.
+## OAuth
 
-## Decisiones
+AuthSession genera state y PKCE S256. El backend conserva su propio state de proveedor,
+intercambia el código con el secreto y exige email verificado. El retorno móvil contiene
+un grant de 60 segundos, de un uso y ligado al PKCE, nunca access tokens en la URL.
+Solo se aceptan redirect URIs exactas de una allowlist. Google y GitHub usan además
+PKCE en el tramo proveedor; Discord usa el secreto backend. Ningún secreto viaja a Expo.
 
-SQL directo permite justificar normalización y bloqueo. Centavos enteros evitan redondeos binarios.
-UTC en las columnas temporales y zona IANA en configuración evitan depender de la zona del servidor.
-Errores centralizados exponen solo mensaje público y código estable. CORS es una política del
-navegador; la autenticación/autoridad de permisos siempre corresponde al backend.
+## Persistencia y despliegue
+
+SQL MySQL 8.4, claves foráneas, borrado lógico y migraciones con checksum. Fechas UTC;
+Luxon traduce el calendario de Buenos Aires. Enteros centavos evitan errores monetarios.
+Render mantiene el backend y Aiven MySQL la persistencia con TLS y CA verificada.
+Usuarios distintos para lavadero_dev/lavadero_prod, limitados a su propia base.

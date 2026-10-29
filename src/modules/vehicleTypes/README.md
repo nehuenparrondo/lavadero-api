@@ -1,6 +1,6 @@
-# Módulo vehicleTypes
+# vehicleTypes
 
-Reservado para las próximas etapas. Se implementará por capas: `*.routes.ts` →
-`*.controller.ts` → `*.service.ts` → `*.repository.ts`, con `*.schema.ts` y `*.types.ts`.
-Solo repositories ejecutan SQL parametrizado; controllers no deciden reglas del negocio.
-No hay endpoints de este módulo disponibles en la etapa 1.
+ABML de categorías. Inactivar conserva los vehículos y referencias históricas existentes.
+
+Rutas → middlewares → controller → service → repository. Validaciones en schema y contratos en types.
+Consultá [API.md](../../../API.md) para métodos, permisos, ejemplos y errores.

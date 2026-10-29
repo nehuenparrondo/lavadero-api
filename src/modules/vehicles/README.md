@@ -1,6 +1,6 @@
-# Módulo vehicles
+# vehicles
 
-Reservado para las próximas etapas. Se implementará por capas: `*.routes.ts` →
-`*.controller.ts` → `*.service.ts` → `*.repository.ts`, con `*.schema.ts` y `*.types.ts`.
-Solo repositories ejecutan SQL parametrizado; controllers no deciden reglas del negocio.
-No hay endpoints de este módulo disponibles en la etapa 1.
+Propiedad del vehículo, patente única y borrado lógico. Cliente nunca accede a vehículos ajenos. Admin puede corregir titular y datos. No se elimina con trabajos activos.
+
+Rutas → middlewares → controller → service → repository. Validaciones en schema y contratos en types.
+Consultá [API.md](../../../API.md) para métodos, permisos, ejemplos y errores.

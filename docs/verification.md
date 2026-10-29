@@ -1,13 +1,15 @@
-# Verificación de etapa 1 — 29/10/2026
+# Verificación de versión 1.0
 
-- `npm run check`: TypeScript strict, ESLint, **11 pruebas unitarias/HTTP** y build aprobados.
-- `npm run format:check`: formato verificado.
-- MySQL **8.4.13 real**, instancia temporal aislada: cuatro migraciones aplicadas y repetición
-  sin duplicar versiones; seed ejecutado dos veces sin duplicar catálogos ni administrador.
-- **3 pruebas de integración** aprobadas: configuración/días/horarios, unicidad de email y patente,
-  FK de rol, duración positiva y rango horario válido. Fixtures con rollback.
-- `npm audit`: **0 avisos** reportados en la fecha de ejecución.
+Se ejecutaron typecheck estricto, ESLint sin advertencias, 14 pruebas unitarias/HTTP
+y compilación TypeScript. La aceptación se ejecutó contra MySQL 8.4 real, en una base
+temporal exclusiva, con las cinco migraciones y semillas: 14 escenarios aprobados.
 
-Las pruebas MySQL se hicieron en una base descartable de esta computadora. No demuestran conexión
-con Aiven ni despliegue Render: se verifican en etapa 2 con los servicios reales.
-No se han probado autenticación, roles, turnos ni pagos de negocio porque aún no están implementados.
+Casos cubiertos: inyección de rol, propiedad de vehículos/turnos, JWT alterado, refresh
+rotado/reutilizado, logout inmediato, cambio de rol/contraseña, protección de admin,
+flujo de estados del empleado, observaciones, cobro idempotente y exceso de saldo,
+dos reservas concurrentes, liberación al cancelar, precio histórico, horario inválido,
+servicios duplicados y PKCE/state/grants de los tres proveedores.
+
+Las respuestas de proveedores externos se simulan en esas pruebas OAuth. La validación
+de la consola y autorización real debe registrarse por separado en `delivery.md`.
+Las pruebas no modifican datos existentes de umbral-r5.
