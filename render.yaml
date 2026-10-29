@@ -1,0 +1,25 @@
+# Crear Blueprint desde el repositorio independiente lavadero-api.
+services:
+  - type: web
+    name: lavadero-api
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    # El plan Free no ofrece pre-deploy command; migrar al arrancar, bajo lock MySQL.
+    startCommand: npm run db:migrate:production && npm start
+    healthCheckPath: /ready
+    envVars:
+      - key: NODE_VERSION
+        value: 24.15.0
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_TLS
+        value: 'true'
+      - key: DATABASE_CA_BASE64
+        sync: false
+      - key: DATABASE_POOL_SIZE
+        value: '5'
+      - key: CORS_ORIGINS
+        value: ''
