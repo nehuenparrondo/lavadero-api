@@ -1,0 +1,171 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Lavadero API",
+    "version": "0.1.0",
+    "description": "Etapa 1. Solo infraestructura implementada. Negocio en api-plan.md."
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "Mismo origen de despliegue"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Salud del proceso",
+        "description": "Roles: público, sin autenticación.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Proceso activo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["status", "service", "version"],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": ["ok"]
+                    },
+                    "service": {
+                      "type": "string",
+                      "enum": ["lavadero-api"]
+                    },
+                    "version": {
+                      "type": "string",
+                      "example": "0.1.0"
+                    }
+                  }
+                },
+                "example": {
+                  "status": "ok",
+                  "service": "lavadero-api",
+                  "version": "0.1.0"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Infrastructure"]
+      }
+    },
+    "/ready": {
+      "get": {
+        "summary": "Disponibilidad MySQL",
+        "description": "Roles: público, sin autenticación.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Base conectada",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "ready",
+                  "database": "up"
+                },
+                "schema": {
+                  "type": "object",
+                  "required": ["status", "database"],
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "database": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Base sin configurar o no disponible",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "not_ready",
+                  "database": "down"
+                },
+                "schema": {
+                  "type": "object",
+                  "required": ["status", "database"],
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "database": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Infrastructure"]
+      }
+    },
+    "/api/v1": {
+      "get": {
+        "summary": "Versión de API",
+        "description": "Roles: público, sin autenticación.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Versión v1, etapa 1",
+            "content": {
+              "application/json": {
+                "example": {
+                  "version": "v1",
+                  "stage": 1
+                },
+                "schema": {
+                  "type": "object",
+                  "required": ["version", "stage"],
+                  "properties": {
+                    "version": {
+                      "type": "string"
+                    },
+                    "stage": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Infrastructure"]
+      }
+    },
+    "/api/openapi.json": {
+      "get": {
+        "summary": "Contrato OpenAPI",
+        "description": "Roles: público, sin autenticación.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Este contrato JSON"
+          }
+        },
+        "tags": ["Infrastructure"]
+      }
+    },
+    "/api/docs/": {
+      "get": {
+        "summary": "Swagger UI",
+        "description": "Roles: público, sin autenticación.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Interfaz HTML"
+          }
+        },
+        "tags": ["Infrastructure"]
+      }
+    }
+  }
+}
