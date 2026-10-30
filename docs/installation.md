@@ -1,31 +1,53 @@
-# Instalación y configuración — API
+# Instalación y configuración independiente
 
-1. Instalar Node 24 LTS y Git. Clonar el repositorio backend y abrir su raíz.
-2. Ejecutar `npm ci` y copiar `.env.example` a `.env`.
-3. Crear base de desarrollo Aiven y completar URI, TLS y CA como indica [hosting](hosting.md).
-4. Configurar email y contraseña segura del administrador semilla. No hay credenciales por defecto.
-5. Ejecutar `npm run db:migrate` y `npm run db:seed`. Repetir debe conservar datos y claves existentes.
-6. Ejecutar `npm run check` y `npm run format:check`.
-7. Ejecutar `npm run dev`. Para compilado, `npm run build` y `npm start`.
-8. Probar las rutas de [API.md](../API.md) y la colección Postman con la URL del entorno.
-9. Publicar en Render en etapa 2, con variables y base de producción diferentes.
+Requiere Node 24 LTS, npm y MySQL 8.4. Clonar lavadero-api, ejecutar `npm ci`, copiar
+`.env.example` a `.env`. Nunca versionar ese archivo. Cada variable tiene su explicación
+en el ejemplo: conexión, TLS/CA, pool, JWT, CORS, administrador semilla y OAuth.
 
-## Sin base configurada
+## Base y semillas
 
-Para probar únicamente los checks HTTP en limpio: `npm ci` y `npm run check`, sin `.env`.
-`npm test` inyecta la verificación de base y no requiere credenciales.
-Al ejecutar el servidor sin DATABASE_URL, `/health` responde 200 y `/ready` 503; esto no acredita
-que MySQL esté funcionando. Producción rechaza configuración sin MySQL/TLS.
+Crear una base vacía y usuario con permisos limitados sobre ella. Para Aiven usar su
+puerto real, URI mysql:// y CA descargada. `DATABASE_TLS=true` y CA base64 permiten
+verificar la identidad del servidor; nunca deshabilitar validación por un error de conexión.
+La URI necesita codificación URL para caracteres especiales de usuario/contraseña.
 
-## SQL manual
+```powershell
+npm run db:migrate
+npm run db:seed
+npm run check
+npm run dev
+```
 
-Para revisar/importar `database/schema.sql` puede usarse MySQL Workbench conectado con TLS.
-Crear previamente una base vacía y seleccionarla. El archivo no borra ni crea la base del proveedor.
-Para despliegues normales usar migraciones, no mezclar importación manual con registro de migraciones.
-El catálogo SQL no crea una contraseña administrativa: ejecutar el seed TypeScript para bcrypt.
+Cinco migraciones crean tablas y registran checksum en schema_migrations. El segundo
+arranque no repite escrituras ya aplicadas; modificar una migración histórica produce
+error, por lo que cambios posteriores deben añadirse como nueva migración.
+`database/schema.sql` es una alternativa completa para una base nueva; no mezclarla
+con el migrador en la misma base, porque no registra su historial.
 
-## Entornos
+Las semillas insertan roles, estados, tipos, servicios/tarifas y horario inicial.
+El administrador se crea solo si no existe, desde SEED_ADMIN_EMAIL/SEED_ADMIN_PASSWORD
+(mínimo 12 y máximo 72 bytes). Volver a sembrar no cambia su contraseña.
 
-Desarrollo: base lavadero_dev y credenciales de dev. Producción: lavadero_prod y credenciales prod.
-Los scripts leen el entorno del proceso; `.env` solo facilita desarrollo. No subir `.env` a GitHub.
-No usar NODE_TLS_REJECT_UNAUTHORIZED=0 ni ssl.rejectUnauthorized=false para conectar Aiven.
+## Compilar y producción
+
+`npm run build` produce dist; `npm start` inicia dist/src/server.js.
+En Render: `npm ci --include=dev && npm run build && npm prune --omit=dev`;
+inicio `npm run db:migrate:production && npm start`. Health check `/ready` comprueba MySQL;
+`/health` solo comprueba el proceso. PORT lo suministra Render.
+
+Variables obligatorias en producción: NODE_ENV=production, DATABASE_URL,
+DATABASE_TLS=true, DATABASE_CA_BASE64 y JWT_ACCESS_SECRET aleatorio de al menos 32 caracteres.
+PUBLIC_API_URL es el origen público y CORS_ORIGINS contiene orígenes web exactos separados
+por coma. La app nativa no envía un Origin web, pero sigue necesitando JWT.
+
+Se usan lavadero_dev y lavadero_prod con usuarios distintos en el mismo servidor Aiven;
+es separación de datos/credenciales, no aislamiento físico. No se modifican otras bases.
+Las credenciales productivas permanecen en Render y en archivos privados locales excluidos
+de la entrega pública. Los recursos se despliegan desde main de su propio repositorio.
+
+## Verificación
+
+Abrir /health, /ready, /api/docs/ y /api/openapi.json. Iniciar sesión y consultar
+/api/v1/users/me con Bearer token. Postman incluye todos los endpoints con roles.
+Las pruebas de aceptación requieren NODE_ENV=test, una base desechable exclusiva con
+migraciones/semillas y SEED_ADMIN_EMAIL/PASSWORD. Nunca apuntarlas a producción.

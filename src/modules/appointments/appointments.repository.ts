@@ -6,6 +6,7 @@ const select = `SELECT CAST(a.id AS CHAR) id,CAST(a.client_id AS CHAR) clientId,
  CAST(a.vehicle_id AS CHAR) vehicleId,s.code status,a.starts_at startsAt,a.ends_at endsAt,a.currency_code currencyCode,a.version,
  v.plate,v.brand,v.model,v.color,CONCAT(c.first_name,' ',c.last_name) clientName,c.phone clientPhone,
  CONCAT(e.first_name,' ',e.last_name) employeeName,
+ COALESCE((SELECT GROUP_CONCAT(applied_service_name ORDER BY service_id SEPARATOR ' · ') FROM appointment_services WHERE appointment_id=a.id),'') serviceSummary,
  COALESCE((SELECT SUM(applied_price_cents) FROM appointment_services WHERE appointment_id=a.id),0) totalCents,
  COALESCE((SELECT SUM(amount_cents) FROM payments WHERE appointment_id=a.id),0) paidCents
  FROM appointments a JOIN appointment_statuses s ON s.id=a.status_id JOIN vehicles v ON v.id=a.vehicle_id
@@ -138,20 +139,5 @@ export function readItems(id: string) {
     `SELECT CAST(service_id AS CHAR) serviceId,applied_service_name name,applied_price_cents priceCents,
  applied_duration_minutes durationMinutes FROM appointment_services WHERE appointment_id=?`,
     [id],
-  );
-}
-/** Lee notas de trabajo atribuidas al autor. */
-export function readNotes(id: string) {
-  return rows(
-    `SELECT CAST(n.id AS CHAR) id,n.body,n.created_at createdAt,CONCAT(u.first_name,' ',u.last_name) authorName
- FROM appointment_notes n JOIN users u ON u.id=n.author_id WHERE n.appointment_id=? ORDER BY n.id`,
-    [id],
-  );
-}
-/** Registra observación. */
-export function insertNote(id: string, authorId: string, body: string) {
-  return execute(
-    'INSERT INTO appointment_notes(appointment_id,author_id,body) VALUES(?,?,?)',
-    [id, authorId, body],
   );
 }

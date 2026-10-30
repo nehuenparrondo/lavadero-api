@@ -84,8 +84,16 @@ Respuesta exitosa: **201**. Esquema completo en Swagger, incluyendo proyecciones
   "data": {
     "user": {
       "id": "1",
+      "email": "cliente@example.com",
       "role": "client",
-      "email": "cliente@example.com"
+      "firstName": "Ana",
+      "lastName": "Pérez",
+      "phone": "1100000000",
+      "avatarUrl": null,
+      "isActive": true,
+      "canRecordPayments": false,
+      "hasPassword": true,
+      "authVersion": 0
     },
     "accessToken": "JWT_PROPIO",
     "refreshToken": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -118,8 +126,16 @@ Respuesta exitosa: **200**. Esquema completo en Swagger, incluyendo proyecciones
   "data": {
     "user": {
       "id": "1",
+      "email": "cliente@example.com",
       "role": "client",
-      "email": "cliente@example.com"
+      "firstName": "Ana",
+      "lastName": "Pérez",
+      "phone": "1100000000",
+      "avatarUrl": null,
+      "isActive": true,
+      "canRecordPayments": false,
+      "hasPassword": true,
+      "authVersion": 0
     },
     "accessToken": "JWT_PROPIO",
     "refreshToken": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -151,8 +167,16 @@ Respuesta exitosa: **200**. Esquema completo en Swagger, incluyendo proyecciones
   "data": {
     "user": {
       "id": "1",
+      "email": "cliente@example.com",
       "role": "client",
-      "email": "cliente@example.com"
+      "firstName": "Ana",
+      "lastName": "Pérez",
+      "phone": "1100000000",
+      "avatarUrl": null,
+      "isActive": true,
+      "canRecordPayments": false,
+      "hasPassword": true,
+      "authVersion": 0
     },
     "accessToken": "JWT_PROPIO",
     "refreshToken": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -182,7 +206,7 @@ Respuesta exitosa: **200**. Esquema completo en Swagger, incluyendo proyecciones
 ```json
 {
   "data": {
-    "updated": true
+    "loggedOut": true
   }
 }
 ```
@@ -201,7 +225,20 @@ Respuesta exitosa: **200**. Esquema completo en Swagger, incluyendo proyecciones
 
 ```json
 {
-  "data": []
+  "data": [
+    {
+      "provider": "google",
+      "enabled": false
+    },
+    {
+      "provider": "github",
+      "enabled": false
+    },
+    {
+      "provider": "discord",
+      "enabled": false
+    }
+  ]
 }
 ```
 
@@ -257,8 +294,16 @@ Respuesta exitosa: **200**. Esquema completo en Swagger, incluyendo proyecciones
   "data": {
     "user": {
       "id": "1",
+      "email": "cliente@example.com",
       "role": "client",
-      "email": "cliente@example.com"
+      "firstName": "Ana",
+      "lastName": "Pérez",
+      "phone": "1100000000",
+      "avatarUrl": null,
+      "isActive": true,
+      "canRecordPayments": false,
+      "hasPassword": true,
+      "authVersion": 0
     },
     "accessToken": "JWT_PROPIO",
     "refreshToken": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -358,7 +403,7 @@ Respuesta exitosa: **200**. Esquema completo en Swagger, incluyendo proyecciones
 ```json
 {
   "data": {
-    "updated": true
+    "passwordChanged": true
   }
 }
 ```
@@ -599,7 +644,14 @@ Respuesta exitosa: **201**. Esquema completo en Swagger, incluyendo proyecciones
 ```json
 {
   "data": {
-    "resultado": "Ver esquema de respuesta en Swagger."
+    "id": "1",
+    "ownerId": "1",
+    "vehicleTypeId": "1",
+    "plate": "AB123CD",
+    "brand": "Toyota",
+    "model": "Etios",
+    "color": "Gris",
+    "typeName": "Auto"
   }
 }
 ```
@@ -621,7 +673,14 @@ Respuesta exitosa: **200**. Esquema completo en Swagger, incluyendo proyecciones
 ```json
 {
   "data": {
-    "resultado": "Ver esquema de respuesta en Swagger."
+    "id": "1",
+    "ownerId": "1",
+    "vehicleTypeId": "1",
+    "plate": "AB123CD",
+    "brand": "Toyota",
+    "model": "Etios",
+    "color": "Gris",
+    "typeName": "Auto"
   }
 }
 ```
@@ -649,7 +708,14 @@ Respuesta exitosa: **200**. Esquema completo en Swagger, incluyendo proyecciones
 ```json
 {
   "data": {
-    "resultado": "Ver esquema de respuesta en Swagger."
+    "id": "1",
+    "ownerId": "1",
+    "vehicleTypeId": "1",
+    "plate": "AB123CD",
+    "brand": "Toyota",
+    "model": "Etios",
+    "color": "Gris",
+    "typeName": "Auto"
   }
 }
 ```
@@ -671,7 +737,7 @@ Respuesta exitosa: **200**. Esquema completo en Swagger, incluyendo proyecciones
 ```json
 {
   "data": {
-    "updated": true
+    "deleted": true
   }
 }
 ```
@@ -690,7 +756,14 @@ Respuesta exitosa: **200**. Esquema completo en Swagger, incluyendo proyecciones
 
 ```json
 {
-  "data": []
+  "data": [
+    {
+      "id": "1",
+      "code": "car",
+      "name": "Auto",
+      "isActive": true
+    }
+  ]
 }
 ```
 
@@ -717,7 +790,10 @@ Respuesta exitosa: **201**. Esquema completo en Swagger, incluyendo proyecciones
 ```json
 {
   "data": {
-    "updated": true
+    "id": "1",
+    "code": "van",
+    "name": "Utilitario",
+    "isActive": true
   }
 }
 ```
@@ -747,7 +823,10 @@ Respuesta exitosa: **200**. Esquema completo en Swagger, incluyendo proyecciones
 ```json
 {
   "data": {
-    "updated": true
+    "id": "1",
+    "code": "van",
+    "name": "Utilitario",
+    "isActive": true
   }
 }
 ```
@@ -769,7 +848,7 @@ Respuesta exitosa: **200**. Esquema completo en Swagger, incluyendo proyecciones
 ```json
 {
   "data": {
-    "updated": true
+    "deleted": true
   }
 }
 ```
@@ -788,7 +867,22 @@ Respuesta exitosa: **200**. Esquema completo en Swagger, incluyendo proyecciones
 
 ```json
 {
-  "data": []
+  "data": [
+    {
+      "id": "1",
+      "code": "exterior",
+      "name": "Lavado exterior",
+      "description": "Lavado y secado exterior.",
+      "durationMinutes": 35,
+      "isActive": true,
+      "prices": [
+        {
+          "vehicleTypeId": "1",
+          "priceCents": 900000
+        }
+      ]
+    }
+  ]
 }
 ```
 
@@ -809,7 +903,18 @@ Respuesta exitosa: **200**. Esquema completo en Swagger, incluyendo proyecciones
 ```json
 {
   "data": {
-    "resultado": "Ver esquema de respuesta en Swagger."
+    "id": "1",
+    "code": "exterior",
+    "name": "Lavado exterior",
+    "description": "Lavado y secado exterior.",
+    "durationMinutes": 35,
+    "isActive": true,
+    "prices": [
+      {
+        "vehicleTypeId": "1",
+        "priceCents": 900000
+      }
+    ]
   }
 }
 ```
@@ -839,7 +944,18 @@ Respuesta exitosa: **201**. Esquema completo en Swagger, incluyendo proyecciones
 ```json
 {
   "data": {
-    "resultado": "Ver esquema de respuesta en Swagger."
+    "id": "1",
+    "code": "exterior",
+    "name": "Lavado exterior",
+    "description": "Lavado y secado exterior.",
+    "durationMinutes": 35,
+    "isActive": true,
+    "prices": [
+      {
+        "vehicleTypeId": "1",
+        "priceCents": 900000
+      }
+    ]
   }
 }
 ```
@@ -867,7 +983,18 @@ Respuesta exitosa: **200**. Esquema completo en Swagger, incluyendo proyecciones
 ```json
 {
   "data": {
-    "resultado": "Ver esquema de respuesta en Swagger."
+    "id": "1",
+    "code": "exterior",
+    "name": "Lavado exterior",
+    "description": "Lavado y secado exterior.",
+    "durationMinutes": 35,
+    "isActive": true,
+    "prices": [
+      {
+        "vehicleTypeId": "1",
+        "priceCents": 900000
+      }
+    ]
   }
 }
 ```
@@ -889,7 +1016,7 @@ Respuesta exitosa: **200**. Esquema completo en Swagger, incluyendo proyecciones
 ```json
 {
   "data": {
-    "updated": true
+    "deleted": true
   }
 }
 ```
@@ -937,7 +1064,43 @@ Respuesta exitosa: **200**. Esquema completo en Swagger, incluyendo proyecciones
 ```json
 {
   "data": {
-    "resultado": "Ver esquema de respuesta en Swagger."
+    "currencyCode": "ARS",
+    "timeZone": "America/Argentina/Buenos_Aires",
+    "cancellationNoticeMinutes": 120,
+    "simultaneousCapacity": 1,
+    "slotStepMinutes": 5,
+    "hours": [
+      {
+        "weekday": 1,
+        "opensAt": "09:30",
+        "closesAt": "16:30"
+      },
+      {
+        "weekday": 2,
+        "opensAt": "09:30",
+        "closesAt": "16:30"
+      },
+      {
+        "weekday": 3,
+        "opensAt": "09:30",
+        "closesAt": "16:30"
+      },
+      {
+        "weekday": 4,
+        "opensAt": "09:30",
+        "closesAt": "16:30"
+      },
+      {
+        "weekday": 5,
+        "opensAt": "09:30",
+        "closesAt": "16:30"
+      },
+      {
+        "weekday": 6,
+        "opensAt": "09:30",
+        "closesAt": "16:30"
+      }
+    ]
   }
 }
 ```
@@ -957,7 +1120,43 @@ Respuesta exitosa: **200**. Esquema completo en Swagger, incluyendo proyecciones
 ```json
 {
   "data": {
-    "resultado": "Ver esquema de respuesta en Swagger."
+    "currencyCode": "ARS",
+    "timeZone": "America/Argentina/Buenos_Aires",
+    "cancellationNoticeMinutes": 120,
+    "simultaneousCapacity": 1,
+    "slotStepMinutes": 5,
+    "hours": [
+      {
+        "weekday": 1,
+        "opensAt": "09:30",
+        "closesAt": "16:30"
+      },
+      {
+        "weekday": 2,
+        "opensAt": "09:30",
+        "closesAt": "16:30"
+      },
+      {
+        "weekday": 3,
+        "opensAt": "09:30",
+        "closesAt": "16:30"
+      },
+      {
+        "weekday": 4,
+        "opensAt": "09:30",
+        "closesAt": "16:30"
+      },
+      {
+        "weekday": 5,
+        "opensAt": "09:30",
+        "closesAt": "16:30"
+      },
+      {
+        "weekday": 6,
+        "opensAt": "09:30",
+        "closesAt": "16:30"
+      }
+    ]
   }
 }
 ```
@@ -1018,7 +1217,43 @@ Respuesta exitosa: **200**. Esquema completo en Swagger, incluyendo proyecciones
 ```json
 {
   "data": {
-    "resultado": "Ver esquema de respuesta en Swagger."
+    "currencyCode": "ARS",
+    "timeZone": "America/Argentina/Buenos_Aires",
+    "cancellationNoticeMinutes": 120,
+    "simultaneousCapacity": 1,
+    "slotStepMinutes": 5,
+    "hours": [
+      {
+        "weekday": 1,
+        "opensAt": "09:30",
+        "closesAt": "16:30"
+      },
+      {
+        "weekday": 2,
+        "opensAt": "09:30",
+        "closesAt": "16:30"
+      },
+      {
+        "weekday": 3,
+        "opensAt": "09:30",
+        "closesAt": "16:30"
+      },
+      {
+        "weekday": 4,
+        "opensAt": "09:30",
+        "closesAt": "16:30"
+      },
+      {
+        "weekday": 5,
+        "opensAt": "09:30",
+        "closesAt": "16:30"
+      },
+      {
+        "weekday": 6,
+        "opensAt": "09:30",
+        "closesAt": "16:30"
+      }
+    ]
   }
 }
 ```
@@ -1096,7 +1331,24 @@ Respuesta exitosa: **201**. Esquema completo en Swagger, incluyendo proyecciones
 ```json
 {
   "data": {
-    "resultado": "Ver esquema de respuesta en Swagger."
+    "id": "1",
+    "status": "pending",
+    "startsAt": "2026-12-01T12:30:00.000Z",
+    "endsAt": "2026-12-01T13:05:00.000Z",
+    "plate": "AB123CD",
+    "brand": "Toyota",
+    "model": "Etios",
+    "color": "Gris",
+    "clientName": "Ana Pérez",
+    "clientPhone": "1100000000",
+    "employeeName": null,
+    "version": 1,
+    "clientId": "1",
+    "vehicleId": "1",
+    "employeeId": null,
+    "currencyCode": "ARS",
+    "totalCents": 900000,
+    "paidCents": 0
   }
 }
 ```
@@ -1118,7 +1370,24 @@ Respuesta exitosa: **200**. Esquema completo en Swagger, incluyendo proyecciones
 ```json
 {
   "data": {
-    "resultado": "Ver esquema de respuesta en Swagger."
+    "id": "1",
+    "status": "pending",
+    "startsAt": "2026-12-01T12:30:00.000Z",
+    "endsAt": "2026-12-01T13:05:00.000Z",
+    "plate": "AB123CD",
+    "brand": "Toyota",
+    "model": "Etios",
+    "color": "Gris",
+    "clientName": "Ana Pérez",
+    "clientPhone": "1100000000",
+    "employeeName": null,
+    "version": 1,
+    "clientId": "1",
+    "vehicleId": "1",
+    "employeeId": null,
+    "currencyCode": "ARS",
+    "totalCents": 900000,
+    "paidCents": 0
   }
 }
 ```
@@ -1146,7 +1415,7 @@ Respuesta exitosa: **200**. Esquema completo en Swagger, incluyendo proyecciones
 ```json
 {
   "data": {
-    "updated": true
+    "assigned": true
   }
 }
 ```
@@ -1174,7 +1443,8 @@ Respuesta exitosa: **200**. Esquema completo en Swagger, incluyendo proyecciones
 ```json
 {
   "data": {
-    "updated": true
+    "updated": true,
+    "status": "in_progress"
   }
 }
 ```
@@ -1202,7 +1472,8 @@ Respuesta exitosa: **200**. Esquema completo en Swagger, incluyendo proyecciones
 ```json
 {
   "data": {
-    "updated": true
+    "updated": true,
+    "status": "cancelled"
   }
 }
 ```
@@ -1230,7 +1501,7 @@ Respuesta exitosa: **201**. Esquema completo en Swagger, incluyendo proyecciones
 ```json
 {
   "data": {
-    "updated": true
+    "created": true
   }
 }
 ```
@@ -1252,7 +1523,36 @@ Respuesta exitosa: **200**. Esquema completo en Swagger, incluyendo proyecciones
 ```json
 {
   "data": {
-    "resultado": "Ver esquema de respuesta en Swagger."
+    "id": "1",
+    "status": "completed",
+    "startsAt": "2026-12-01T12:30:00.000Z",
+    "endsAt": "2026-12-01T13:05:00.000Z",
+    "plate": "AB123CD",
+    "brand": "Toyota",
+    "model": "Etios",
+    "color": "Gris",
+    "clientName": "Ana Pérez",
+    "clientPhone": "1100000000",
+    "employeeName": null,
+    "version": 1,
+    "clientId": "1",
+    "vehicleId": "1",
+    "employeeId": null,
+    "currencyCode": "ARS",
+    "totalCents": 900000,
+    "paidCents": 0,
+    "receiptNumber": "LAV-1",
+    "issuedAt": "2026-12-01T13:10:00.000Z",
+    "fiscalInvoice": false,
+    "services": [
+      {
+        "serviceId": "1",
+        "name": "Lavado exterior",
+        "priceCents": 900000,
+        "durationMinutes": 35
+      }
+    ],
+    "notes": []
   }
 }
 ```
@@ -1303,7 +1603,9 @@ Respuesta exitosa: **201**. Esquema completo en Swagger, incluyendo proyecciones
 ```json
 {
   "data": {
-    "updated": true
+    "recorded": true,
+    "id": "1",
+    "replayed": false
   }
 }
 ```
@@ -1325,7 +1627,21 @@ Respuesta exitosa: **200**. Esquema completo en Swagger, incluyendo proyecciones
 ```json
 {
   "data": {
-    "resultado": "Ver esquema de respuesta en Swagger."
+    "period": "day",
+    "from": "2026-12-01",
+    "to": "2026-12-01",
+    "currencyCode": "ARS",
+    "totalWashes": 0,
+    "revenueCents": 0,
+    "days": [
+      {
+        "date": "2026-12-01",
+        "washes": 0,
+        "revenueCents": 0
+      }
+    ],
+    "services": [],
+    "employees": []
   }
 }
 ```
@@ -1347,7 +1663,9 @@ Respuesta exitosa: **200**. Esquema completo en Swagger, incluyendo proyecciones
 ```json
 {
   "data": {
-    "resultado": "Ver esquema de respuesta en Swagger."
+    "date": "2026-12-01",
+    "completed": 0,
+    "pending": 0
   }
 }
 ```

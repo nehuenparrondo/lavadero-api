@@ -25,6 +25,7 @@ export function presentAppointment(v: Appointment, actor: Actor) {
     brand: v.brand,
     model: v.model,
     color: v.color,
+    serviceSummary: v.serviceSummary,
     clientName: v.clientName,
     clientPhone: v.clientPhone,
     employeeName: v.employeeName,

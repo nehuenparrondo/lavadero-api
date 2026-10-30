@@ -16,6 +16,7 @@ export interface Appointment extends RowDataPacket {
   brand: string;
   model: string;
   color: string;
+  serviceSummary: string;
   clientName: string;
   clientPhone: string | null;
   employeeName: string | null;
