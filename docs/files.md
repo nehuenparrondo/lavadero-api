@@ -1,90 +1,128 @@
-# Archivos de lavadero-api
+# Índice de archivos fuente
 
-Rutas relativas a la raíz independiente del proyecto. Código completo en estos archivos.
+Cada pieza mantiene su TSDoc. Este índice ayuda a ubicar responsabilidades.
 
-- [.env.example](../.env.example)
-- [.gitattributes](../.gitattributes)
-- [.github/workflows/ci.yml](../.github/workflows/ci.yml)
-- [.gitignore](../.gitignore)
-- [.prettierignore](../.prettierignore)
-- [.prettierrc.json](../.prettierrc.json)
-- [API.md](../API.md)
-- [CHANGELOG.md](../CHANGELOG.md)
-- [CONTRIBUTING.md](../CONTRIBUTING.md)
-- [database/inTransaction.ts](../database/inTransaction.ts)
-- [database/migrate.ts](../database/migrate.ts)
-- [database/migration.repository.ts](../database/migration.repository.ts)
-- [database/migrations/001_identity.sql](../database/migrations/001_identity.sql)
-- [database/migrations/002_catalog.sql](../database/migrations/002_catalog.sql)
-- [database/migrations/003_appointments.sql](../database/migrations/003_appointments.sql)
-- [database/migrations/004_settings.sql](../database/migrations/004_settings.sql)
-- [database/migrations/README.md](../database/migrations/README.md)
-- [database/README.md](../database/README.md)
-- [database/requireDatabase.ts](../database/requireDatabase.ts)
-- [database/runWithDatabase.ts](../database/runWithDatabase.ts)
-- [database/schema.sql](../database/schema.sql)
-- [database/seed.ts](../database/seed.ts)
-- [database/seeds/catalog.sql](../database/seeds/catalog.sql)
-- [database/seeds/README.md](../database/seeds/README.md)
-- [database/seeds/seedAdmin.repository.ts](../database/seeds/seedAdmin.repository.ts)
-- [database/seeds/seedConfig.ts](../database/seeds/seedConfig.ts)
-- [database/seeds/seedSchema.ts](../database/seeds/seedSchema.ts)
-- [database/seeds/seedSettings.repository.ts](../database/seeds/seedSettings.repository.ts)
-- [database/splitSqlStatements.ts](../database/splitSqlStatements.ts)
-- [database/withMigrationLock.ts](../database/withMigrationLock.ts)
-- [docs/api-plan.md](../docs/api-plan.md)
-- [docs/API.md](../docs/API.md)
-- [docs/architecture.md](../docs/architecture.md)
-- [docs/database.md](../docs/database.md)
-- [docs/delivery.md](../docs/delivery.md)
-- [docs/files.md](../docs/files.md)
-- [docs/hosting.md](../docs/hosting.md)
-- [docs/installation.md](../docs/installation.md)
-- [docs/openapi.json](../docs/openapi.json)
-- [docs/plan.md](../docs/plan.md)
-- [docs/postman.collection.json](../docs/postman.collection.json)
-- [docs/stage-1.md](../docs/stage-1.md)
-- [docs/verification.md](../docs/verification.md)
-- [eslint.config.ts](../eslint.config.ts)
-- [package-lock.json](../package-lock.json)
-- [package.json](../package.json)
-- [README.md](../README.md)
-- [render.yaml](../render.yaml)
-- [src/app.ts](../src/app.ts)
-- [src/config/database.ts](../src/config/database.ts)
-- [src/config/env.ts](../src/config/env.ts)
-- [src/config/envSchema.ts](../src/config/envSchema.ts)
-- [src/config/readEnv.ts](../src/config/readEnv.ts)
-- [src/config/README.md](../src/config/README.md)
-- [src/errors/AppError.ts](../src/errors/AppError.ts)
-- [src/errors/ConflictError.ts](../src/errors/ConflictError.ts)
-- [src/errors/ForbiddenError.ts](../src/errors/ForbiddenError.ts)
-- [src/errors/NotFoundError.ts](../src/errors/NotFoundError.ts)
-- [src/errors/README.md](../src/errors/README.md)
-- [src/middlewares/createCors.ts](../src/middlewares/createCors.ts)
-- [src/middlewares/errorHandler.ts](../src/middlewares/errorHandler.ts)
-- [src/middlewares/README.md](../src/middlewares/README.md)
-- [src/modules/appointments/README.md](../src/modules/appointments/README.md)
-- [src/modules/auth/README.md](../src/modules/auth/README.md)
-- [src/modules/health/health.controller.ts](../src/modules/health/health.controller.ts)
-- [src/modules/health/health.repository.ts](../src/modules/health/health.repository.ts)
-- [src/modules/health/health.routes.ts](../src/modules/health/health.routes.ts)
-- [src/modules/health/README.md](../src/modules/health/README.md)
-- [src/modules/payments/README.md](../src/modules/payments/README.md)
-- [src/modules/README.md](../src/modules/README.md)
-- [src/modules/reports/README.md](../src/modules/reports/README.md)
-- [src/modules/services/README.md](../src/modules/services/README.md)
-- [src/modules/settings/README.md](../src/modules/settings/README.md)
-- [src/modules/users/README.md](../src/modules/users/README.md)
-- [src/modules/vehicles/README.md](../src/modules/vehicles/README.md)
-- [src/modules/vehicleTypes/README.md](../src/modules/vehicleTypes/README.md)
-- [src/server.ts](../src/server.ts)
-- [src/types/README.md](../src/types/README.md)
-- [src/utils/README.md](../src/utils/README.md)
-- [tests/database.integration.ts](../tests/database.integration.ts)
-- [tests/env.test.ts](../tests/env.test.ts)
-- [tests/health.test.ts](../tests/health.test.ts)
-- [tests/README.md](../tests/README.md)
-- [tests/sql.test.ts](../tests/sql.test.ts)
-- [tsconfig.build.json](../tsconfig.build.json)
-- [tsconfig.json](../tsconfig.json)
+- [src/app.ts](../src/app.ts): infraestructura o utilidades.
+- [src/config/authEnv.ts](../src/config/authEnv.ts): infraestructura o utilidades.
+- [src/config/database.ts](../src/config/database.ts): infraestructura o utilidades.
+- [src/config/env.ts](../src/config/env.ts): infraestructura o utilidades.
+- [src/config/envSchema.ts](../src/config/envSchema.ts): infraestructura o utilidades.
+- [src/config/oauth.ts](../src/config/oauth.ts): infraestructura o utilidades.
+- [src/config/readEnv.ts](../src/config/readEnv.ts): infraestructura o utilidades.
+- [src/config/validation.ts](../src/config/validation.ts): infraestructura o utilidades.
+- [src/errors/AppError.ts](../src/errors/AppError.ts): infraestructura o utilidades.
+- [src/errors/ConflictError.ts](../src/errors/ConflictError.ts): infraestructura o utilidades.
+- [src/errors/ForbiddenError.ts](../src/errors/ForbiddenError.ts): infraestructura o utilidades.
+- [src/errors/NotFoundError.ts](../src/errors/NotFoundError.ts): infraestructura o utilidades.
+- [src/middlewares/authenticate.ts](../src/middlewares/authenticate.ts): infraestructura o utilidades.
+- [src/middlewares/createCors.ts](../src/middlewares/createCors.ts): infraestructura o utilidades.
+- [src/middlewares/errorHandler.ts](../src/middlewares/errorHandler.ts): infraestructura o utilidades.
+- [src/middlewares/requireOwnership.ts](../src/middlewares/requireOwnership.ts): infraestructura o utilidades.
+- [src/middlewares/requireRole.ts](../src/middlewares/requireRole.ts): infraestructura o utilidades.
+- [src/middlewares/validate.ts](../src/middlewares/validate.ts): infraestructura o utilidades.
+- [src/modules/appointments/appointments.access.ts](../src/modules/appointments/appointments.access.ts): infraestructura o utilidades.
+- [src/modules/appointments/appointments.controller.ts](../src/modules/appointments/appointments.controller.ts): adaptación HTTP.
+- [src/modules/appointments/appointments.repository.ts](../src/modules/appointments/appointments.repository.ts): SQL parametrizado.
+- [src/modules/appointments/appointments.routes.ts](../src/modules/appointments/appointments.routes.ts): rutas y permisos.
+- [src/modules/appointments/appointments.schema.ts](../src/modules/appointments/appointments.schema.ts): validación.
+- [src/modules/appointments/appointments.service.ts](../src/modules/appointments/appointments.service.ts): casos de uso.
+- [src/modules/appointments/appointments.types.ts](../src/modules/appointments/appointments.types.ts): contrato tipado.
+- [src/modules/appointments/availability.service.ts](../src/modules/appointments/availability.service.ts): casos de uso.
+- [src/modules/appointments/booking.service.ts](../src/modules/appointments/booking.service.ts): casos de uso.
+- [src/modules/appointments/mutation.service.ts](../src/modules/appointments/mutation.service.ts): casos de uso.
+- [src/modules/appointments/schedule.ts](../src/modules/appointments/schedule.ts): infraestructura o utilidades.
+- [src/modules/appointments/transitions.ts](../src/modules/appointments/transitions.ts): infraestructura o utilidades.
+- [src/modules/auth/auth.controller.ts](../src/modules/auth/auth.controller.ts): adaptación HTTP.
+- [src/modules/auth/auth.routes.ts](../src/modules/auth/auth.routes.ts): rutas y permisos.
+- [src/modules/auth/auth.schema.ts](../src/modules/auth/auth.schema.ts): validación.
+- [src/modules/auth/auth.service.ts](../src/modules/auth/auth.service.ts): casos de uso.
+- [src/modules/auth/auth.types.ts](../src/modules/auth/auth.types.ts): contrato tipado.
+- [src/modules/auth/oauth.controller.ts](../src/modules/auth/oauth.controller.ts): adaptación HTTP.
+- [src/modules/auth/oauth.repository.ts](../src/modules/auth/oauth.repository.ts): SQL parametrizado.
+- [src/modules/auth/oauth.routes.ts](../src/modules/auth/oauth.routes.ts): rutas y permisos.
+- [src/modules/auth/oauth.schema.ts](../src/modules/auth/oauth.schema.ts): validación.
+- [src/modules/auth/oauth.service.ts](../src/modules/auth/oauth.service.ts): casos de uso.
+- [src/modules/auth/oauth.types.ts](../src/modules/auth/oauth.types.ts): contrato tipado.
+- [src/modules/auth/provider.service.ts](../src/modules/auth/provider.service.ts): casos de uso.
+- [src/modules/auth/session.repository.ts](../src/modules/auth/session.repository.ts): SQL parametrizado.
+- [src/modules/auth/session.service.ts](../src/modules/auth/session.service.ts): casos de uso.
+- [src/modules/auth/token.service.ts](../src/modules/auth/token.service.ts): casos de uso.
+- [src/modules/health/health.controller.ts](../src/modules/health/health.controller.ts): adaptación HTTP.
+- [src/modules/health/health.repository.ts](../src/modules/health/health.repository.ts): SQL parametrizado.
+- [src/modules/health/health.routes.ts](../src/modules/health/health.routes.ts): rutas y permisos.
+- [src/modules/payments/payments.controller.ts](../src/modules/payments/payments.controller.ts): adaptación HTTP.
+- [src/modules/payments/payments.repository.ts](../src/modules/payments/payments.repository.ts): SQL parametrizado.
+- [src/modules/payments/payments.routes.ts](../src/modules/payments/payments.routes.ts): rutas y permisos.
+- [src/modules/payments/payments.schema.ts](../src/modules/payments/payments.schema.ts): validación.
+- [src/modules/payments/payments.service.ts](../src/modules/payments/payments.service.ts): casos de uso.
+- [src/modules/reports/reports.controller.ts](../src/modules/reports/reports.controller.ts): adaptación HTTP.
+- [src/modules/reports/reports.repository.ts](../src/modules/reports/reports.repository.ts): SQL parametrizado.
+- [src/modules/reports/reports.routes.ts](../src/modules/reports/reports.routes.ts): rutas y permisos.
+- [src/modules/reports/reports.schema.ts](../src/modules/reports/reports.schema.ts): validación.
+- [src/modules/reports/reports.service.ts](../src/modules/reports/reports.service.ts): casos de uso.
+- [src/modules/services/services.controller.ts](../src/modules/services/services.controller.ts): adaptación HTTP.
+- [src/modules/services/services.repository.ts](../src/modules/services/services.repository.ts): SQL parametrizado.
+- [src/modules/services/services.routes.ts](../src/modules/services/services.routes.ts): rutas y permisos.
+- [src/modules/services/services.schema.ts](../src/modules/services/services.schema.ts): validación.
+- [src/modules/services/services.service.ts](../src/modules/services/services.service.ts): casos de uso.
+- [src/modules/settings/settings.controller.ts](../src/modules/settings/settings.controller.ts): adaptación HTTP.
+- [src/modules/settings/settings.repository.ts](../src/modules/settings/settings.repository.ts): SQL parametrizado.
+- [src/modules/settings/settings.routes.ts](../src/modules/settings/settings.routes.ts): rutas y permisos.
+- [src/modules/settings/settings.schema.ts](../src/modules/settings/settings.schema.ts): validación.
+- [src/modules/settings/settings.service.ts](../src/modules/settings/settings.service.ts): casos de uso.
+- [src/modules/users/admin.repository.ts](../src/modules/users/admin.repository.ts): SQL parametrizado.
+- [src/modules/users/admin.service.ts](../src/modules/users/admin.service.ts): casos de uso.
+- [src/modules/users/users.controller.ts](../src/modules/users/users.controller.ts): adaptación HTTP.
+- [src/modules/users/users.repository.ts](../src/modules/users/users.repository.ts): SQL parametrizado.
+- [src/modules/users/users.routes.ts](../src/modules/users/users.routes.ts): rutas y permisos.
+- [src/modules/users/users.schema.ts](../src/modules/users/users.schema.ts): validación.
+- [src/modules/users/users.service.ts](../src/modules/users/users.service.ts): casos de uso.
+- [src/modules/users/users.types.ts](../src/modules/users/users.types.ts): contrato tipado.
+- [src/modules/vehicles/vehicles.controller.ts](../src/modules/vehicles/vehicles.controller.ts): adaptación HTTP.
+- [src/modules/vehicles/vehicles.repository.ts](../src/modules/vehicles/vehicles.repository.ts): SQL parametrizado.
+- [src/modules/vehicles/vehicles.routes.ts](../src/modules/vehicles/vehicles.routes.ts): rutas y permisos.
+- [src/modules/vehicles/vehicles.schema.ts](../src/modules/vehicles/vehicles.schema.ts): validación.
+- [src/modules/vehicles/vehicles.service.ts](../src/modules/vehicles/vehicles.service.ts): casos de uso.
+- [src/modules/vehicleTypes/vehicleTypes.controller.ts](../src/modules/vehicleTypes/vehicleTypes.controller.ts): adaptación HTTP.
+- [src/modules/vehicleTypes/vehicleTypes.repository.ts](../src/modules/vehicleTypes/vehicleTypes.repository.ts): SQL parametrizado.
+- [src/modules/vehicleTypes/vehicleTypes.routes.ts](../src/modules/vehicleTypes/vehicleTypes.routes.ts): rutas y permisos.
+- [src/modules/vehicleTypes/vehicleTypes.schema.ts](../src/modules/vehicleTypes/vehicleTypes.schema.ts): validación.
+- [src/modules/vehicleTypes/vehicleTypes.service.ts](../src/modules/vehicleTypes/vehicleTypes.service.ts): casos de uso.
+- [src/routes.ts](../src/routes.ts): rutas y permisos.
+- [src/server.ts](../src/server.ts): infraestructura o utilidades.
+- [src/types/domain.ts](../src/types/domain.ts): contrato tipado.
+- [src/types/express.d.ts](../src/types/express.d.ts): contrato tipado.
+- [src/utils/db.ts](../src/utils/db.ts): infraestructura o utilidades.
+- [src/utils/http.ts](../src/utils/http.ts): infraestructura o utilidades.
+- [src/utils/pagination.ts](../src/utils/pagination.ts): infraestructura o utilidades.
+- [src/utils/password.ts](../src/utils/password.ts): infraestructura o utilidades.
+- [src/utils/transaction.ts](../src/utils/transaction.ts): infraestructura o utilidades.
+- [database/inTransaction.ts](../database/inTransaction.ts): infraestructura o utilidades.
+- [database/migrate.ts](../database/migrate.ts): infraestructura o utilidades.
+- [database/migration.repository.ts](../database/migration.repository.ts): SQL parametrizado.
+- [database/migrations/001_identity.sql](../database/migrations/001_identity.sql): evolución SQL.
+- [database/migrations/002_catalog.sql](../database/migrations/002_catalog.sql): evolución SQL.
+- [database/migrations/003_appointments.sql](../database/migrations/003_appointments.sql): evolución SQL.
+- [database/migrations/004_settings.sql](../database/migrations/004_settings.sql): evolución SQL.
+- [database/migrations/005_oauth.sql](../database/migrations/005_oauth.sql): evolución SQL.
+- [database/requireDatabase.ts](../database/requireDatabase.ts): infraestructura o utilidades.
+- [database/runWithDatabase.ts](../database/runWithDatabase.ts): infraestructura o utilidades.
+- [database/schema.sql](../database/schema.sql): validación.
+- [database/seed.ts](../database/seed.ts): infraestructura o utilidades.
+- [database/seeds/catalog.sql](../database/seeds/catalog.sql): infraestructura o utilidades.
+- [database/seeds/seedAdmin.repository.ts](../database/seeds/seedAdmin.repository.ts): SQL parametrizado.
+- [database/seeds/seedConfig.ts](../database/seeds/seedConfig.ts): infraestructura o utilidades.
+- [database/seeds/seedSchema.ts](../database/seeds/seedSchema.ts): infraestructura o utilidades.
+- [database/seeds/seedSettings.repository.ts](../database/seeds/seedSettings.repository.ts): SQL parametrizado.
+- [database/splitSqlStatements.ts](../database/splitSqlStatements.ts): infraestructura o utilidades.
+- [database/withMigrationLock.ts](../database/withMigrationLock.ts): infraestructura o utilidades.
+- [scripts/exportSchemas.ts](../scripts/exportSchemas.ts): infraestructura o utilidades.
+- [tests/booking.integration.ts](../tests/booking.integration.ts): verificación.
+- [tests/database.integration.ts](../tests/database.integration.ts): verificación.
+- [tests/env.test.ts](../tests/env.test.ts): verificación.
+- [tests/health.test.ts](../tests/health.test.ts): verificación.
+- [tests/oauth.integration.ts](../tests/oauth.integration.ts): verificación.
+- [tests/schedule.test.ts](../tests/schedule.test.ts): verificación.
+- [tests/security.integration.ts](../tests/security.integration.ts): verificación.
+- [tests/sql.test.ts](../tests/sql.test.ts): verificación.
+- [tests/support/context.ts](../tests/support/context.ts): verificación.

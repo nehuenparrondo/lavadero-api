@@ -11,6 +11,8 @@ erDiagram
   roles ||--o{ users : authorizes
   users ||--o{ social_accounts : links
   users ||--o{ refresh_tokens : authenticates
+  users ||--o{ oauth_grants : grants
+  oauth_states { binary state_hash PK }
   users ||--o{ vehicles : owns
   vehicle_types ||--o{ vehicles : classifies
   services ||--o{ service_prices : prices
@@ -45,7 +47,7 @@ no hay arrays de servicios, listas de días ni columnas servicio1/servicio2 en t
 Nombres del usuario y tipo de vehículo no se repiten en esas tablas.
 
 **3FN:** roles, estados y tipos tienen catálogos propios. El vehículo referencia al dueño;
-el turno referencia al cliente **histórico** (puede cambiar el dueño actual del vehículo).
+el turno referencia al cliente **histórico**. Esta versión no transfiere vehículos entre titulares.
 No se almacena total derivado en turnos. Precio, nombre y duración aplicados son hechos del
 contrato histórico, no copias del catálogo vigente: no dependen solo del servicio actual.
 Se preserva moneda del contrato aunque en el futuro cambie la configuración del negocio.
@@ -303,9 +305,23 @@ Rango local por día abierto, ausencia de fila significa cerrado.
 
 ### booking_day_locks
 
-Serialización transaccional de cambios de disponibilidad.
+Reserva para particionar bloqueos por fecha en una futura versión. En 1.0 se bloquea business_settings.
 
 | Columna         | Tipo SQL      | Significado                                                   |
 | --------------- | ------------- | ------------------------------------------------------------- |
 | `business_date` | `DATE`        | Fecha local que se bloquea durante reservas/reprogramaciones. |
 | `created_at`    | `DATETIME(3)` | Instante de creación UTC.                                     |
+
+## Migración 005: OAuth efímero
+
+`oauth_states`: state_hash BINARY(32) PK, provider VARCHAR(16), client_state VARCHAR(256),
+redirect_uri VARCHAR(2048), client_challenge/provider_verifier VARCHAR(128), expires_at
+DATETIME(3) indexado. Se consume al volver del proveedor; no contiene token OAuth.
+
+`oauth_grants`: code_hash BINARY(32) PK, user_id BIGINT FK users, code_challenge VARCHAR(128),
+expires_at DATETIME(3) indexado, consumed_at DATETIME(3) nullable. El código legible solo
+viaja por el retorno y se canjea con PKCE. Existe limpieza de estados/grants vencidos al
+generar nuevos; conservar índices de expiración al aumentar tráfico.
+
+Hay 19 tablas de negocio más schema_migrations. Las cinco migraciones fueron aplicadas
+en lavadero_dev y lavadero_prod; el usuario de cada base solo tiene acceso a ella.

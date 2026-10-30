@@ -4,6 +4,7 @@ import { DateTime } from 'luxon';
 import { AppError } from '../../errors/AppError.js';
 import { readSettings } from '../settings/settings.repository.js';
 import * as repo from './appointments.repository.js';
+import * as notesRepo from './notes.repository.js';
 import { assertAppointmentAccess, presentAppointment } from './appointments.access.js';
 import type { appointmentQuerySchema } from './appointments.schema.js';
 
@@ -64,7 +65,7 @@ export async function listAppointments(
 export async function getAppointment(actor: Actor, id: string) {
   const appointment = await repo.findAppointment(id);
   assertAppointmentAccess(actor, appointment);
-  const [items, notes] = await Promise.all([repo.readItems(id), repo.readNotes(id)]);
+  const [items, notes] = await Promise.all([repo.readItems(id), notesRepo.readNotes(id)]);
   return {
     ...presentAppointment(appointment, actor),
     services:
@@ -82,7 +83,7 @@ export async function getAppointment(actor: Actor, id: string) {
 export async function addNote(actor: Actor, id: string, body: string) {
   const appointment = await repo.findAppointment(id);
   assertAppointmentAccess(actor, appointment);
-  await repo.insertNote(id, actor.id, body);
+  await notesRepo.insertNote(id, actor.id, body);
   return { created: true };
 }
 /** Comprobante de trabajo finalizado, visible al dueño y admin. No equivale a una factura fiscal. */
