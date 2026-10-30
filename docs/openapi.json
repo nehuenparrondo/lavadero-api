@@ -1424,7 +1424,8 @@
                 },
                 "example": {
                   "data": {
-                    "passwordChanged": true
+                    "passwordChanged": true,
+                    "requiresLogin": true
                   }
                 }
               }
@@ -6924,11 +6925,11 @@
     "/api/docs/": {
       "get": {
         "tags": ["Infrastructure"],
-        "summary": "Documentación pública de API",
+        "summary": "Documentación e información pública",
         "security": [],
         "responses": {
           "200": {
-            "description": "Swagger HTML o contrato JSON."
+            "description": "Swagger HTML, contrato JSON o aviso de uso de datos."
           }
         }
       }
@@ -6936,11 +6937,23 @@
     "/api/openapi.json": {
       "get": {
         "tags": ["Infrastructure"],
-        "summary": "Documentación pública de API",
+        "summary": "Documentación e información pública",
         "security": [],
         "responses": {
           "200": {
-            "description": "Swagger HTML o contrato JSON."
+            "description": "Swagger HTML, contrato JSON o aviso de uso de datos."
+          }
+        }
+      }
+    },
+    "/privacy": {
+      "get": {
+        "tags": ["Infrastructure"],
+        "summary": "Documentación e información pública",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Swagger HTML, contrato JSON o aviso de uso de datos."
           }
         }
       }

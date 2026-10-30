@@ -8,6 +8,7 @@ import { errorHandler } from './middlewares/errorHandler.js';
 import { NotFoundError } from './errors/NotFoundError.js';
 import { createHealthRoutes } from './modules/health/health.routes.js';
 import { createApiRoutes } from './routes.js';
+import { createInformationRoutes } from './modules/health/information.routes.js';
 
 /** Dependencias de infraestructura que no contienen lógica de negocio. */
 interface AppOptions {
@@ -26,6 +27,7 @@ export function createApp(options: AppOptions) {
   if (process.env.NODE_ENV === 'production') app.set('trust proxy', 1);
   app.use(helmet(), createCors(options.origins), express.json({ limit: '32kb' }));
   app.use(createHealthRoutes(options.checkDatabase));
+  app.use(createInformationRoutes());
   app.get('/api/v1', (_request, response) => response.json({ version: 'v1', stage: 10 }));
   app.use('/api/v1', createApiRoutes());
   app.get('/api/openapi.json', (_request, response) => response.json(contract));

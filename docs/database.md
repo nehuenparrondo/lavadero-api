@@ -320,8 +320,8 @@ DATETIME(3) indexado. Se consume al volver del proveedor; no contiene token OAut
 
 `oauth_grants`: code_hash BINARY(32) PK, user_id BIGINT FK users, code_challenge VARCHAR(128),
 expires_at DATETIME(3) indexado, consumed_at DATETIME(3) nullable. El código legible solo
-viaja por el retorno y se canjea con PKCE. Existe limpieza de estados/grants vencidos al
-generar nuevos; conservar índices de expiración al aumentar tráfico.
+viaja por el retorno y se canjea con PKCE. Los estados vencidos se limpian al generar nuevos. Los grants vencidos dejan de ser
+válidos por consulta; su purga periódica queda como tarea de mantenimiento, sin cron configurado.
 
 Hay 19 tablas de negocio más schema_migrations. Las cinco migraciones fueron aplicadas
 en lavadero_dev y lavadero_prod; el usuario de cada base solo tiene acceso a ella.
