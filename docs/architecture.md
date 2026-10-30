@@ -48,3 +48,15 @@ SQL MySQL 8.4, claves foráneas, borrado lógico y migraciones con checksum. Fec
 Luxon traduce el calendario de Buenos Aires. Enteros centavos evitan errores monetarios.
 Render mantiene el backend y Aiven MySQL la persistencia con TLS y CA verificada.
 Usuarios distintos para lavadero_dev/lavadero_prod, limitados a su propia base.
+
+## Mapa del sistema
+
+```mermaid
+flowchart LR
+  App[App Expo Android / Web] <-->|HTTPS REST v1 + JWT| API[Express en Render]
+  API <-->|SQL parametrizado + TLS| DB[(MySQL Aiven)]
+  App -->|AuthSession + PKCE| Browser[Navegador del sistema]
+  Browser <-->|Consentimiento| Providers[Google / Discord / GitHub]
+  Providers -->|Callback HTTPS| API
+  API -->|Grant efímero + state| App
+```

@@ -403,7 +403,8 @@ Respuesta exitosa: **200**. Esquema completo en Swagger, incluyendo proyecciones
 ```json
 {
   "data": {
-    "passwordChanged": true
+    "passwordChanged": true,
+    "requiresLogin": true
   }
 }
 ```
@@ -1690,3 +1691,16 @@ Ejemplo de error: `{"error":{"code":"SLOT_UNAVAILABLE","message":"Ese horario ac
 Importar [la colección](docs/postman.collection.json), completar los ejemplos con IDs reales y usar un accessToken del rol requerido. Login/registro/refresh actualizan automáticamente los tokens de la colección. Los ejemplos usan cuentas ficticias; no contienen credenciales de producción.
 
 La aceptación automatizada cubre acceso cruzado, sesión revocada, refresh reutilizado, sobrecupo concurrente, estados inválidos, precios históricos y cobros idempotentes. OAuth tiene además pruebas con proveedores simulados; eso no acredita una autorización real hasta configurar cada consola.
+
+## Infraestructura pública
+
+| Método | Ruta                | Rol     | Respuesta                                                         |
+| ------ | ------------------- | ------- | ----------------------------------------------------------------- |
+| GET    | `/health`           | público | 200: `{"status":"ok","service":"lavadero-api","version":"1.0.0"}` |
+| GET    | `/ready`            | público | 200 si MySQL responde; 503 si no está disponible                  |
+| GET    | `/api/v1`           | público | 200: `{"version":"v1","stage":10}`                                |
+| GET    | `/api/docs/`        | público | 200 HTML Swagger                                                  |
+| GET    | `/api/openapi.json` | público | 200 contrato OpenAPI 3.1                                          |
+| GET    | `/privacy`          | público | 200 HTML con información de uso de datos                          |
+
+Estos endpoints no reciben body ni requieren JWT.
