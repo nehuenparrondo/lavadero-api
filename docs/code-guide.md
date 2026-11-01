@@ -22,7 +22,7 @@ describen parámetros, resultado, precondiciones y errores junto al código.
 authenticate verifica firma, issuer, audience y vencimiento del JWT; vuelve a leer
 la cuenta, su versión de autenticación y la familia de sesión. Así un access vigente
 no conserva permisos de una cuenta desactivada o de una sesión cerrada.
-authorize restringe roles de ruta. Los servicios vuelven a comprobar titularidad o
+requireRole restringe roles de ruta. Los servicios vuelven a comprobar titularidad o
 asignación. Ocultar un botón del frontend no concede ni revoca acceso.
 
 El registro público crea Cliente sin aceptar privilegios del body. El acceso local
@@ -99,7 +99,7 @@ al empleado habilitado para registrar cobros. Usar ese presentador también en n
 
 MySQL DATETIME se interpreta explícitamente como UTC. La agenda y los períodos del
 reporte usan la zona del negocio; no utilizar la zona del proceso o del servidor.
-Los lavados se cuentan por su finalización y los ingresos por fecha de cobro; no
+Los lavados completados se agrupan por ends_at, el fin agendado del contrato, y los ingresos por fecha de cobro; no
 esperar que ambos totales describan exactamente las mismas visitas.
 
 utils/transaction siempre libera conexión y revierte al rechazar. Todas las escrituras
