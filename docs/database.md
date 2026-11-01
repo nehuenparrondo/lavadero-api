@@ -324,7 +324,7 @@ expires_at DATETIME(3) indexado, consumed_at DATETIME(3) nullable. El código le
 viaja por el retorno y se canjea con PKCE. Los estados vencidos se limpian al generar nuevos. Los grants vencidos dejan de ser
 válidos por consulta; su purga periódica queda como tarea de mantenimiento, sin cron configurado.
 
-Hay 19 tablas de negocio más schema_migrations. Las cinco migraciones fueron aplicadas
+Hay 19 tablas de negocio más schema_migrations. Las siete migraciones fueron aplicadas
 en lavadero_dev y lavadero_prod; el usuario de cada base solo tiene acceso a ella.
 
 ## Migración 006 — vinculación social protegida
@@ -334,3 +334,9 @@ pendiente), `link_subject` (identidad verificada que se vinculará) y `link_atte
 (contador de intentos de contraseña). CHECK exige proveedor/sujeto juntos. No se
 persiste la contraseña ingresada. El grant se bloquea con FOR UPDATE, conserva PKCE
 y se consume una sola vez; los intentos fallidos se confirman antes del error HTTP.
+
+`007_social_link_integrity.sql` exige ambos campos no nulos en la segunda rama del CHECK; así un resultado UNKNOWN de SQL no permite pares parciales. La prueba SQL intenta ambas combinaciones incompletas y exige rechazo. [Regla CHECK de MySQL 8.4](https://dev.mysql.com/doc/refman/8.4/en/create-table-check-constraints.html).
+
+La migración 007 agrega un CHECK más estricto con nombre nuevo. Conserva el anterior y no necesita conceder DROP al usuario de la aplicación.
+
+Los checksums nuevos se calculan sobre SQL con saltos LF. También se reconoce el checksum histórico CRLF del mismo contenido, para migraciones aplicadas desde Windows. Cambiar columnas, datos, comentarios u otros caracteres sigue produciendo error. `.gitattributes` fija LF para SQL y una prueba unitaria cubre ambos sistemas y el rechazo de una modificación real.

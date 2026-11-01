@@ -74,3 +74,23 @@ for (const locked of [false, true])
     }
     await api('get', '/users/me', existing.accessToken).expect(200);
   });
+
+test('MySQL rechaza ambos casos de identidad social parcialmente nula', async () => {
+  const existing = await client();
+  for (const [provider, subject] of [
+    [null, 'fixture'],
+    ['google', null],
+  ] as const) {
+    await assert.rejects(
+      database!.execute(
+        `INSERT INTO oauth_grants(code_hash,user_id,code_challenge,expires_at,link_provider,link_subject)
+         VALUES(UNHEX(SHA2(?,256)),?, ?,DATE_ADD(UTC_TIMESTAMP(3),INTERVAL 1 MINUTE),?,?)`,
+        [randomUUID(), existing.user.id, 'a'.repeat(43), provider, subject],
+      ),
+      (error: unknown) =>
+        error instanceof Error &&
+        'code' in error &&
+        error.code === 'ER_CHECK_CONSTRAINT_VIOLATED',
+    );
+  }
+});

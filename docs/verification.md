@@ -1,8 +1,8 @@
 # Verificación de versión 1.0
 
-Se ejecutaron typecheck estricto, ESLint sin advertencias, 14 pruebas unitarias/HTTP
+Se ejecutaron typecheck estricto, ESLint sin advertencias, 15 pruebas unitarias/HTTP
 y compilación TypeScript. La aceptación se ejecutó contra MySQL 8.4 real, en una base
-temporal exclusiva, con las seis migraciones y semillas: 16 escenarios aprobados.
+temporal exclusiva, con las siete migraciones y semillas: 17 escenarios aprobados.
 
 Casos cubiertos: inyección de rol, propiedad de vehículos/turnos, JWT alterado, refresh
 rotado/reutilizado, logout inmediato, cambio de rol/contraseña, protección de admin,

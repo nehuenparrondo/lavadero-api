@@ -1,6 +1,11 @@
 import type { PoolConnection, RowDataPacket } from 'mysql2/promise';
 import { createHash } from 'node:crypto';
 import { splitSqlStatements } from './splitSqlStatements.js';
+import {
+  canonicalSql,
+  migrationChecksum,
+  matchesMigrationChecksum,
+} from './migrationChecksum.js';
 
 /** Serializa migraciones por base para evitar dos arranques modificando el esquema a la vez. */
 export async function lockMigrations(connection: PoolConnection): Promise<string> {
@@ -25,17 +30,18 @@ export async function ensureMigrationTable(connection: PoolConnection): Promise<
 
 /** Ejecuta una migración nueva o comprueba que su contenido no cambió tras aplicarla. */
 export async function applyMigration(connection: PoolConnection, name: string, sql: string) {
-  const checksum = createHash('sha256').update(sql).digest('hex');
+  const checksum = migrationChecksum(sql);
   const [existing] = await connection.execute<RowDataPacket[]>(
     'SELECT checksum FROM schema_migrations WHERE name = ?',
     [name],
   );
   if (existing[0]) {
-    if (existing[0].checksum !== checksum) throw new Error(`Migración modificada: ${name}`);
+    if (!matchesMigrationChecksum(sql, String(existing[0].checksum)))
+      throw new Error(`Migración modificada: ${name}`);
     return;
   }
   // El separador explícito evita interpretar puntos y coma dentro de datos o comentarios.
-  for (const statement of splitSqlStatements(sql)) {
+  for (const statement of splitSqlStatements(canonicalSql(sql))) {
     await connection.query(statement);
   }
   await connection.execute('INSERT INTO schema_migrations (name, checksum) VALUES (?, ?)', [
