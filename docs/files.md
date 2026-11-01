@@ -126,3 +126,8 @@ Cada pieza mantiene su TSDoc. Este índice ayuda a ubicar responsabilidades.
 - [tests/security.integration.ts](../tests/security.integration.ts): verificación.
 - [tests/sql.test.ts](../tests/sql.test.ts): verificación.
 - [tests/support/context.ts](../tests/support/context.ts): verificación.
+
+## Archivos incorporados en la revisión de producción
+
+- [src/modules/appointments/notes.repository.ts](../src/modules/appointments/notes.repository.ts): módulo documentado junto a su implementación.
+- [src/modules/health/information.routes.ts](../src/modules/health/information.routes.ts): módulo documentado junto a su implementación.
