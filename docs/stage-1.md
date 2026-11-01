@@ -1,3 +1,5 @@
+> Documento histórico de la estructura inicial. Para la versión terminada, ver [delivery.md](delivery.md) y el README actual.
+
 # Cómo probar la etapa 1
 
 ## Backend, dentro de lavadero-api

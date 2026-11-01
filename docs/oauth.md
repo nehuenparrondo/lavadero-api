@@ -23,7 +23,10 @@ sin comodines y sin device flow. GITHUB_CLIENT_ID/GITHUB_CLIENT_SECRET van en Re
 Allowlist del retorno final: OAUTH_REDIRECT_URIS=lavadero://oauth,https://lavadero-app-2558.onrender.com/oauth.
 Agregar solo direcciones bajo control del proyecto. El backend exige email verificado,
 asocia la identidad social o crea un Cliente. Cuenta desactivada nunca vuelve a entrar.
-Las cuentas con el mismo email verificado se vinculan; explicar esta política al usuario.
+Las identidades sociales con el mismo email verificado se vinculan entre sí. Si ese correo
+ya tiene una cuenta con contraseña, el callback responde LOCAL_ACCOUNT_EXISTS: se debe
+ingresar con email y contraseña. No se vincula automáticamente una cuenta local sin
+comprobar su contraseña, porque el registro local no verifica el correo.
 
 El state del proveedor vence a los 10 minutos y se consume una vez. El grant móvil vence
 a los 60 segundos, necesita el verifier y también es de un solo uso. Los refresh/access

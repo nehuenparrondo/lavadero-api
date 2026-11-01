@@ -58,6 +58,12 @@ async function issueGrant(provider: Provider, profile: SocialIdentity, state: OA
     let identity = social
       ? await findUser(String(social.userId), connection)
       : await findByEmail(profile.email, connection);
+    if (!social && identity?.passwordHash)
+      throw new AppError(
+        409,
+        'LOCAL_ACCOUNT_EXISTS',
+        'Ese correo ya tiene una cuenta con contraseña. Ingresá con email y contraseña.',
+      );
     if (!identity) {
       const id = await insertUser(
         {
