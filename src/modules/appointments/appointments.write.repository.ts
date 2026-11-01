@@ -1,0 +1,106 @@
+import type { Executor } from '../../utils/db.js';
+import { execute } from '../../utils/db.js';
+import type { AppointmentStatus, QuoteItem } from './appointments.types.js';
+/** Inserta turno pendiente. El llamador mantiene lock de agenda y snapshot de precios.
+ * @param v - Datos tipados del elemento o formulario que se transforma.
+ * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
+ * @returns `Promise<string>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
+export async function insertAppointment(
+  v: {
+    clientId: string;
+    vehicleId: string;
+    startsAt: string;
+    endsAt: string;
+    createdById: string;
+    currencyCode: string;
+  },
+  executor: Executor,
+) {
+  return String(
+    (
+      await execute(
+        `INSERT INTO appointments(client_id,vehicle_id,status_id,starts_at,ends_at,created_by_id,currency_code)
+ SELECT ?,?,id,?,?,?,? FROM appointment_statuses WHERE code='pending'`,
+        [v.clientId, v.vehicleId, v.startsAt, v.endsAt, v.createdById, v.currencyCode],
+        executor,
+      )
+    ).insertId,
+  );
+}
+/** Guarda snapshot de cada servicio.
+ * @param id - Identificador del recurso dentro del proyecto actual.
+ * @param items - Renglones tipados que conservan precio, nombre y duración del contrato.
+ * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
+ * @returns `Promise<void>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
+export async function insertItems(id: string, items: QuoteItem[], executor: Executor) {
+  for (const item of items)
+    await execute(
+      `INSERT INTO appointment_services
+ (appointment_id,service_id,applied_price_cents,applied_duration_minutes,applied_service_name) VALUES(?,?,?,?,?)`,
+      [id, item.serviceId, item.priceCents, item.durationMinutes, item.name],
+      executor,
+    );
+}
+/** Cambia estado incrementando versión; las reglas viven en service.
+ * @param id - Identificador del recurso dentro del proyecto actual.
+ * @param status - Valor tipado de status utilizado por esta operación.
+ * @param actorId - Usuario autenticado que realizó el cambio para el historial de auditoría.
+ * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
+ * @returns `Promise<void>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
+export async function setStatus(
+  id: string,
+  status: AppointmentStatus,
+  actorId: string,
+  executor: Executor,
+) {
+  await execute(
+    'UPDATE appointments SET status_id=(SELECT id FROM appointment_statuses WHERE code=?),version=version+1 WHERE id=?',
+    [status, id],
+    executor,
+  );
+  await execute(
+    'INSERT INTO appointment_status_history(appointment_id,status_id,changed_by_id) SELECT ?,id,? FROM appointment_statuses WHERE code=?',
+    [id, actorId, status],
+    executor,
+  );
+}
+/** Asignación administrativa.
+ * @param id - Identificador del recurso dentro del proyecto actual.
+ * @param employeeId - Empleado activo que se asigna o consulta.
+ * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
+ * @returns `Promise<import("mysql2/promise").ResultSetHeader>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
+export function setEmployee(id: string, employeeId: string, executor: Executor) {
+  return execute(
+    'UPDATE appointments SET employee_id=?,version=version+1 WHERE id=?',
+    [employeeId, id],
+    executor,
+  );
+}
+/** Autor y motivo de cancelación.
+ * @param id - Identificador del recurso dentro del proyecto actual.
+ * @param actorId - Usuario autenticado que realizó el cambio para el historial de auditoría.
+ * @param reason - Motivo de cancelación conservado en el historial.
+ * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
+ * @returns `Promise<import("mysql2/promise").ResultSetHeader>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
+export function recordCancellation(
+  id: string,
+  actorId: string,
+  reason: string,
+  executor: Executor,
+) {
+  return execute(
+    'UPDATE appointments SET cancelled_by_id=?,cancellation_reason=? WHERE id=?',
+    [actorId, reason, id],
+    executor,
+  );
+}

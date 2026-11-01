@@ -60,8 +60,9 @@ No se hace cascada destructiva de usuarios, vehículos, servicios, turnos ni pag
 Email y patente permanecen reservados tras el borrado lógico para conservar trazabilidad.
 
 Rol del cliente/asignado, propiedad, último admin, transiciones, duración, total cobrado,
-solapamientos y capacidad requieren servicios y transacciones de las etapas posteriores.
-`booking_day_locks` permite serializar reservas por fecha y evita sobreventas concurrentes.
+solapamientos y capacidad se garantizan en los servicios transaccionales implementados.
+Esta versión usa la fila común de `business_settings` como mutex de agenda.
+`booking_day_locks` queda reservada para una futura optimización por fecha; no es el lock activo.
 `auth_version` permite invalidar sesiones por cambio de rol/desactivación.
 
 ## Scripts
@@ -325,3 +326,11 @@ válidos por consulta; su purga periódica queda como tarea de mantenimiento, si
 
 Hay 19 tablas de negocio más schema_migrations. Las cinco migraciones fueron aplicadas
 en lavadero_dev y lavadero_prod; el usuario de cada base solo tiene acceso a ella.
+
+## Migración 006 — vinculación social protegida
+
+`006_social_link.sql` agrega a `oauth_grants` las columnas `link_provider` (proveedor
+pendiente), `link_subject` (identidad verificada que se vinculará) y `link_attempts`
+(contador de intentos de contraseña). CHECK exige proveedor/sujeto juntos. No se
+persiste la contraseña ingresada. El grant se bloquea con FOR UPDATE, conserva PKCE
+y se consume una sola vez; los intentos fallidos se confirman antes del error HTTP.

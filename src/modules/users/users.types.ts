@@ -11,12 +11,17 @@ export interface Identity extends RowDataPacket {
   lastName: string;
   phone: string | null;
   avatarUrl: string | null;
+  /** Versión de permisos; invalida JWT antiguos al cambiar credenciales o privilegios. */
   authVersion: number;
+  /** Permiso adicional del empleado; no se obtiene del formulario público. */
   canRecordPayments: number;
   isActive: number;
   deletedAt: string | null;
 }
-/** Convierte el registro privado en un perfil público de campos explícitos. */
+/** Convierte el registro privado en un perfil público de campos explícitos.
+ * @param row - Valor tipado de row utilizado por esta operación.
+ * @returns `User`, según el contrato de la operación.
+ */
 export function publicUser(row: Identity): User {
   return {
     id: String(row.id),

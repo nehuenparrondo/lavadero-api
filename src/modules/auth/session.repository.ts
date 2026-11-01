@@ -1,6 +1,6 @@
 import type { RowDataPacket } from 'mysql2/promise';
-import { rows, execute } from '../../utils/db.js';
 import type { Executor } from '../../utils/db.js';
+import { execute, rows } from '../../utils/db.js';
 
 /** Sesión interna bloqueada durante rotación. */
 export interface SessionRow extends RowDataPacket {
@@ -10,7 +10,14 @@ export interface SessionRow extends RowDataPacket {
   revokedAt: string | null;
   expiresAt: string;
 }
-/** Inserta hash de refresh con familia y expiración. */
+/** Inserta hash de refresh con familia y expiración.
+ * @param userId - Valor tipado de userId utilizado por esta operación.
+ * @param hash - Hash del token; evita persistir su valor legible.
+ * @param familyId - Familia de sesión que agrupa sus renovaciones.
+ * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
+ * @returns `Promise<string>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
 export async function insertSession(
   userId: string,
   hash: Buffer,
@@ -25,7 +32,12 @@ export async function insertSession(
   );
   return String(result.insertId);
 }
-/** Consulta y bloquea un refresh para consumirlo exactamente una vez. */
+/** Consulta y bloquea un refresh para consumirlo exactamente una vez.
+ * @param hash - Hash del token; evita persistir su valor legible.
+ * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
+ * @returns `Promise<SessionRow | undefined>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
 export async function lockSession(hash: Buffer, executor: Executor) {
   return (
     await rows<SessionRow>(
@@ -36,7 +48,12 @@ export async function lockSession(hash: Buffer, executor: Executor) {
     )
   )[0];
 }
-/** Revoca familia ante logout o detección de refresh reutilizado. */
+/** Revoca familia ante logout o detección de refresh reutilizado.
+ * @param familyId - Familia de sesión que agrupa sus renovaciones.
+ * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
+ * @returns `Promise<void>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
 export async function revokeFamily(familyId: string, executor: Executor) {
   await execute(
     'UPDATE refresh_tokens SET revoked_at=COALESCE(revoked_at,UTC_TIMESTAMP(3)) WHERE family_id=?',
@@ -44,7 +61,13 @@ export async function revokeFamily(familyId: string, executor: Executor) {
     executor,
   );
 }
-/** Registra el token sucesor conservando el anterior para detectar reuso. */
+/** Registra el token sucesor conservando el anterior para detectar reuso.
+ * @param id - Identificador del recurso dentro del proyecto actual.
+ * @param nextId - Valor tipado de nextId utilizado por esta operación.
+ * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
+ * @returns `Promise<void>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
 export async function rotateSession(id: string, nextId: string, executor: Executor) {
   await execute(
     'UPDATE refresh_tokens SET revoked_at=UTC_TIMESTAMP(3),replaced_by_id=? WHERE id=?',
@@ -52,7 +75,12 @@ export async function rotateSession(id: string, nextId: string, executor: Execut
     executor,
   );
 }
-/** Valida que la familia del JWT siga activa tras logout o reuso de refresh. */
+/** Valida que la familia del JWT siga activa tras logout o reuso de refresh.
+ * @param userId - Valor tipado de userId utilizado por esta operación.
+ * @param familyId - Familia de sesión que agrupa sus renovaciones.
+ * @returns `Promise<boolean>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
 export async function isFamilyActive(userId: string, familyId: string) {
   return Boolean(
     (

@@ -1,13 +1,15 @@
 import { Router } from 'express';
 import { authenticate } from '../../middlewares/authenticate.js';
-import { requireRole } from '../../middlewares/requireRole.js';
 import { requireOwnership } from '../../middlewares/requireOwnership.js';
+import { requireRole } from '../../middlewares/requireRole.js';
 import { validate } from '../../middlewares/validate.js';
 import { endpoint, paramId } from '../../utils/http.js';
-import { findVehicle } from './vehicles.repository.js';
-import { vehicleSchema, vehiclePatchSchema } from './vehicles.schema.js';
 import * as c from './vehicles.controller.js';
-/** Vehículos: clientes propietarios y administración; empleados excluidos. */
+import { findVehicle } from './vehicles.repository.js';
+import { vehiclePatchSchema, vehicleSchema } from './vehicles.schema.js';
+/** Vehículos: clientes propietarios y administración; empleados excluidos.
+ * @returns `import("express-serve-static-core").Router`, según el contrato de la operación.
+ */
 export function createVehiclesRoutes() {
   const r = Router();
   r.use(authenticate, requireRole('client', 'admin'));

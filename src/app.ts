@@ -1,14 +1,14 @@
 import express from 'express';
-import './config/validation.js';
 import helmet from 'helmet';
-import swaggerUi from 'swagger-ui-express';
 import { readFileSync } from 'node:fs';
+import swaggerUi from 'swagger-ui-express';
+import './config/validation.js';
+import { NotFoundError } from './errors/NotFoundError.js';
 import { createCors } from './middlewares/createCors.js';
 import { errorHandler } from './middlewares/errorHandler.js';
-import { NotFoundError } from './errors/NotFoundError.js';
 import { createHealthRoutes } from './modules/health/health.routes.js';
-import { createApiRoutes } from './routes.js';
 import { createInformationRoutes } from './modules/health/information.routes.js';
+import { createApiRoutes } from './routes.js';
 
 /** Dependencias de infraestructura que no contienen lógica de negocio. */
 interface AppOptions {
@@ -16,7 +16,10 @@ interface AppOptions {
   checkDatabase: () => Promise<void>;
 }
 
-/** Compone Express. No abre puertos ni conecta MySQL al importarse. */
+/** Compone Express. No abre puertos ni conecta MySQL al importarse.
+ * @param options - Valor tipado de options utilizado por esta operación.
+ * @returns `import("express-serve-static-core").Express`, según el contrato de la operación.
+ */
 export function createApp(options: AppOptions) {
   const app = express();
   const contract = JSON.parse(readFileSync('docs/openapi.json', 'utf8')) as Record<

@@ -18,7 +18,7 @@ npm run check
 npm run dev
 ```
 
-Cinco migraciones crean tablas y registran checksum en schema_migrations. El segundo
+Seis migraciones crean tablas y registran checksum en schema_migrations. El segundo
 arranque no repite escrituras ya aplicadas; modificar una migración histórica produce
 error, por lo que cambios posteriores deben añadirse como nueva migración.
 `database/schema.sql` es una alternativa completa para una base nueva; no mezclarla

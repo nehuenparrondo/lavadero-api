@@ -14,5 +14,6 @@ export const oauthExchangeSchema = z
   .object({
     code: z.string().regex(/^[a-f0-9]{64}$/u),
     codeVerifier: z.string().min(43).max(128),
+    password: z.string().min(1).max(72).optional(),
   })
   .strict();

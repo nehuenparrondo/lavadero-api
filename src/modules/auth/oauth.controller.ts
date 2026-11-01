@@ -1,13 +1,19 @@
 import type { Request, Response } from 'express';
 import { z } from 'zod';
-import * as service from './oauth.service.js';
-import { providerSchema, authorizeSchema, oauthExchangeSchema } from './oauth.schema.js';
 import { presentSession } from './auth.types.js';
-/** Disponibilidad de botones sociales. */
+import { authorizeSchema, oauthExchangeSchema, providerSchema } from './oauth.schema.js';
+import * as service from './oauth.service.js';
+/** Disponibilidad de botones sociales.
+ * @returns `Promise<{ provider: string; enabled: boolean; }[]>`, según el contrato de la operación.
+ */
 export async function providers() {
   return service.listProviders();
 }
-/** Inicio OAuth con state/PKCE validado. */
+/** Inicio OAuth con state/PKCE validado.
+ * @param r - Petición HTTP; los valores se validan antes de ejecutar el servicio.
+ * @param s - Respuesta HTTP usada para emitir la redirección del flujo.
+ * @returns `Promise<void>`, según el contrato de la operación.
+ */
 export async function authorize(r: Request, s: Response) {
   s.redirect(
     await service.authorize(
@@ -16,7 +22,11 @@ export async function authorize(r: Request, s: Response) {
     ),
   );
 }
-/** Callback HTTPS validado, después redirección allowlisted al cliente. */
+/** Callback HTTPS validado, después redirección allowlisted al cliente.
+ * @param r - Petición HTTP; los valores se validan antes de ejecutar el servicio.
+ * @param s - Respuesta HTTP usada para emitir la redirección del flujo.
+ * @returns `Promise<void>`, según el contrato de la operación.
+ */
 export async function callback(r: Request, s: Response) {
   const input = z
     .object({
@@ -27,7 +37,10 @@ export async function callback(r: Request, s: Response) {
     .parse(r.query);
   s.redirect(await service.callback(providerSchema.parse(r.params.provider), input));
 }
-/** Canje final de grant y verifier por sesión propia. */
+/** Canje final de grant y verifier por sesión propia.
+ * @param r - Petición HTTP; los valores se validan antes de ejecutar el servicio.
+ * @returns `Promise<{ user: import("../../types/domain.js").User; accessToken: string; refreshToken: string; expiresIn: number; }>`, según el contrato de la operación.
+ */
 export function exchange(r: Request) {
   return service.exchange(r.body as z.infer<typeof oauthExchangeSchema>).then(presentSession);
 }

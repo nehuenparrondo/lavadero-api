@@ -2,7 +2,6 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { api, client } from './support/context.js';
 import { pkceChallenge } from '../src/modules/auth/oauth.service.js';
-import { randomUUID } from 'node:crypto';
 import { database } from '../src/config/database.js';
 
 test('PKCE coincide con el vector de referencia RFC 7636', () => {
@@ -81,43 +80,6 @@ for (const provider of ['google', 'github', 'discord'])
       .expect(400);
   });
 
-test('OAuth no vincula automáticamente un correo registrado con contraseña', async (t) => {
-  const existing = await client();
-  t.mock.method(globalThis, 'fetch', async (input: RequestInfo | URL) => {
-    const payload = String(input).includes('token')
-      ? { access_token: 'mock-provider-token' }
-      : {
-          sub: randomUUID(),
-          email: existing.user.email,
-          email_verified: true,
-          given_name: 'Social',
-        };
-    return new Response(JSON.stringify(payload), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  });
-  const start = await api('get', '/auth/oauth/google/authorize')
-    .query({
-      redirect_uri: 'lavadero://oauth',
-      state: randomUUID(),
-      code_challenge: pkceChallenge('a'.repeat(64)),
-      code_challenge_method: 'S256',
-      response_type: 'code',
-    })
-    .expect(302);
-  const state = new URL(start.headers.location!).searchParams.get('state')!;
-  const result = await api('get', '/auth/oauth/google/callback')
-    .query({ state, code: 'provider-code' })
-    .expect(409);
-  assert.equal(result.body.error.code, 'LOCAL_ACCOUNT_EXISTS');
-  const [links] = await database!.query(
-    'SELECT user_id FROM social_accounts WHERE user_id=?',
-    [existing.user.id],
-  );
-  assert.deepEqual(links, []);
-  await api('get', '/users/me', existing.accessToken).expect(200);
-});
 test('redirect arbitrario y callback state inventado no se aceptan', async () => {
   await api('get', '/auth/oauth/google/authorize')
     .query({

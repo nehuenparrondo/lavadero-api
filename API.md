@@ -276,7 +276,7 @@ Errores: 400, 401, 403, 404, 409, 429, 500, 503. El código estable `error.code`
 
 **Canjear código móvil por sesión** · Roles: public.
 
-PKCE y código de un solo uso, con vencimiento de 60 segundos.
+PKCE y código de un uso. Vence en 60 segundos; si el correo ya tiene contraseña, OAUTH_LINK_REQUIRED (409) solicita reenviar el mismo code/codeVerifier con password. Ese grant dura 5 minutos y admite hasta cinco intentos. Tras confirmar se vincula el mismo usuario y se emite su sesión.
 
 Body validado por `oauthExchangeSchema`; campos/tipos/restricciones exactos en [request-schemas.json](docs/request-schemas.json).
 

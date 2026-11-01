@@ -1,26 +1,34 @@
 import type { z } from 'zod';
-import type { Actor } from '../../types/domain.js';
-import { NotFoundError } from '../../errors/NotFoundError.js';
 import { AppError } from '../../errors/AppError.js';
-import { hashPassword, comparePassword } from '../../utils/password.js';
+import { NotFoundError } from '../../errors/NotFoundError.js';
+import type { Actor } from '../../types/domain.js';
+import { comparePassword, hashPassword } from '../../utils/password.js';
 import { transaction } from '../../utils/transaction.js';
-import * as repository from './users.repository.js';
 import { setPassword } from './admin.repository.js';
-import { publicUser } from './users.types.js';
+import * as repository from './users.repository.js';
 import type {
-  profileSchema,
-  passwordChangeSchema,
   createUserSchema,
+  passwordChangeSchema,
+  profileSchema,
   usersQuerySchema,
 } from './users.schema.js';
+import { publicUser } from './users.types.js';
 
-/** Lee perfil por ID y exige que la cuenta exista. */
+/** Lee perfil por ID y exige que la cuenta exista.
+ * @param id - Identificador del recurso dentro del proyecto actual.
+ * @returns `Promise<import("../../types/domain.js").User>`, según el contrato de la operación.
+ * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
+ */
 export async function getProfile(id: string) {
   const user = await repository.findUser(id);
   if (!user || user.deletedAt) throw new NotFoundError();
   return publicUser(user);
 }
-/** Guarda solo perfil permitido, preservando campos omitidos. */
+/** Guarda solo perfil permitido, preservando campos omitidos.
+ * @param current - Identidad o entidad actual usada para conservar sus invariantes.
+ * @param input - Entrada validada por el esquema del caso de uso.
+ * @returns `Promise<import("../../types/domain.js").User>`, según el contrato de la operación.
+ */
 export async function updateOwnProfile(current: Actor, input: z.infer<typeof profileSchema>) {
   const user = await getProfile(current.id);
   await repository.updateProfile(current.id, {
@@ -31,7 +39,10 @@ export async function updateOwnProfile(current: Actor, input: z.infer<typeof pro
   });
   return getProfile(current.id);
 }
-/** Alta administrativa con contraseña hasheada y rol previamente autorizado por ruta. */
+/** Alta administrativa con contraseña hasheada y rol previamente autorizado por ruta.
+ * @param input - Entrada validada por el esquema del caso de uso.
+ * @returns `Promise<import("../../types/domain.js").User>`, según el contrato de la operación.
+ */
 export async function createUser(input: z.infer<typeof createUserSchema>) {
   const id = await repository.insertUser(
     input,
@@ -40,12 +51,20 @@ export async function createUser(input: z.infer<typeof createUserSchema>) {
   );
   return getProfile(id);
 }
-/** Lista perfiles sin datos de autenticación. */
+/** Lista perfiles sin datos de autenticación.
+ * @param input - Entrada validada por el esquema del caso de uso.
+ * @returns `Promise<{ items: import("../../types/domain.js").User[]; total: number; page: number; limit: number; }>`, según el contrato de la operación.
+ */
 export async function listUsers(input: z.infer<typeof usersQuerySchema>) {
   const result = await repository.listUsers(input.search, input.role, input.page, input.limit);
   return { ...result, items: result.items.map(publicUser) };
 }
-/** Verifica contraseña actual y revoca sesiones anteriores al cambiarla. */
+/** Verifica contraseña actual y revoca sesiones anteriores al cambiarla.
+ * @param current - Identidad o entidad actual usada para conservar sus invariantes.
+ * @param input - Entrada validada por el esquema del caso de uso.
+ * @returns `Promise<{ passwordChanged: boolean; requiresLogin: boolean; }>`, según el contrato de la operación.
+ * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
+ */
 export async function changePassword(
   current: Actor,
   input: z.infer<typeof passwordChangeSchema>,

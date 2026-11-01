@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { APPOINTMENT_STATUS } from '../../constants/business.js';
 import { paginationSchema } from '../../utils/pagination.js';
 const id = z.string().regex(/^[1-9]\d{0,18}$/u);
 /** Valores únicos y acotados evitan consultas y totales ambiguos. */
@@ -22,7 +23,7 @@ export const appointmentQuerySchema = paginationSchema.extend({
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/u)
     .optional(),
-  status: z.enum(['pending', 'confirmed', 'in_progress', 'completed', 'cancelled']).optional(),
+  status: z.enum(APPOINTMENT_STATUS).optional(),
   clientId: id.optional(),
   employeeId: id.optional(),
   history: z.enum(['true', 'false']).optional(),
@@ -39,7 +40,7 @@ export const availabilitySchema = z.object({
 /** Estados admitidos; la transición se decide exclusivamente en service. */
 export const statusSchema = z
   .object({
-    status: z.enum(['pending', 'confirmed', 'in_progress', 'completed', 'cancelled']),
+    status: z.enum(APPOINTMENT_STATUS),
   })
   .strict();
 /** Solo un administrador puede elegir empleado. */

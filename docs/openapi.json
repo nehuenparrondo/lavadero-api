@@ -990,7 +990,7 @@
       "post": {
         "tags": ["auth"],
         "summary": "Canjear código móvil por sesión",
-        "description": "Roles: public. PKCE y código de un solo uso, con vencimiento de 60 segundos.",
+        "description": "Roles: public. PKCE y código de un uso. Vence en 60 segundos; si el correo ya tiene contraseña, OAUTH_LINK_REQUIRED (409) solicita reenviar el mismo code/codeVerifier con password. Ese grant dura 5 minutos y admite hasta cinco intentos. Tras confirmar se vincula el mismo usuario y se emite su sesión.",
         "operationId": "post8",
         "security": [],
         "x-roles": ["public"],
@@ -7638,6 +7638,11 @@
             "type": "string",
             "minLength": 43,
             "maxLength": 128
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 72
           }
         },
         "required": ["code", "codeVerifier"],

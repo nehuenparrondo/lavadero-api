@@ -19,10 +19,11 @@
     "db:seed": "tsx database/seed.ts",
     "db:migrate:production": "node dist/database/migrate.js",
     "db:seed:production": "node dist/database/seed.js",
-    "check": "npm run typecheck && npm run lint && npm test && npm run build",
+    "check": "npm run typecheck && npm run lint && npm test && npm run build && npm run audit:source",
     "test:database": "tsx --test tests/database.integration.ts",
     "docs:schemas": "tsx scripts/exportSchemas.ts",
-    "test:acceptance": "tsx --test --test-concurrency=1 tests/security.integration.ts tests/booking.integration.ts tests/oauth.integration.ts"
+    "test:acceptance": "tsx --test --test-concurrency=1 tests/security.integration.ts tests/booking.integration.ts tests/oauth.integration.ts tests/oauth-link.integration.ts",
+    "audit:source": "tsx scripts/auditSource.ts"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

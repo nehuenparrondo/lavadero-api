@@ -4,7 +4,9 @@ import { validate } from '../../middlewares/validate.js';
 import { endpoint } from '../../utils/http.js';
 import * as c from './oauth.controller.js';
 import { oauthExchangeSchema } from './oauth.schema.js';
-/** Inicio, retorno y canje de códigos sociales; todos limitados por origen. */
+/** Inicio, retorno y canje de códigos sociales; todos limitados por origen.
+ * @returns `import("express-serve-static-core").Router`, según el contrato de la operación.
+ */
 export function createOAuthRoutes() {
   const r = Router();
   r.use(

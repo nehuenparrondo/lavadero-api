@@ -1,6 +1,11 @@
-import { rows, execute } from '../../utils/db.js';
 import type { Executor } from '../../utils/db.js';
-/** Lista cobros del turno sin datos de autenticación. */
+import { execute, rows } from '../../utils/db.js';
+/** Lista cobros del turno sin datos de autenticación.
+ * @param id - Identificador del recurso dentro del proyecto actual.
+ * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
+ * @returns `Promise<import("mysql2").RowDataPacket[]>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
 export function listPayments(id: string, executor?: Executor) {
   return rows(
     `SELECT CAST(id AS CHAR) id,CAST(appointment_id AS CHAR) appointmentId,
@@ -9,7 +14,12 @@ export function listPayments(id: string, executor?: Executor) {
     executor,
   );
 }
-/** Busca un reintento de cobro por clave global. */
+/** Busca un reintento de cobro por clave global.
+ * @param key - Valor tipado de key utilizado por esta operación.
+ * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
+ * @returns `Promise<import("mysql2").RowDataPacket | undefined>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
 export async function findPayment(key: string, executor: Executor) {
   return (
     await rows(
@@ -20,7 +30,14 @@ export async function findPayment(key: string, executor: Executor) {
     )
   )[0];
 }
-/** Inserta cobro bajo lock del turno; service valida saldo. */
+/** Inserta cobro bajo lock del turno; service valida saldo.
+ * @param id - Identificador del recurso dentro del proyecto actual.
+ * @param actorId - Usuario autenticado que realizó el cambio para el historial de auditoría.
+ * @param v - Datos tipados del elemento o formulario que se transforma.
+ * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
+ * @returns `Promise<string>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
 export async function insertPayment(
   id: string,
   actorId: string,

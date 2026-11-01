@@ -3,9 +3,11 @@ import { authenticate } from '../../middlewares/authenticate.js';
 import { requireRole } from '../../middlewares/requireRole.js';
 import { validate } from '../../middlewares/validate.js';
 import { endpoint } from '../../utils/http.js';
-import { settingsSchema } from './settings.schema.js';
 import * as c from './settings.controller.js';
-/** Todos pueden conocer horarios; solo admin puede editarlos. */
+import { settingsSchema } from './settings.schema.js';
+/** Todos pueden conocer horarios; solo admin puede editarlos.
+ * @returns `import("express-serve-static-core").Router`, según el contrato de la operación.
+ */
 export function createSettingsRoutes() {
   const r = Router();
   r.use(authenticate, requireRole('admin'));
@@ -13,7 +15,9 @@ export function createSettingsRoutes() {
   r.put('/', validate(settingsSchema), endpoint(c.save));
   return r;
 }
-/** Horarios y política de cancelación legibles por todos, fuera de las rutas administrativas. */
+/** Horarios y política de cancelación legibles por todos, fuera de las rutas administrativas.
+ * @returns `import("express-serve-static-core").Router`, según el contrato de la operación.
+ */
 export function createBusinessRoutes() {
   const r = Router();
   r.use(authenticate);

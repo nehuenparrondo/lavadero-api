@@ -1,6 +1,6 @@
 import { createApp } from './app.js';
-import { env } from './config/env.js';
 import { database } from './config/database.js';
+import { env } from './config/env.js';
 import { checkDatabase } from './modules/health/health.repository.js';
 
 const origins = env.CORS_ORIGINS.split(',')
