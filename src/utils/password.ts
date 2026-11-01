@@ -16,7 +16,7 @@ export function hashPassword(password: string): Promise<string> {
 /** Compara sin exponer el hash al frontend.
  * @param password - Contraseña de la cuenta, usada solo para comprobar su propiedad.
  * @param hash - Hash bcrypt almacenado de la cuenta que se autentica.
- * @returns `Promise<boolean>`, según el contrato de la operación.
+ * @returns `Promise<boolean>`.
  */
 export function comparePassword(password: string, hash: string): Promise<boolean> {
   return bcrypt.compare(password, hash);

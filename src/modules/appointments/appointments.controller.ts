@@ -29,7 +29,7 @@ export function get(r: Request) {
 }
 /** Cotización/horarios.
  * @param r - Petición HTTP; los valores se validan antes de ejecutar el servicio.
- * @returns `Promise<{ items: import("./appointments.types.js").QuoteItem[]; totalCents: number; durationMinutes: number; slots: string[]; currencyCode: string; }>`, según el contrato de la operación.
+ * @returns `Promise<{ items: import("./appointments.types.js").QuoteItem[]; totalCents: number; durationMinutes: number; slots: string[]; currencyCode: string; }>`.
  */
 export function slots(r: Request) {
   return availability(actor(r), availabilitySchema.parse(r.query));
@@ -43,14 +43,14 @@ export function create(r: Request) {
 }
 /** Cambio de estado por empleado o admin.
  * @param r - Petición HTTP; los valores se validan antes de ejecutar el servicio.
- * @returns `Promise<{ updated: boolean; status: "pending" | "confirmed" | "in_progress" | "completed" | "cancelled"; }>`, según el contrato de la operación.
+ * @returns `Promise<{ updated: boolean; status: "pending" | "confirmed" | "in_progress" | "completed" | "cancelled"; }>`.
  */
 export function status(r: Request) {
   return changeStatus(actor(r), paramId(r), (r.body as z.infer<typeof statusSchema>).status);
 }
 /** Cancelación del cliente/admin.
  * @param r - Petición HTTP; los valores se validan antes de ejecutar el servicio.
- * @returns `Promise<{ updated: boolean; status: "pending" | "confirmed" | "in_progress" | "completed" | "cancelled"; }>`, según el contrato de la operación.
+ * @returns `Promise<{ updated: boolean; status: "pending" | "confirmed" | "in_progress" | "completed" | "cancelled"; }>`.
  */
 export function cancel(r: Request) {
   return changeStatus(
@@ -62,7 +62,7 @@ export function cancel(r: Request) {
 }
 /** Asignación administrativa.
  * @param r - Petición HTTP; los valores se validan antes de ejecutar el servicio.
- * @returns `Promise<{ assigned: boolean; }>`, según el contrato de la operación.
+ * @returns `Promise<{ assigned: boolean; }>`.
  */
 export function assign(r: Request) {
   return assignEmployee(
@@ -73,7 +73,7 @@ export function assign(r: Request) {
 }
 /** Observación de trabajo.
  * @param r - Petición HTTP; los valores se validan antes de ejecutar el servicio.
- * @returns `Promise<{ created: boolean; }>`, según el contrato de la operación.
+ * @returns `Promise<{ created: boolean; }>`.
  */
 export function note(r: Request) {
   return service.addNote(actor(r), paramId(r), (r.body as z.infer<typeof noteSchema>).body);

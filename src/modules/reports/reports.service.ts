@@ -33,7 +33,7 @@ export async function businessReport(input: z.infer<typeof reportSchema>) {
 /** Resumen exclusivo de la jornada asignada al empleado.
  * @param id - Identificador del recurso dentro del proyecto actual.
  * @param input - Entrada validada por el esquema del caso de uso.
- * @returns `Promise<{ date: string; completed: number; pending: number; }>`, según el contrato de la operación.
+ * @returns `Promise<{ date: string; completed: number; pending: number; }>`.
  */
 export async function personalReport(id: string, input: z.infer<typeof reportSchema>) {
   const range = await reportWindow({ ...input, period: 'day' });

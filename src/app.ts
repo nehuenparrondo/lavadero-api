@@ -17,8 +17,8 @@ interface AppOptions {
 }
 
 /** Compone Express. No abre puertos ni conecta MySQL al importarse.
- * @param options - Valor tipado de options utilizado por esta operación.
- * @returns `import("express-serve-static-core").Express`, según el contrato de la operación.
+ * @param options - Configuración de la composición o del recurso.
+ * @returns `import("express-serve-static-core").Express`.
  */
 export function createApp(options: AppOptions) {
   const app = express();

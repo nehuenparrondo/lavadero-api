@@ -9,19 +9,19 @@ import type { paymentSchema } from './payments.schema.js';
 /** Lista cobros propios o administrados; empleados solo pueden registrar cuando están habilitados.
  * @param actor - Actor autenticado por el middleware; determina rol y propiedad.
  * @param id - Identificador del recurso dentro del proyecto actual.
- * @returns `Promise<import("mysql2").RowDataPacket[]>`, según el contrato de la operación.
+ * @returns `Promise<import("mysql2").RowDataPacket[]>`.
  */
 export async function getPayments(actor: Actor, id: string) {
   const a = await findAppointment(id);
   assertAppointmentAccess(actor, a);
   return repo.listPayments(id);
 }
-/** Registra saldo sin cobros duplicados ni sobrepago, incluso con solicitudes concurrentes.
- * @param actor - Actor autenticado por el middleware; determina rol y propiedad.
- * @param id - Identificador del recurso dentro del proyecto actual.
- * @param input - Entrada validada por el esquema del caso de uso.
- * @returns `Promise<{ recorded: boolean; replayed: boolean; id?: never; } | { recorded: boolean; id: string; replayed: boolean; }>`, según el contrato de la operación.
- * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
+/** Registra un cobro de forma atómica; no ejecuta una transferencia bancaria.
+ * @param actor Administrador o empleado asignado con canRecordPayments vigente.
+ * @param id Turno cuyo saldo se bloquea antes de insertar.
+ * @param input Centavos, medio, referencia y clave de idempotencia de la misma intención.
+ * @returns replayed true para un reintento idéntico; una alta nueva incluye id.
+ * @throws AppError PAYMENT_PERMISSION, PAYMENT_STATE, OVERPAYMENT o IDEMPOTENCY_CONFLICT.
  */
 export async function recordPayment(
   actor: Actor,

@@ -1,8 +1,8 @@
 import { rows } from '../../utils/db.js';
 /** Trabajos finalizados en el intervalo UTC derivado del calendario local.
- * @param from - Valor tipado de from utilizado por esta operación.
- * @param to - Valor tipado de to utilizado por esta operación.
- * @returns `Promise<import("mysql2").RowDataPacket[]>`, según el contrato de la operación.
+ * @param from - Límite inicial del período o estado de origen, según su tipo.
+ * @param to - Límite final o estado destino, según su tipo.
+ * @returns `Promise<import("mysql2").RowDataPacket[]>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export function completedWork(from: string, to: string) {
@@ -14,9 +14,9 @@ export function completedWork(from: string, to: string) {
   );
 }
 /** Ingresos contabilizados por momento real del pago, sin multiplicarlos por servicios.
- * @param from - Valor tipado de from utilizado por esta operación.
- * @param to - Valor tipado de to utilizado por esta operación.
- * @returns `Promise<import("mysql2").RowDataPacket[]>`, según el contrato de la operación.
+ * @param from - Límite inicial del período o estado de origen, según su tipo.
+ * @param to - Límite final o estado destino, según su tipo.
+ * @returns `Promise<import("mysql2").RowDataPacket[]>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export function revenue(from: string, to: string) {
@@ -26,9 +26,9 @@ export function revenue(from: string, to: string) {
   );
 }
 /** Servicios contratados por fecha de atención, excluyendo cancelados.
- * @param from - Valor tipado de from utilizado por esta operación.
- * @param to - Valor tipado de to utilizado por esta operación.
- * @returns `Promise<import("mysql2").RowDataPacket[]>`, según el contrato de la operación.
+ * @param from - Límite inicial del período o estado de origen, según su tipo.
+ * @param to - Límite final o estado destino, según su tipo.
+ * @returns `Promise<import("mysql2").RowDataPacket[]>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export function popularServices(from: string, to: string) {
@@ -41,9 +41,9 @@ export function popularServices(from: string, to: string) {
 }
 /** Cuenta trabajos propios por estado y fecha, sin revelar ingresos del negocio.
  * @param id - Identificador del recurso dentro del proyecto actual.
- * @param from - Valor tipado de from utilizado por esta operación.
- * @param to - Valor tipado de to utilizado por esta operación.
- * @returns `Promise<import("mysql2").RowDataPacket[]>`, según el contrato de la operación.
+ * @param from - Límite inicial del período o estado de origen, según su tipo.
+ * @param to - Límite final o estado destino, según su tipo.
+ * @returns `Promise<import("mysql2").RowDataPacket[]>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export function employeeSummary(id: string, from: string, to: string) {

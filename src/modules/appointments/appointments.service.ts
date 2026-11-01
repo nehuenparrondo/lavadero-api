@@ -53,8 +53,8 @@ export async function getAppointment(actor: Actor, id: string) {
 /** Registra observación solo en turno asignado (o admin).
  * @param actor - Actor autenticado por el middleware; determina rol y propiedad.
  * @param id - Identificador del recurso dentro del proyecto actual.
- * @param body - Valor tipado de body utilizado por esta operación.
- * @returns `Promise<{ created: boolean; }>`, según el contrato de la operación.
+ * @param body - Carga validada de la operación de escritura.
+ * @returns `Promise<{ created: boolean; }>`.
  */
 export async function addNote(actor: Actor, id: string, body: string) {
   const appointment = await repo.findAppointment(id);

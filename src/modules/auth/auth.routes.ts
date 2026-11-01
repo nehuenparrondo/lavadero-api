@@ -6,7 +6,7 @@ import * as controller from './auth.controller.js';
 import * as schema from './auth.schema.js';
 
 /** Rutas públicas de autenticación con límite por origen; sin estado de negocio en routes.
- * @returns `import("express-serve-static-core").Router`, según el contrato de la operación.
+ * @returns `import("express-serve-static-core").Router`.
  */
 export function createAuthRoutes() {
   const router = Router();

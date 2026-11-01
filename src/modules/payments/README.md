@@ -1,6 +1,17 @@
-# payments
+# modules/payments
 
-Cobros en efectivo/transferencia por turno. Lock del turno, clave de idempotencia y límite de saldo evitan duplicados o sobrepagos concurrentes. Empleado requiere asignación y habilitación administrativa.
+Registro contable de cobros, no ejecución de transferencias. Bloquear turno, respetar saldo y conservar la clave al reintentar.
 
-Rutas → middlewares → controller → service → repository. Validaciones en schema y contratos en types.
-Consultá [API.md](../../../API.md) para métodos, permisos, ejemplos y errores.
+## Archivos y responsabilidades
+
+| Archivo                                          | Responsabilidad                                                                                 |
+| ------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| [payments.controller.ts](payments.controller.ts) | Cobros del turno autorizado.                                                                    |
+| [payments.repository.ts](payments.repository.ts) | Lista cobros del turno sin datos de autenticación.                                              |
+| [payments.routes.ts](payments.routes.ts)         | Rutas anidadas que conservan appointment id por mergeParams.                                    |
+| [payments.schema.ts](payments.schema.ts)         | Cobro idempotente en centavos ARS. Clave estable al reintentar desde móvil.                     |
+| [payments.service.ts](payments.service.ts)       | Lista cobros propios o administrados; empleados solo pueden registrar cuando están habilitados. |
+
+## Mantenimiento
+
+Consultar los TSDoc de cada función antes de cambiar sus precondiciones. Mantener los efectos en su capa y actualizar esta tabla junto con el módulo. Ejecutar npm run check desde la raíz del repositorio.

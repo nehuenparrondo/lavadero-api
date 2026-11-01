@@ -6,7 +6,7 @@ import { endpoint } from '../../utils/http.js';
 import * as c from './settings.controller.js';
 import { settingsSchema } from './settings.schema.js';
 /** Todos pueden conocer horarios; solo admin puede editarlos.
- * @returns `import("express-serve-static-core").Router`, según el contrato de la operación.
+ * @returns `import("express-serve-static-core").Router`.
  */
 export function createSettingsRoutes() {
   const r = Router();
@@ -16,7 +16,7 @@ export function createSettingsRoutes() {
   return r;
 }
 /** Horarios y política de cancelación legibles por todos, fuera de las rutas administrativas.
- * @returns `import("express-serve-static-core").Router`, según el contrato de la operación.
+ * @returns `import("express-serve-static-core").Router`.
  */
 export function createBusinessRoutes() {
   const r = Router();

@@ -4,9 +4,9 @@ import { AppError } from '../errors/AppError.js';
 import type { Actor } from '../types/domain.js';
 
 /** Adapta un controller async al sobre REST estándar.
- * @param handler - Valor tipado de handler utilizado por esta operación.
- * @param status - Valor tipado de status utilizado por esta operación.
- * @returns `RequestHandler<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>`, según el contrato de la operación.
+ * @param handler - Controlador que devuelve datos o rechaza con un error del caso de uso.
+ * @param status - Estado solicitado; el servicio comprueba si la transición está permitida.
+ * @returns `RequestHandler<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>`.
  */
 export function endpoint(
   handler: (request: Request) => Promise<unknown>,
@@ -17,8 +17,8 @@ export function endpoint(
   };
 }
 /** Extrae actor autenticado. @throws AppError 401 si falta sesión.
- * @param request - Valor tipado de request utilizado por esta operación.
- * @returns `Actor`, según el contrato de la operación.
+ * @param request - Petición HTTP de Express; su entrada se valida antes de ejecutar el caso de uso.
+ * @returns `Actor`.
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */
 export function actor(request: Request): Actor {
@@ -26,9 +26,9 @@ export function actor(request: Request): Actor {
   return request.actor;
 }
 /** Valida un identificador decimal positivo sin perder precisión BIGINT.
- * @param request - Valor tipado de request utilizado por esta operación.
- * @param name - Valor tipado de name utilizado por esta operación.
- * @returns `string`, según el contrato de la operación.
+ * @param request - Petición HTTP de Express; su entrada se valida antes de ejecutar el caso de uso.
+ * @param name - Nombre del campo o etiqueta según el contrato declarado.
+ * @returns `string`.
  */
 export function paramId(request: Request, name = 'id'): string {
   return z

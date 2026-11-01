@@ -21,7 +21,7 @@ const select = `SELECT currency_code currencyCode,time_zone timeZone,cancellatio
 /** Lee configuración o bloquea la fila común para serializar cambios de agenda y reservas.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
  * @param lock - Si es verdadero, bloquea la fila hasta el final de la transacción.
- * @returns `Promise<Settings | undefined>`, según el contrato de la operación.
+ * @returns `Promise<Settings | undefined>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function readSettings(executor?: Executor, lock = false) {
@@ -29,7 +29,7 @@ export async function readSettings(executor?: Executor, lock = false) {
 }
 /** Lee días abiertos, sin filas para días cerrados.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<BusinessHour[]>`, según el contrato de la operación.
+ * @returns `Promise<BusinessHour[]>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export function readHours(executor?: Executor) {
@@ -42,7 +42,7 @@ export function readHours(executor?: Executor) {
 /** Guarda parámetros bajo la misma transacción de horario.
  * @param input - Entrada validada por el esquema del caso de uso.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<void>`, según el contrato de la operación.
+ * @returns `Promise<void>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function updateSettings(
@@ -68,7 +68,7 @@ export async function updateSettings(
 /** Reemplaza la semana completa de forma atómica.
  * @param hours - Días y horarios de atención en la zona del negocio.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<void>`, según el contrato de la operación.
+ * @returns `Promise<void>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function updateHours(

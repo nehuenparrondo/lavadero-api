@@ -2,7 +2,7 @@ import { execute, rows } from '../../utils/db.js';
 
 /** Lee notas atribuidas a su autor, después de autorizar el turno en service.
  * @param id - Identificador del recurso dentro del proyecto actual.
- * @returns `Promise<import("mysql2").RowDataPacket[]>`, según el contrato de la operación.
+ * @returns `Promise<import("mysql2").RowDataPacket[]>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export function readNotes(id: string) {
@@ -15,9 +15,9 @@ export function readNotes(id: string) {
 
 /** Persiste una observación; el autor proviene de la sesión autenticada.
  * @param id - Identificador del recurso dentro del proyecto actual.
- * @param authorId - Valor tipado de authorId utilizado por esta operación.
- * @param body - Valor tipado de body utilizado por esta operación.
- * @returns `Promise<import("mysql2").ResultSetHeader>`, según el contrato de la operación.
+ * @param authorId - Identificador del autor conservado en el historial.
+ * @param body - Carga validada de la operación de escritura.
+ * @returns `Promise<import("mysql2").ResultSetHeader>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export function insertNote(id: string, authorId: string, body: string) {

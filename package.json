@@ -23,7 +23,8 @@
     "test:database": "tsx --test tests/database.integration.ts",
     "docs:schemas": "tsx scripts/exportSchemas.ts",
     "test:acceptance": "tsx --test --test-concurrency=1 tests/security.integration.ts tests/booking.integration.ts tests/oauth.integration.ts tests/oauth-link.integration.ts",
-    "audit:source": "tsx scripts/auditSource.ts"
+    "audit:source": "tsx scripts/auditSource.ts",
+    "docs:source": "node scripts/document-source.mjs"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

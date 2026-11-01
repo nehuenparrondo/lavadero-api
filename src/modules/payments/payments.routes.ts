@@ -6,7 +6,7 @@ import { endpoint } from '../../utils/http.js';
 import * as c from './payments.controller.js';
 import { paymentSchema } from './payments.schema.js';
 /** Rutas anidadas que conservan appointment id por mergeParams.
- * @returns `import("express-serve-static-core").Router`, según el contrato de la operación.
+ * @returns `import("express-serve-static-core").Router`.
  */
 export function createPaymentsRoutes() {
   const r = Router({ mergeParams: true });

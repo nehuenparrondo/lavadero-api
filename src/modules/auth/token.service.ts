@@ -4,7 +4,7 @@ import { authEnv } from '../../config/authEnv.js';
 import { AppError } from '../../errors/AppError.js';
 import type { Actor } from '../../types/domain.js';
 
-/** Obtiene clave privada de firma desde entorno. @throws AppError 503 si falta configuración. */
+/** Obtiene clave secreta HMAC de firma desde entorno. @throws AppError 503 si falta configuración. */
 function signingKey() {
   if (!authEnv.JWT_ACCESS_SECRET)
     throw new AppError(
@@ -17,7 +17,7 @@ function signingKey() {
 /** Emite JWT de quince minutos con audiencia e issuer restringidos.
  * @param user - Perfil vigente; nunca incluye una contraseña legible.
  * @param familyId - Familia de sesión que agrupa sus renovaciones.
- * @returns `Promise<string>`, según el contrato de la operación.
+ * @returns `Promise<string>`.
  */
 export function signAccess(user: Actor, familyId?: string) {
   return new SignJWT({
@@ -35,7 +35,7 @@ export function signAccess(user: Actor, familyId?: string) {
 }
 /** Verifica firma y tiempo. @throws AppError 401 si expiró o fue alterado.
  * @param token - Token recibido; se valida o transforma antes de utilizarlo.
- * @returns `Promise<import("jose").JWTPayload>`, según el contrato de la operación.
+ * @returns `Promise<import("jose").JWTPayload>`.
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */
 export async function verifyAccess(token: string) {
@@ -52,14 +52,14 @@ export async function verifyAccess(token: string) {
   }
 }
 /** Genera tokens criptográficos opacos.
- * @returns `string`, según el contrato de la operación.
+ * @returns `string`.
  */
 export function opaqueToken() {
   return randomBytes(32).toString('hex');
 }
 /** Hash irreversible para persistir tokens revocables.
  * @param token - Token recibido; se valida o transforma antes de utilizarlo.
- * @returns `NonSharedBuffer`, según el contrato de la operación.
+ * @returns `NonSharedBuffer`.
  */
 export function tokenHash(token: string) {
   return createHash('sha256').update(token).digest();

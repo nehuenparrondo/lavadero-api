@@ -18,18 +18,18 @@ const select = `SELECT CAST(v.id AS CHAR) id,CAST(v.owner_id AS CHAR) ownerId,CA
 /** Busca vehículo; autorización corresponde al servicio o requireOwnership.
  * @param id - Identificador del recurso dentro del proyecto actual.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<Vehicle | undefined>`, según el contrato de la operación.
+ * @returns `Promise<Vehicle | undefined>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function findVehicle(id: string, executor?: Executor) {
   return (await rows<Vehicle>(select + ' WHERE v.id=?', [id], executor))[0];
 }
 /** Lista solo propios cuando ownerId está definido.
- * @param ownerId - Valor tipado de ownerId utilizado por esta operación.
+ * @param ownerId - Titular del vehículo, comprobado contra actor y reserva.
  * @param page - Número de página desde uno.
  * @param limit - Cantidad máxima de filas permitida por el esquema de paginación.
- * @param search - Valor tipado de search utilizado por esta operación.
- * @returns `Promise<{ items: Vehicle[]; page: number; limit: number; total: number; }>`, según el contrato de la operación.
+ * @param search - Texto de búsqueda que se envía como parámetro SQL.
+ * @returns `Promise<{ items: Vehicle[]; page: number; limit: number; total: number; }>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function listVehicles(
@@ -54,7 +54,7 @@ export async function listVehicles(
 }
 /** Guarda vehículo validado usando parámetros.
  * @param v - Datos tipados del elemento o formulario que se transforma.
- * @returns `Promise<string>`, según el contrato de la operación.
+ * @returns `Promise<string>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function insertVehicle(v: Omit<Vehicle, 'id' | 'typeName' | 'deletedAt'>) {
@@ -71,7 +71,7 @@ export async function insertVehicle(v: Omit<Vehicle, 'id' | 'typeName' | 'delete
  * @param id - Identificador del recurso dentro del proyecto actual.
  * @param v - Datos tipados del elemento o formulario que se transforma.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<void>`, según el contrato de la operación.
+ * @returns `Promise<void>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function updateVehicle(id: string, v: Vehicle, executor?: Executor) {
@@ -84,7 +84,7 @@ export async function updateVehicle(id: string, v: Vehicle, executor?: Executor)
 /** Elimina lógicamente sin perder historial.
  * @param id - Identificador del recurso dentro del proyecto actual.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<boolean>`, según el contrato de la operación.
+ * @returns `Promise<boolean>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function removeVehicle(id: string, executor?: Executor) {
@@ -100,7 +100,7 @@ export async function removeVehicle(id: string, executor?: Executor) {
 }
 /** Indica si el tipo está habilitado para nuevos vehículos.
  * @param id - Identificador del recurso dentro del proyecto actual.
- * @returns `Promise<boolean>`, según el contrato de la operación.
+ * @returns `Promise<boolean>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function isVehicleTypeActive(id: string) {

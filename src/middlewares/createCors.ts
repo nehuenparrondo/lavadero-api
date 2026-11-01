@@ -2,8 +2,8 @@ import cors from 'cors';
 import { AppError } from '../errors/AppError.js';
 
 /** Permite orígenes web exactos y apps nativas, que no envían cabecera Origin.
- * @param origins - Valor tipado de origins utilizado por esta operación.
- * @returns `(req: cors.CorsRequest, res: { statusCode?: number | undefined; setHeader(key: string, value: string): any; end(): any; }, next: (err?: any) => any) => void`, según el contrato de la operación.
+ * @param origins - Orígenes exactos habilitados para CORS.
+ * @returns `(req: cors.CorsRequest, res: { statusCode?: number | undefined; setHeader(key: string, value: string): any; end(): any; }, next: (err?: any) => any) => void`.
  */
 export function createCors(origins: readonly string[]) {
   return cors({

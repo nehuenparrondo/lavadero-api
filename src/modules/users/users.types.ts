@@ -19,8 +19,8 @@ export interface Identity extends RowDataPacket {
   deletedAt: string | null;
 }
 /** Convierte el registro privado en un perfil público de campos explícitos.
- * @param row - Valor tipado de row utilizado por esta operación.
- * @returns `User`, según el contrato de la operación.
+ * @param row - Fila de persistencia que se proyecta al dominio o a la respuesta pública.
+ * @returns `User`.
  */
 export function publicUser(row: Identity): User {
   return {

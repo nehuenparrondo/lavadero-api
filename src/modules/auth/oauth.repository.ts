@@ -5,7 +5,7 @@ import type { OAuthState, Provider } from './oauth.types.js';
 /** Persiste estado opaco con vencimiento corto.
  * @param hash - Hash del token; evita persistir su valor legible.
  * @param v - Datos tipados del elemento o formulario que se transforma.
- * @returns `Promise<void>`, según el contrato de la operación.
+ * @returns `Promise<void>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function saveState(
@@ -28,7 +28,7 @@ export async function saveState(
 /** Bloquea/consume estado una vez antes de contactar al proveedor.
  * @param hash - Hash del token; evita persistir su valor legible.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<OAuthState | undefined>`, según el contrato de la operación.
+ * @returns `Promise<OAuthState | undefined>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function takeState(hash: Buffer, executor: Executor) {
@@ -45,9 +45,9 @@ export async function takeState(hash: Buffer, executor: Executor) {
 }
 /** Busca identidad externa por sujeto estable del proveedor.
  * @param provider - Proveedor permitido: Google, Discord o GitHub.
- * @param subject - Valor tipado de subject utilizado por esta operación.
+ * @param subject - Identificador estable del usuario dentro del proveedor social.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<RowDataPacket | undefined>`, según el contrato de la operación.
+ * @returns `Promise<RowDataPacket | undefined>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function findSocial(provider: Provider, subject: string, executor: Executor) {
@@ -62,9 +62,9 @@ export async function findSocial(provider: Provider, subject: string, executor: 
 /** Vincula email verificado a la identidad ya existente.
  * @param id - Identificador del recurso dentro del proyecto actual.
  * @param provider - Proveedor permitido: Google, Discord o GitHub.
- * @param subject - Valor tipado de subject utilizado por esta operación.
+ * @param subject - Identificador estable del usuario dentro del proveedor social.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<import("mysql2/promise").ResultSetHeader>`, según el contrato de la operación.
+ * @returns `Promise<import("mysql2/promise").ResultSetHeader>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export function linkSocial(

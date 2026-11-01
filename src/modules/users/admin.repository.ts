@@ -5,7 +5,7 @@ import { execute, rows } from '../../utils/db.js';
 
 /** Serializa todos los cambios que podrían eliminar el último administrador.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<void>`, según el contrato de la operación.
+ * @returns `Promise<void>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function lockAdminGuard(executor: Executor) {
@@ -13,7 +13,7 @@ export async function lockAdminGuard(executor: Executor) {
 }
 /** Cuenta administradores vigentes dentro de la transacción que tiene el guard.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<number>`, según el contrato de la operación.
+ * @returns `Promise<number>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function countActiveAdmins(executor: Executor) {
@@ -29,7 +29,7 @@ export async function countActiveAdmins(executor: Executor) {
  * @param id - Identificador del recurso dentro del proyecto actual.
  * @param role - Rol permitido del catálogo de seguridad.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<void>`, según el contrato de la operación.
+ * @returns `Promise<void>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function setRole(id: string, role: Role, executor: Executor) {
@@ -41,12 +41,12 @@ export async function setRole(id: string, role: Role, executor: Executor) {
 }
 /** Actualiza permisos o estado lógico con lista cerrada de columnas.
  * @param id - Identificador del recurso dentro del proyecto actual.
- * @param email - Valor tipado de email utilizado por esta operación.
- * @param active - Valor tipado de active utilizado por esta operación.
- * @param canPay - Valor tipado de canPay utilizado por esta operación.
- * @param deleted - Valor tipado de deleted utilizado por esta operación.
+ * @param email - Correo normalizado utilizado para localizar la identidad.
+ * @param active - Estado de activación lógica del recurso.
+ * @param canPay - Permiso vigente para ofrecer el registro de cobros.
+ * @param deleted - Solicita baja lógica además de desactivar la cuenta.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<void>`, según el contrato de la operación.
+ * @returns `Promise<void>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function setAccount(
@@ -67,7 +67,7 @@ export async function setAccount(
  * @param id - Identificador del recurso dentro del proyecto actual.
  * @param hash - Hash del token; evita persistir su valor legible.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<void>`, según el contrato de la operación.
+ * @returns `Promise<void>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function setPassword(id: string, hash: string, executor: Executor) {

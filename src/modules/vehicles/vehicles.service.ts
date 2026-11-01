@@ -16,7 +16,7 @@ import { vehicleSchema } from './vehicles.schema.js';
  * @param current - Identidad o entidad actual usada para conservar sus invariantes.
  * @param id - Identificador del recurso dentro del proyecto actual.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<repository.Vehicle>`, según el contrato de la operación.
+ * @returns `Promise<repository.Vehicle>`.
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */
 export async function getVehicle(current: Actor, id: string, executor?: Executor) {
@@ -37,7 +37,7 @@ async function validateOwner(current: Actor, ownerId: string, typeId: string) {
 /** Crea vehículo y asigna al cliente autenticado, salvo gestión administrativa.
  * @param current - Identidad o entidad actual usada para conservar sus invariantes.
  * @param input - Entrada validada por el esquema del caso de uso.
- * @returns `Promise<repository.Vehicle>`, según el contrato de la operación.
+ * @returns `Promise<repository.Vehicle>`.
  */
 export async function createVehicle(current: Actor, input: z.infer<typeof vehicleSchema>) {
   const ownerId = input.ownerId ?? current.id;
@@ -49,7 +49,7 @@ export async function createVehicle(current: Actor, input: z.infer<typeof vehicl
  * @param current - Identidad o entidad actual usada para conservar sus invariantes.
  * @param id - Identificador del recurso dentro del proyecto actual.
  * @param input - Entrada validada por el esquema del caso de uso.
- * @returns `Promise<repository.Vehicle>`, según el contrato de la operación.
+ * @returns `Promise<repository.Vehicle>`.
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */
 export async function editVehicle(
@@ -83,7 +83,7 @@ export async function editVehicle(
 /** Rechaza baja de vehículos con trabajos aún pendientes.
  * @param current - Identidad o entidad actual usada para conservar sus invariantes.
  * @param id - Identificador del recurso dentro del proyecto actual.
- * @returns `Promise<{ deleted: boolean; }>`, según el contrato de la operación.
+ * @returns `Promise<{ deleted: boolean; }>`.
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */
 export async function deleteVehicle(current: Actor, id: string) {

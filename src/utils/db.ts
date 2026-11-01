@@ -5,7 +5,7 @@ import { AppError } from '../errors/AppError.js';
 /** Ejecutor SQL utilizado exclusivamente por repositories e infraestructura. */
 export type Executor = Pool | PoolConnection;
 /** Obtiene infraestructura configurada. @throws AppError 503 cuando falta la base.
- * @returns `Pool`, según el contrato de la operación.
+ * @returns `Pool`.
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */
 export function db(): Pool {
@@ -14,10 +14,10 @@ export function db(): Pool {
   return database;
 }
 /** Consulta parametrizada con filas tipadas. @throws Error del driver, manejado centralmente.
- * @param sql - Valor tipado de sql utilizado por esta operación.
+ * @param sql - Plantilla SQL; los valores del usuario van exclusivamente en placeholders.
  * @param values - Valores del formulario o parámetros que se serializan para la operación.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<T[]>`, según el contrato de la operación.
+ * @returns `Promise<T[]>`.
  */
 export async function rows<T extends RowDataPacket>(
   sql: string,
@@ -28,10 +28,10 @@ export async function rows<T extends RowDataPacket>(
   return result;
 }
 /** Escritura parametrizada. Nunca interpolar valores de usuarios dentro de sql.
- * @param sql - Valor tipado de sql utilizado por esta operación.
+ * @param sql - Plantilla SQL; los valores del usuario van exclusivamente en placeholders.
  * @param values - Valores del formulario o parámetros que se serializan para la operación.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<ResultSetHeader>`, según el contrato de la operación.
+ * @returns `Promise<ResultSetHeader>`.
  */
 export async function execute(sql: string, values: unknown[] = [], executor: Executor = db()) {
   const [result] = await executor.query<ResultSetHeader>(sql, values);

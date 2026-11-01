@@ -17,7 +17,7 @@ import { createVehiclesRoutes } from './modules/vehicles/vehicles.routes.js';
 import { createVehicleTypesRoutes } from './modules/vehicleTypes/vehicleTypes.routes.js';
 
 /** Compone módulos autónomos bajo /api/v1 sin lógica de negocio.
- * @returns `import("express-serve-static-core").Router`, según el contrato de la operación.
+ * @returns `import("express-serve-static-core").Router`.
  */
 export function createApiRoutes() {
   const r = Router();

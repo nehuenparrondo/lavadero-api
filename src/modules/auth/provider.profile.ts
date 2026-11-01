@@ -58,7 +58,7 @@ async function githubProfile(headers: Record<string, string>): Promise<SocialIde
 /** Selecciona un endpoint cerrado; el cliente no puede introducir URLs de proveedor.
  * @param provider - Proveedor permitido: Google, Discord o GitHub.
  * @param token - Token recibido; se valida o transforma antes de utilizarlo.
- * @returns `Promise<SocialIdentity>`, según el contrato de la operación.
+ * @returns `Promise<SocialIdentity>`.
  */
 export function providerProfile(provider: Provider, token: string) {
   const headers = {

@@ -1,7 +1,7 @@
 import { execute, rows } from '../../utils/db.js';
 /** Lista tipos de vehículo con ID string.
- * @param admin - Valor tipado de admin utilizado por esta operación.
- * @returns `Promise<import("mysql2").RowDataPacket[]>`, según el contrato de la operación.
+ * @param admin - Habilita controles de gestión; el servidor conserva la autorización real.
+ * @returns `Promise<import("mysql2").RowDataPacket[]>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export function listTypes(admin: boolean) {
@@ -12,7 +12,7 @@ export function listTypes(admin: boolean) {
 }
 /** Crea tipo y devuelve ID.
  * @param v - Datos tipados del elemento o formulario que se transforma.
- * @returns `Promise<string>`, según el contrato de la operación.
+ * @returns `Promise<string>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function insertType(v: { code: string; name: string; isActive: boolean }) {
@@ -29,7 +29,7 @@ export async function insertType(v: { code: string; name: string; isActive: bool
 /** Edita tipo.
  * @param id - Identificador del recurso dentro del proyecto actual.
  * @param v - Datos tipados del elemento o formulario que se transforma.
- * @returns `Promise<import("mysql2").ResultSetHeader>`, según el contrato de la operación.
+ * @returns `Promise<import("mysql2").ResultSetHeader>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export function updateType(id: string, v: { code: string; name: string; isActive: boolean }) {
@@ -42,7 +42,7 @@ export function updateType(id: string, v: { code: string; name: string; isActive
 }
 /** Baja lógica del tipo.
  * @param id - Identificador del recurso dentro del proyecto actual.
- * @returns `Promise<import("mysql2").ResultSetHeader>`, según el contrato de la operación.
+ * @returns `Promise<import("mysql2").ResultSetHeader>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export function deactivateType(id: string) {

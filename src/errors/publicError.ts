@@ -23,8 +23,8 @@ const sqlErrors: Record<string, { code: string; message: string }> = {
   },
 };
 /** Proyección pública de errores; nunca incluye SQL, tokens ni stack traces.
- * @param error - Valor tipado de error utilizado por esta operación.
- * @returns `{ status: number; error: { code: string; message: string; fields: { path: string; message: string; }[]; }; } | { status: number; error: { code: string; message: string; }; }`, según el contrato de la operación.
+ * @param error - Fallo recibido que se proyecta sin exponer datos internos.
+ * @returns `{ status: number; error: { code: string; message: string; fields: { path: string; message: string; }[]; }; } | { status: number; error: { code: string; message: string; }; }`.
  */
 export function publicError(error: unknown) {
   if (error instanceof ZodError) return validationError(error);

@@ -9,7 +9,7 @@ import { signAccess } from './token.service.js';
 
 /** Registra siempre Cliente y no acepta privilegios del request.
  * @param input - Entrada validada por el esquema del caso de uso.
- * @returns `Promise<{ user: import("../../types/domain.js").User; accessToken: string; refreshToken: string; expiresIn: number; sessionId: string; }>`, según el contrato de la operación.
+ * @returns `Promise<{ user: import("../../types/domain.js").User; accessToken: string; refreshToken: string; expiresIn: number; sessionId: string; }>`.
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */
 export async function register(input: z.infer<typeof registerSchema>) {
@@ -29,7 +29,7 @@ export async function register(input: z.infer<typeof registerSchema>) {
 }
 /** Autentica sin revelar si el email o la contraseña fue incorrecto.
  * @param input - Entrada validada por el esquema del caso de uso.
- * @returns `Promise<{ user: import("../../types/domain.js").User; accessToken: string; refreshToken: string; expiresIn: number; sessionId: string; }>`, según el contrato de la operación.
+ * @returns `Promise<{ user: import("../../types/domain.js").User; accessToken: string; refreshToken: string; expiresIn: number; sessionId: string; }>`.
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */
 export async function login(input: z.infer<typeof loginSchema>) {

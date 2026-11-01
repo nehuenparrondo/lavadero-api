@@ -16,7 +16,7 @@ import { publicUser } from './users.types.js';
 
 /** Lee perfil por ID y exige que la cuenta exista.
  * @param id - Identificador del recurso dentro del proyecto actual.
- * @returns `Promise<import("../../types/domain.js").User>`, según el contrato de la operación.
+ * @returns `Promise<import("../../types/domain.js").User>`.
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */
 export async function getProfile(id: string) {
@@ -27,7 +27,7 @@ export async function getProfile(id: string) {
 /** Guarda solo perfil permitido, preservando campos omitidos.
  * @param current - Identidad o entidad actual usada para conservar sus invariantes.
  * @param input - Entrada validada por el esquema del caso de uso.
- * @returns `Promise<import("../../types/domain.js").User>`, según el contrato de la operación.
+ * @returns `Promise<import("../../types/domain.js").User>`.
  */
 export async function updateOwnProfile(current: Actor, input: z.infer<typeof profileSchema>) {
   const user = await getProfile(current.id);
@@ -41,7 +41,7 @@ export async function updateOwnProfile(current: Actor, input: z.infer<typeof pro
 }
 /** Alta administrativa con contraseña hasheada y rol previamente autorizado por ruta.
  * @param input - Entrada validada por el esquema del caso de uso.
- * @returns `Promise<import("../../types/domain.js").User>`, según el contrato de la operación.
+ * @returns `Promise<import("../../types/domain.js").User>`.
  */
 export async function createUser(input: z.infer<typeof createUserSchema>) {
   const id = await repository.insertUser(
@@ -53,7 +53,7 @@ export async function createUser(input: z.infer<typeof createUserSchema>) {
 }
 /** Lista perfiles sin datos de autenticación.
  * @param input - Entrada validada por el esquema del caso de uso.
- * @returns `Promise<{ items: import("../../types/domain.js").User[]; total: number; page: number; limit: number; }>`, según el contrato de la operación.
+ * @returns `Promise<{ items: import("../../types/domain.js").User[]; total: number; page: number; limit: number; }>`.
  */
 export async function listUsers(input: z.infer<typeof usersQuerySchema>) {
   const result = await repository.listUsers(input.search, input.role, input.page, input.limit);
@@ -62,7 +62,7 @@ export async function listUsers(input: z.infer<typeof usersQuerySchema>) {
 /** Verifica contraseña actual y revoca sesiones anteriores al cambiarla.
  * @param current - Identidad o entidad actual usada para conservar sus invariantes.
  * @param input - Entrada validada por el esquema del caso de uso.
- * @returns `Promise<{ passwordChanged: boolean; requiresLogin: boolean; }>`, según el contrato de la operación.
+ * @returns `Promise<{ passwordChanged: boolean; requiresLogin: boolean; }>`.
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */
 export async function changePassword(

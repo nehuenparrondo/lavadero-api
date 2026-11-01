@@ -4,7 +4,7 @@ import { requireRole } from '../../middlewares/requireRole.js';
 import { endpoint } from '../../utils/http.js';
 import * as c from './reports.controller.js';
 /** Reportes de ingresos solo admin; resumen de jornada solo empleado.
- * @returns `import("express-serve-static-core").Router`, según el contrato de la operación.
+ * @returns `import("express-serve-static-core").Router`.
  */
 export function createReportsRoutes() {
   const r = Router();

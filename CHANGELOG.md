@@ -1,5 +1,11 @@
 # Changelog
 
+## Documentación y experiencia profesional — 01/11/2026
+
+- Contratos TSDoc precisados en autenticación, reservas, capacidad, cobros y persistencia.
+- Guía de invariantes y recorridos, mapa de todos los módulos y README actualizados por carpeta.
+- La lógica ejecutable de producción se conserva: cambios de fuente limitados a comentarios.
+
 ## Revisión de requisitos — 01/11/2026
 
 - Vinculación social de cuentas locales confirmando su contraseña, PKCE y límite de intentos.

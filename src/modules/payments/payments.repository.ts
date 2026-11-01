@@ -3,7 +3,7 @@ import { execute, rows } from '../../utils/db.js';
 /** Lista cobros del turno sin datos de autenticación.
  * @param id - Identificador del recurso dentro del proyecto actual.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<import("mysql2").RowDataPacket[]>`, según el contrato de la operación.
+ * @returns `Promise<import("mysql2").RowDataPacket[]>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export function listPayments(id: string, executor?: Executor) {
@@ -15,9 +15,9 @@ export function listPayments(id: string, executor?: Executor) {
   );
 }
 /** Busca un reintento de cobro por clave global.
- * @param key - Valor tipado de key utilizado por esta operación.
+ * @param key - Clave estable del recurso o estado que se actualiza.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<import("mysql2").RowDataPacket | undefined>`, según el contrato de la operación.
+ * @returns `Promise<import("mysql2").RowDataPacket | undefined>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function findPayment(key: string, executor: Executor) {
@@ -35,7 +35,7 @@ export async function findPayment(key: string, executor: Executor) {
  * @param actorId - Usuario autenticado que realizó el cambio para el historial de auditoría.
  * @param v - Datos tipados del elemento o formulario que se transforma.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<string>`, según el contrato de la operación.
+ * @returns `Promise<string>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function insertPayment(

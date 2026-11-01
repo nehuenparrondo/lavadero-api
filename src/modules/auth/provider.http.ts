@@ -1,8 +1,8 @@
 import { AppError } from '../../errors/AppError.js';
 /** Consulta HTTP al proveedor con timeout; solo acepta respuesta JSON exitosa.
- * @param url - Valor tipado de url utilizado por esta operación.
- * @param init - Valor tipado de init utilizado por esta operación.
- * @returns `Promise<Record<string, unknown>>`, según el contrato de la operación.
+ * @param url - Dirección que debe superar la validación del consumidor antes de utilizarse.
+ * @param init - Inicializador del estado local del editor.
+ * @returns `Promise<Record<string, unknown>>`.
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */
 export async function fetchJson(url: string, init: RequestInit) {

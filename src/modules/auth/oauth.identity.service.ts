@@ -41,7 +41,7 @@ async function resolveIdentity(
  * @param provider - Proveedor permitido: Google, Discord o GitHub.
  * @param profile - Identidad verificada obtenida directamente del proveedor social.
  * @param state - Estado del flujo con sus datos y vencimiento.
- * @returns `Promise<string>`, según el contrato de la operación.
+ * @returns `Promise<string>`.
  */
 export function issueGrant(provider: Provider, profile: SocialIdentity, state: OAuthState) {
   return transaction(async (connection) => {

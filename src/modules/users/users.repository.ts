@@ -11,7 +11,7 @@ const fields = `SELECT CAST(u.id AS CHAR) id,u.email,u.password_hash passwordHas
  * @param id - Identificador del recurso dentro del proyecto actual.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
  * @param lock - Si es verdadero, bloquea la fila hasta el final de la transacción.
- * @returns `Promise<Identity | undefined>`, según el contrato de la operación.
+ * @returns `Promise<Identity | undefined>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function findUser(id: string, executor?: Executor, lock = false) {
@@ -24,9 +24,9 @@ export async function findUser(id: string, executor?: Executor, lock = false) {
   )[0];
 }
 /** Busca email normalizado para login o vinculación OAuth verificada.
- * @param email - Valor tipado de email utilizado por esta operación.
+ * @param email - Correo normalizado utilizado para localizar la identidad.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<Identity | undefined>`, según el contrato de la operación.
+ * @returns `Promise<Identity | undefined>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function findByEmail(email: string, executor?: Executor) {
@@ -39,7 +39,7 @@ export async function findByEmail(email: string, executor?: Executor) {
  * @param hash - Hash del token; evita persistir su valor legible.
  * @param role - Rol permitido del catálogo de seguridad.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<string>`, según el contrato de la operación.
+ * @returns `Promise<string>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function insertUser(
@@ -69,11 +69,11 @@ export async function insertUser(
   return String(result.insertId);
 }
 /** Lista usuarios sin hashes con búsqueda y paginación; filtros son valores parametrizados.
- * @param search - Valor tipado de search utilizado por esta operación.
+ * @param search - Texto de búsqueda que se envía como parámetro SQL.
  * @param role - Rol permitido del catálogo de seguridad.
  * @param page - Número de página desde uno.
  * @param limit - Cantidad máxima de filas permitida por el esquema de paginación.
- * @returns `Promise<{ items: Identity[]; total: number; page: number; limit: number; }>`, según el contrato de la operación.
+ * @returns `Promise<{ items: Identity[]; total: number; page: number; limit: number; }>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function listUsers(
@@ -100,7 +100,7 @@ export async function listUsers(
  * @param id - Identificador del recurso dentro del proyecto actual.
  * @param input - Entrada validada por el esquema del caso de uso.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<void>`, según el contrato de la operación.
+ * @returns `Promise<void>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function updateProfile(
@@ -122,7 +122,7 @@ export async function updateProfile(
 /** Invalida permisos antiguos y todos los refresh de una cuenta.
  * @param id - Identificador del recurso dentro del proyecto actual.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<void>`, según el contrato de la operación.
+ * @returns `Promise<void>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function revokeUserSessions(id: string, executor: Executor) {

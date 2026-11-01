@@ -9,10 +9,10 @@ import * as repository from './session.repository.js';
 import { opaqueToken, signAccess, tokenHash } from './token.service.js';
 
 /** Crea JWT propio y refresh opaco asociado. El caller garantiza cuenta activa.
- * @param identity - Valor tipado de identity utilizado por esta operación.
+ * @param identity - Identidad interna; puede contener hash de contraseña y no se serializa completa.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
  * @param familyId - Familia de sesión que agrupa sus renovaciones.
- * @returns `Promise<{ user: import("../../types/domain.js").User; accessToken: string; refreshToken: string; expiresIn: number; sessionId: string; }>`, según el contrato de la operación.
+ * @returns `Promise<{ user: import("../../types/domain.js").User; accessToken: string; refreshToken: string; expiresIn: number; sessionId: string; }>`.
  */
 export async function createSession(
   identity: Identity,
@@ -30,10 +30,11 @@ export async function createSession(
   );
   return { user, accessToken, refreshToken, expiresIn: 900, sessionId };
 }
-/** Rota refresh atómicamente. La revocación por reuso se confirma antes de devolver 401.
- * @param token - Token recibido; se valida o transforma antes de utilizarlo.
- * @returns `Promise<{ user: import("../../types/domain.js").User; accessToken: string; refreshToken: string; expiresIn: number; sessionId: string; }>`, según el contrato de la operación.
- * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
+/** Rota un refresh bajo bloqueo y revoca su familia cuando detecta reuso o vencimiento.
+ * @param token Refresh opaco original; solo su hash se consulta en persistencia.
+ * @returns Nuevo access/refresh de la misma familia después de revocar el anterior.
+ * @throws AppError INVALID_REFRESH si la sesión ya no es válida.
+ * @remarks El resultado null permite confirmar la revocación antes de emitir 401.
  */
 export async function refreshSession(token: string) {
   const result = await transaction(async (connection) => {
@@ -58,7 +59,7 @@ export async function refreshSession(token: string) {
 }
 /** Revoca la familia del dispositivo; logout repetido es idempotente.
  * @param token - Token recibido; se valida o transforma antes de utilizarlo.
- * @returns `Promise<{ loggedOut: boolean; }>`, según el contrato de la operación.
+ * @returns `Promise<{ loggedOut: boolean; }>`.
  */
 export async function logoutSession(token: string) {
   await transaction(async (connection) => {

@@ -20,10 +20,10 @@ export interface OAuthGrant extends RowDataPacket {
 /** Persiste solo hash; ofrece cinco minutos para confirmar una vinculación local.
  * @param hash - Hash del token; evita persistir su valor legible.
  * @param id - Identificador del recurso dentro del proyecto actual.
- * @param challenge - Valor tipado de challenge utilizado por esta operación.
+ * @param challenge - Desafío S256 ligado al verifier que conserva el cliente.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @param link - Valor tipado de link utilizado por esta operación.
- * @returns `Promise<import("mysql2/promise").ResultSetHeader>`, según el contrato de la operación.
+ * @param link - Identidad social candidata, pendiente de comprobar la contraseña local.
+ * @returns `Promise<import("mysql2/promise").ResultSetHeader>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export function saveGrant(
@@ -43,7 +43,7 @@ export function saveGrant(
 /** Bloquea el grant para serializar intentos y evitar dos sesiones por el mismo código.
  * @param hash - Hash del token; evita persistir su valor legible.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<OAuthGrant | undefined>`, según el contrato de la operación.
+ * @returns `Promise<OAuthGrant | undefined>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function lockGrant(hash: Buffer, executor: Executor) {
@@ -60,7 +60,7 @@ export async function lockGrant(hash: Buffer, executor: Executor) {
 /** Registra intentos fallidos; la transacción debe confirmar este cambio antes del 401.
  * @param hash - Hash del token; evita persistir su valor legible.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<import("mysql2/promise").ResultSetHeader>`, según el contrato de la operación.
+ * @returns `Promise<import("mysql2/promise").ResultSetHeader>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export function failedLink(hash: Buffer, executor: Executor) {
@@ -73,7 +73,7 @@ export function failedLink(hash: Buffer, executor: Executor) {
 /** Invalida un grant después del canje exitoso.
  * @param hash - Hash del token; evita persistir su valor legible.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<import("mysql2/promise").ResultSetHeader>`, según el contrato de la operación.
+ * @returns `Promise<import("mysql2/promise").ResultSetHeader>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export function consumeGrant(hash: Buffer, executor: Executor) {

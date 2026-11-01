@@ -3,8 +3,8 @@ import { NotFoundError } from '../errors/NotFoundError.js';
 import { actor } from '../utils/http.js';
 
 /** Restringe acceso por propietario y oculta existencia de recursos ajenos.
- * @param resolveOwner - Valor tipado de resolveOwner utilizado por esta operación.
- * @returns `RequestHandler<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>`, según el contrato de la operación.
+ * @param resolveOwner - Resuelve el titular permitido sin aceptar ownership arbitrario.
+ * @returns `RequestHandler<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>`.
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */
 export function requireOwnership(

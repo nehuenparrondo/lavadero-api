@@ -1,6 +1,17 @@
-# services
+# modules/services
 
-Catálogo, duración estimada y precios por tipo. Los cambios afectan nuevas cotizaciones y no los snapshots históricos de turnos.
+Descripción/duración de servicios y precios por categoría. Los contratos ya reservados no se recalculan al editar catálogo.
 
-Rutas → middlewares → controller → service → repository. Validaciones en schema y contratos en types.
-Consultá [API.md](../../../API.md) para métodos, permisos, ejemplos y errores.
+## Archivos y responsabilidades
+
+| Archivo                                          | Responsabilidad                                            |
+| ------------------------------------------------ | ---------------------------------------------------------- |
+| [services.controller.ts](services.controller.ts) | Catálogo según rol.                                        |
+| [services.repository.ts](services.repository.ts) | Servicio de catálogo.                                      |
+| [services.routes.ts](services.routes.ts)         | Catálogo autenticado y escritura administrativa.           |
+| [services.schema.ts](services.schema.ts)         | Servicio administrable con duración explícita en minutos.  |
+| [services.service.ts](services.service.ts)       | Retorna catálogo con tarifas por tipo y duración estimada. |
+
+## Mantenimiento
+
+Consultar los TSDoc de cada función antes de cambiar sus precondiciones. Mantener los efectos en su capa y actualizar esta tabla junto con el módulo. Ejecutar npm run check desde la raíz del repositorio.

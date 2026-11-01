@@ -7,7 +7,7 @@ import type { vehiclePatchSchema, vehicleSchema } from './vehicles.schema.js';
 import * as service from './vehicles.service.js';
 /** Lista visibles para el actor, con búsqueda/paginación.
  * @param r - Petición HTTP; los valores se validan antes de ejecutar el servicio.
- * @returns `Promise<{ items: import("./vehicles.repository.js").Vehicle[]; page: number; limit: number; total: number; }>`, según el contrato de la operación.
+ * @returns `Promise<{ items: import("./vehicles.repository.js").Vehicle[]; page: number; limit: number; total: number; }>`.
  */
 export function list(r: Request) {
   const q = paginationSchema.parse(r.query);
@@ -16,21 +16,21 @@ export function list(r: Request) {
 }
 /** Consulta por ID con propiedad validada.
  * @param r - Petición HTTP; los valores se validan antes de ejecutar el servicio.
- * @returns `Promise<import("./vehicles.repository.js").Vehicle>`, según el contrato de la operación.
+ * @returns `Promise<import("./vehicles.repository.js").Vehicle>`.
  */
 export function get(r: Request) {
   return service.getVehicle(actor(r), paramId(r));
 }
 /** Crea vehículo.
  * @param r - Petición HTTP; los valores se validan antes de ejecutar el servicio.
- * @returns `Promise<import("./vehicles.repository.js").Vehicle>`, según el contrato de la operación.
+ * @returns `Promise<import("./vehicles.repository.js").Vehicle>`.
  */
 export function create(r: Request) {
   return service.createVehicle(actor(r), r.body as z.infer<typeof vehicleSchema>);
 }
 /** Edita vehículo.
  * @param r - Petición HTTP; los valores se validan antes de ejecutar el servicio.
- * @returns `Promise<import("./vehicles.repository.js").Vehicle>`, según el contrato de la operación.
+ * @returns `Promise<import("./vehicles.repository.js").Vehicle>`.
  */
 export function edit(r: Request) {
   return service.editVehicle(
@@ -41,7 +41,7 @@ export function edit(r: Request) {
 }
 /** Elimina vehículo lógicamente.
  * @param r - Petición HTTP; los valores se validan antes de ejecutar el servicio.
- * @returns `Promise<{ deleted: boolean; }>`, según el contrato de la operación.
+ * @returns `Promise<{ deleted: boolean; }>`.
  */
 export function remove(r: Request) {
   return service.deleteVehicle(actor(r), paramId(r));

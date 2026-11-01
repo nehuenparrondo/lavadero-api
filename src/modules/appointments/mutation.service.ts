@@ -47,9 +47,9 @@ async function assertEmployee(
 /** Cambia estado con permisos, ownership, ventana de cancelación y bloqueo de agenda.
  * @param actor - Actor autenticado por el middleware; determina rol y propiedad.
  * @param id - Identificador del recurso dentro del proyecto actual.
- * @param status - Valor tipado de status utilizado por esta operación.
+ * @param status - Estado solicitado; el servicio comprueba si la transición está permitida.
  * @param reason - Motivo de cancelación conservado en el historial.
- * @returns `Promise<{ updated: boolean; status: "pending" | "confirmed" | "in_progress" | "completed" | "cancelled"; }>`, según el contrato de la operación.
+ * @returns `Promise<{ updated: boolean; status: "pending" | "confirmed" | "in_progress" | "completed" | "cancelled"; }>`.
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */
 export async function changeStatus(
@@ -85,7 +85,7 @@ export async function changeStatus(
  * @param actor - Actor autenticado por el middleware; determina rol y propiedad.
  * @param id - Identificador del recurso dentro del proyecto actual.
  * @param employeeId - Empleado activo que se asigna o consulta.
- * @returns `Promise<{ assigned: boolean; }>`, según el contrato de la operación.
+ * @returns `Promise<{ assigned: boolean; }>`.
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */
 export async function assignEmployee(actor: Actor, id: string, employeeId: string) {

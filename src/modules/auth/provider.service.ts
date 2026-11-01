@@ -7,7 +7,7 @@ import { providerProfile } from './provider.profile.js';
  * @param provider - Proveedor permitido: Google, Discord o GitHub.
  * @param code - Código efímero recibido del flujo de autorización.
  * @param verifier - Secreto PKCE generado por el dispositivo que inició el acceso.
- * @returns `Promise<import("./oauth.types.js").SocialIdentity>`, según el contrato de la operación.
+ * @returns `Promise<import("./oauth.types.js").SocialIdentity>`.
  */
 export async function exchangeProvider(provider: Provider, code: string, verifier: string) {
   const config = getProvider(provider);

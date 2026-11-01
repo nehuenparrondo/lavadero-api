@@ -4,7 +4,7 @@ import { presentSession } from './auth.types.js';
 import { authorizeSchema, oauthExchangeSchema, providerSchema } from './oauth.schema.js';
 import * as service from './oauth.service.js';
 /** Disponibilidad de botones sociales.
- * @returns `Promise<{ provider: string; enabled: boolean; }[]>`, según el contrato de la operación.
+ * @returns `Promise<{ provider: string; enabled: boolean; }[]>`.
  */
 export async function providers() {
   return service.listProviders();
@@ -12,7 +12,7 @@ export async function providers() {
 /** Inicio OAuth con state/PKCE validado.
  * @param r - Petición HTTP; los valores se validan antes de ejecutar el servicio.
  * @param s - Respuesta HTTP usada para emitir la redirección del flujo.
- * @returns `Promise<void>`, según el contrato de la operación.
+ * @returns `Promise<void>`.
  */
 export async function authorize(r: Request, s: Response) {
   s.redirect(
@@ -25,7 +25,7 @@ export async function authorize(r: Request, s: Response) {
 /** Callback HTTPS validado, después redirección allowlisted al cliente.
  * @param r - Petición HTTP; los valores se validan antes de ejecutar el servicio.
  * @param s - Respuesta HTTP usada para emitir la redirección del flujo.
- * @returns `Promise<void>`, según el contrato de la operación.
+ * @returns `Promise<void>`.
  */
 export async function callback(r: Request, s: Response) {
   const input = z
@@ -39,7 +39,7 @@ export async function callback(r: Request, s: Response) {
 }
 /** Canje final de grant y verifier por sesión propia.
  * @param r - Petición HTTP; los valores se validan antes de ejecutar el servicio.
- * @returns `Promise<{ user: import("../../types/domain.js").User; accessToken: string; refreshToken: string; expiresIn: number; }>`, según el contrato de la operación.
+ * @returns `Promise<{ user: import("../../types/domain.js").User; accessToken: string; refreshToken: string; expiresIn: number; }>`.
  */
 export function exchange(r: Request) {
   return service.exchange(r.body as z.infer<typeof oauthExchangeSchema>).then(presentSession);

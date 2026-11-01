@@ -5,10 +5,10 @@ import { verifyAccess } from '../modules/auth/token.service.js';
 import { findUser } from '../modules/users/users.repository.js';
 
 /** Verifica JWT y permisos actuales; desactivar o cambiar rol invalida inmediatamente el access.
- * @param request - Valor tipado de request utilizado por esta operación.
- * @param _response - Valor tipado de _response utilizado por esta operación.
- * @param next - Valor tipado de next utilizado por esta operación.
- * @returns `Promise<void>`, según el contrato de la operación.
+ * @param request - Petición HTTP de Express; su entrada se valida antes de ejecutar el caso de uso.
+ * @param _response - Respuesta Express no utilizada por este middleware.
+ * @param next - Continúa la cadena de Express después de superar las comprobaciones.
+ * @returns `Promise<void>`.
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */
 export const authenticate: RequestHandler = async (request, _response, next) => {

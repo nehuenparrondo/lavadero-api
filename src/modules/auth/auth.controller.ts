@@ -6,22 +6,22 @@ import { presentSession } from './auth.types.js';
 import * as sessions from './session.service.js';
 
 /** Registra cuenta pública sin permisos elegibles.
- * @param request - Valor tipado de request utilizado por esta operación.
- * @returns `Promise<{ user: import("../../types/domain.js").User; accessToken: string; refreshToken: string; expiresIn: number; }>`, según el contrato de la operación.
+ * @param request - Petición HTTP de Express; su entrada se valida antes de ejecutar el caso de uso.
+ * @returns `Promise<{ user: import("../../types/domain.js").User; accessToken: string; refreshToken: string; expiresIn: number; }>`.
  */
 export function register(request: Request) {
   return service.register(request.body as z.infer<typeof registerSchema>).then(presentSession);
 }
 /** Inicia sesión email/contraseña.
- * @param request - Valor tipado de request utilizado por esta operación.
- * @returns `Promise<{ user: import("../../types/domain.js").User; accessToken: string; refreshToken: string; expiresIn: number; }>`, según el contrato de la operación.
+ * @param request - Petición HTTP de Express; su entrada se valida antes de ejecutar el caso de uso.
+ * @returns `Promise<{ user: import("../../types/domain.js").User; accessToken: string; refreshToken: string; expiresIn: number; }>`.
  */
 export function login(request: Request) {
   return service.login(request.body as z.infer<typeof loginSchema>).then(presentSession);
 }
 /** Renueva sesión mediante rotación de refresh.
- * @param request - Valor tipado de request utilizado por esta operación.
- * @returns `Promise<{ user: import("../../types/domain.js").User; accessToken: string; refreshToken: string; expiresIn: number; }>`, según el contrato de la operación.
+ * @param request - Petición HTTP de Express; su entrada se valida antes de ejecutar el caso de uso.
+ * @returns `Promise<{ user: import("../../types/domain.js").User; accessToken: string; refreshToken: string; expiresIn: number; }>`.
  */
 export function refresh(request: Request) {
   return sessions
@@ -29,8 +29,8 @@ export function refresh(request: Request) {
     .then(presentSession);
 }
 /** Revoca la sesión del dispositivo.
- * @param request - Valor tipado de request utilizado por esta operación.
- * @returns `Promise<{ loggedOut: boolean; }>`, según el contrato de la operación.
+ * @param request - Petición HTTP de Express; su entrada se valida antes de ejecutar el caso de uso.
+ * @returns `Promise<{ loggedOut: boolean; }>`.
  */
 export function logout(request: Request) {
   return sessions.logoutSession((request.body as z.infer<typeof refreshSchema>).refreshToken);

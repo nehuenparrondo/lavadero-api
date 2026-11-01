@@ -6,7 +6,7 @@ import { endpoint } from '../../utils/http.js';
 import * as c from './appointments.controller.js';
 import * as s from './appointments.schema.js';
 /** Turnos con controles adicionales de propiedad/asignación dentro de cada servicio.
- * @returns `import("express-serve-static-core").Router`, según el contrato de la operación.
+ * @returns `import("express-serve-static-core").Router`.
  */
 export function createAppointmentsRoutes() {
   const r = Router();
@@ -30,7 +30,7 @@ export function createAppointmentsRoutes() {
   return r;
 }
 /** Disponibilidad usa el mismo cálculo que la creación transaccional.
- * @returns `import("express-serve-static-core").Router`, según el contrato de la operación.
+ * @returns `import("express-serve-static-core").Router`.
  */
 export function createAvailabilityRoutes() {
   const r = Router();

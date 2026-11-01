@@ -1,7 +1,7 @@
 import { envSchema } from './envSchema.js';
 
 /** Lee variables sin efectos secundarios. @throws Error si falta configuración válida.
- * @param source - Valor tipado de source utilizado por esta operación.
+ * @param source - Entrada original que se transforma sin modificarla.
  * @returns Objeto con NODE_ENV, PORT, DATABASE_TLS, DATABASE_POOL_SIZE, CORS_ORIGINS, DATABASE_URL, DATABASE_CA_BASE64, JWT_ACCESS_SECRET.
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */

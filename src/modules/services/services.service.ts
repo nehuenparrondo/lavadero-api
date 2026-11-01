@@ -4,8 +4,8 @@ import * as repo from './services.repository.js';
 import type { servicePatchSchema } from './services.schema.js';
 import { serviceSchema } from './services.schema.js';
 /** Retorna catálogo con tarifas por tipo y duración estimada.
- * @param admin - Valor tipado de admin utilizado por esta operación.
- * @returns `Promise<{ isActive: boolean; prices: import("mysql2").RowDataPacket[]; id: string; code: string; name: string; description: string; durationMinutes: number; constructor: { name: "RowDataPacket"; }; }[]>`, según el contrato de la operación.
+ * @param admin - Habilita controles de gestión; el servidor conserva la autorización real.
+ * @returns `Promise<{ isActive: boolean; prices: import("mysql2").RowDataPacket[]; id: string; code: string; name: string; description: string; durationMinutes: number; constructor: { name: "RowDataPacket"; }; }[]>`.
  */
 export async function catalog(admin: boolean) {
   const [services, prices] = await Promise.all([repo.listServices(admin), repo.listPrices()]);
@@ -17,7 +17,7 @@ export async function catalog(admin: boolean) {
 }
 /** Crea servicio, aún sin tarifas hasta que admin las cargue.
  * @param input - Entrada validada por el esquema del caso de uso.
- * @returns `Promise<{ isActive: boolean; prices: import("mysql2").RowDataPacket[]; id: string; code: string; name: string; description: string; durationMinutes: number; constructor: { name: "RowDataPacket"; }; }>`, según el contrato de la operación.
+ * @returns `Promise<{ isActive: boolean; prices: import("mysql2").RowDataPacket[]; id: string; code: string; name: string; description: string; durationMinutes: number; constructor: { name: "RowDataPacket"; }; }>`.
  */
 export async function createService(input: z.infer<typeof serviceSchema>) {
   return getService(await repo.insertService(input), true);
@@ -25,7 +25,7 @@ export async function createService(input: z.infer<typeof serviceSchema>) {
 /** Edita y valida un servicio existente.
  * @param id - Identificador del recurso dentro del proyecto actual.
  * @param input - Entrada validada por el esquema del caso de uso.
- * @returns `Promise<{ isActive: boolean; prices: import("mysql2").RowDataPacket[]; id: string; code: string; name: string; description: string; durationMinutes: number; constructor: { name: "RowDataPacket"; }; }>`, según el contrato de la operación.
+ * @returns `Promise<{ isActive: boolean; prices: import("mysql2").RowDataPacket[]; id: string; code: string; name: string; description: string; durationMinutes: number; constructor: { name: "RowDataPacket"; }; }>`.
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */
 export async function editService(id: string, input: z.infer<typeof servicePatchSchema>) {
@@ -44,7 +44,7 @@ export async function editService(id: string, input: z.infer<typeof servicePatch
 }
 /** Desactiva servicio existente sin afectar precios históricos.
  * @param id - Identificador del recurso dentro del proyecto actual.
- * @returns `Promise<{ deleted: boolean; }>`, según el contrato de la operación.
+ * @returns `Promise<{ deleted: boolean; }>`.
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */
 export async function deleteService(id: string) {
@@ -55,8 +55,8 @@ export async function deleteService(id: string) {
 /** Cambia tarifa vigente. FK impide un tipo inexistente.
  * @param id - Identificador del recurso dentro del proyecto actual.
  * @param typeId - Tipo de vehículo para resolver su tarifa vigente.
- * @param cents - Valor tipado de cents utilizado por esta operación.
- * @returns `Promise<{ updated: boolean; }>`, según el contrato de la operación.
+ * @param cents - Importe entero en centavos ARS.
+ * @returns `Promise<{ updated: boolean; }>`.
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */
 export async function setPrice(id: string, typeId: string, cents: number) {
@@ -66,8 +66,8 @@ export async function setPrice(id: string, typeId: string, cents: number) {
 }
 /** Detalle de catálogo con la misma proyección normalizada que la lista.
  * @param id - Identificador del recurso dentro del proyecto actual.
- * @param admin - Valor tipado de admin utilizado por esta operación.
- * @returns `Promise<{ isActive: boolean; prices: import("mysql2").RowDataPacket[]; id: string; code: string; name: string; description: string; durationMinutes: number; constructor: { name: "RowDataPacket"; }; }>`, según el contrato de la operación.
+ * @param admin - Habilita controles de gestión; el servidor conserva la autorización real.
+ * @returns `Promise<{ isActive: boolean; prices: import("mysql2").RowDataPacket[]; id: string; code: string; name: string; description: string; durationMinutes: number; constructor: { name: "RowDataPacket"; }; }>`.
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */
 export async function getService(id: string, admin: boolean) {

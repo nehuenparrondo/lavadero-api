@@ -13,11 +13,12 @@ import { quote } from './availability.service.js';
 import { assertBookingSlot } from './bookingSlot.service.js';
 import { sqlTime } from './schedule.js';
 
-/** Reserva atómica: serializa agenda, recalcula precio y vuelve a comprobar capacidad.
- * @param actor - Actor autenticado por el middleware; determina rol y propiedad.
- * @param input - Entrada validada por el esquema del caso de uso.
- * @returns Promesa de un objeto con totalCents, paidCents, currencyCode, id, status, startsAt, endsAt, plate, brand, model.
- * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
+/** Reserva y guarda el contrato histórico bajo el bloqueo compartido de agenda.
+ * @param actor Actor autenticado; un cliente solo reserva para su propio vehículo.
+ * @param input Vehículo, servicios e inicio; clientId es opcional para reserva asistida.
+ * @returns Turno pendiente con precios y duraciones recalculados por el servidor.
+ * @throws AppError Si falta configuración, el titular no corresponde o el horario se ocupó.
+ * @remarks El lock de settings serializa reservas, asignaciones y cambios de configuración.
  */
 export async function createAppointment(
   actor: Actor,

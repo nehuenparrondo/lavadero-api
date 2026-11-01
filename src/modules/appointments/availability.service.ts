@@ -16,7 +16,7 @@ import { businessWindow, canFit, sqlTime } from './schedule.js';
  * @param vehicleId - Identificador del vehículo cuyo titular y disponibilidad se verifican.
  * @param ids - Identificadores de servicios seleccionados, únicos y validados.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<{ vehicle: import("../vehicles/vehicles.repository.js").Vehicle; items: import("./appointments.types.js").QuoteItem[]; totalCents: number; durationMinutes: number; }>`, según el contrato de la operación.
+ * @returns `Promise<{ vehicle: import("../vehicles/vehicles.repository.js").Vehicle; items: import("./appointments.types.js").QuoteItem[]; totalCents: number; durationMinutes: number; }>`.
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */
 export async function quote(
@@ -49,7 +49,7 @@ export async function quote(
 /** Genera opciones de inicio respetando duración completa, capacidad y vehículo.
  * @param current - Identidad o entidad actual usada para conservar sus invariantes.
  * @param input - Entrada validada por el esquema del caso de uso.
- * @returns `Promise<{ items: import("./appointments.types.js").QuoteItem[]; totalCents: number; durationMinutes: number; slots: string[]; currencyCode: string; }>`, según el contrato de la operación.
+ * @returns `Promise<{ items: import("./appointments.types.js").QuoteItem[]; totalCents: number; durationMinutes: number; slots: string[]; currencyCode: string; }>`.
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */
 export async function availability(current: Actor, input: z.infer<typeof availabilitySchema>) {

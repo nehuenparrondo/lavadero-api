@@ -7,7 +7,7 @@ import * as controller from './users.controller.js';
 import * as schema from './users.schema.js';
 
 /** Perfil para todos; gestión de cuentas exclusivamente administrativa.
- * @returns `import("express-serve-static-core").Router`, según el contrato de la operación.
+ * @returns `import("express-serve-static-core").Router`.
  */
 export function createUsersRoutes() {
   const r = Router();

@@ -8,7 +8,7 @@ import * as c from './vehicles.controller.js';
 import { findVehicle } from './vehicles.repository.js';
 import { vehiclePatchSchema, vehicleSchema } from './vehicles.schema.js';
 /** Vehículos: clientes propietarios y administración; empleados excluidos.
- * @returns `import("express-serve-static-core").Router`, según el contrato de la operación.
+ * @returns `import("express-serve-static-core").Router`.
  */
 export function createVehiclesRoutes() {
   const r = Router();

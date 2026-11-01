@@ -13,7 +13,7 @@ import { opaqueToken, tokenHash } from './token.service.js';
 export { exchange } from './oauth.exchange.service.js';
 export { pkceChallenge } from './pkce.js';
 /** Metadatos públicos, solo habilitado/deshabilitado por proveedor.
- * @returns `{ provider: string; enabled: boolean; }[]`, según el contrato de la operación.
+ * @returns `{ provider: string; enabled: boolean; }[]`.
  */
 export function listProviders() {
   return providerAvailability();
@@ -21,7 +21,7 @@ export function listProviders() {
 /** Prepara redirección al proveedor y vincula state/redirect/client PKCE de la app.
  * @param provider - Proveedor permitido: Google, Discord o GitHub.
  * @param input - Entrada validada por el esquema del caso de uso.
- * @returns `Promise<string>`, según el contrato de la operación.
+ * @returns `Promise<string>`.
  */
 export async function authorize(provider: Provider, input: z.infer<typeof authorizeSchema>) {
   assertRedirectUri(input.redirect_uri);
@@ -52,7 +52,7 @@ export async function authorize(provider: Provider, input: z.infer<typeof author
 /** Consume callback del proveedor y entrega solamente código efímero al deep link.
  * @param provider - Proveedor permitido: Google, Discord o GitHub.
  * @param input - Entrada validada por el esquema del caso de uso.
- * @returns `Promise<string>`, según el contrato de la operación.
+ * @returns `Promise<string>`.
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */
 export async function callback(

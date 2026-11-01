@@ -8,7 +8,7 @@ type Filters = z.infer<typeof appointmentQuerySchema>;
  * @param actor - Actor autenticado por el middleware; determina rol y propiedad.
  * @param input - Entrada validada por el esquema del caso de uso.
  * @param timeZone - Zona IANA usada para convertir el calendario local a UTC.
- * @returns `{ where: string; values: unknown[]; }`, según el contrato de la operación.
+ * @returns `{ where: string; values: unknown[]; }`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export function appointmentFilter(actor: Actor, input: Filters, timeZone: string) {

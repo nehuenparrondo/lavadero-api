@@ -54,3 +54,8 @@ simulados y no acreditan por sí solas una autorización externa real.
 ## Revisión de la consigna
 
 [Matriz de requisitos y evidencia](docs/requirements-review.md) · [Prueba desde iPhone/Expo Go](docs/iphone-expo-go.md).
+
+## Lectura y mantenimiento del código
+
+- [Guía de código e invariantes](docs/code-guide.md)
+- [Mapa de todos los módulos](docs/source-map.md)

@@ -38,10 +38,11 @@ async function confirmLink(
   }
   await linkSocial(identity.id, grant.linkProvider, grant.linkSubject!, connection);
 }
-/** Canje PKCE y vinculación opcional; errores con intentos deben salir tras el commit.
- * @param input - Entrada validada por el esquema del caso de uso.
- * @returns `Promise<{ user: import("../../types/domain.js").User; accessToken: string; refreshToken: string; expiresIn: number; sessionId: string; }>`, según el contrato de la operación.
- * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
+/** Canjea un grant de un solo uso con PKCE y confirma la vinculación local cuando corresponde.
+ * @param input Código efímero, verifier y contraseña opcional de una cuenta local existente.
+ * @returns Sesión propia del backend, conservando usuario y rol al vincular.
+ * @throws AppError INVALID_OAUTH_CODE, ACCOUNT_DISABLED, OAUTH_LINK_REQUIRED, INVALID_CREDENTIALS u OAUTH_LINK_LOCKED.
+ * @remarks El contador de fallos se confirma antes de emitir el error fuera de la transacción.
  */
 export async function exchange(input: z.infer<typeof oauthExchangeSchema>) {
   const result = await transaction(async (connection) => {
@@ -53,6 +54,7 @@ export async function exchange(input: z.infer<typeof oauthExchangeSchema>) {
     if (!identity || !identity.isActive || identity.deletedAt)
       throw new AppError(403, 'ACCOUNT_DISABLED', 'Cuenta desactivada.');
     const error = await confirmLink(grant, identity, input.password, hash, connection);
+    // Retornar, en vez de lanzar, conserva el incremento de intentos tras el commit.
     if (error) return error;
     await repo.consumeGrant(hash, connection);
     return createSession(identity, connection);

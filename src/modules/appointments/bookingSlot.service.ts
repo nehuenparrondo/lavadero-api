@@ -7,12 +7,12 @@ import { overlapping } from './appointments.repository.js';
 import { bookingIntervals } from './intervals.js';
 import { assertWorkingTime, canFit, sqlTime } from './schedule.js';
 /** Revalida horario y ocupación dentro de la transacción que mantiene el lock de agenda.
- * @param startsAt - Valor tipado de startsAt utilizado por esta operación.
- * @param duration - Valor tipado de duration utilizado por esta operación.
+ * @param startsAt - Inicio ISO con zona explícita, convertido a UTC antes de comparar.
+ * @param duration - Duración completa del lavado en minutos.
  * @param vehicleId - Identificador del vehículo cuyo titular y disponibilidad se verifican.
  * @param settings - Configuración operativa vigente del negocio.
  * @param connection - Conexión de la transacción que conserva los bloqueos de esta operación.
- * @returns `Promise<{ start: number; end: number; }>`, según el contrato de la operación.
+ * @returns `Promise<{ start: number; end: number; }>`.
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */
 export async function assertBookingSlot(

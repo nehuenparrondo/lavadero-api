@@ -11,7 +11,7 @@ export function business(r: Request) {
 }
 /** Resumen propio de empleado.
  * @param r - Petición HTTP; los valores se validan antes de ejecutar el servicio.
- * @returns `Promise<{ date: string; completed: number; pending: number; }>`, según el contrato de la operación.
+ * @returns `Promise<{ date: string; completed: number; pending: number; }>`.
  */
 export function personal(r: Request) {
   return personalReport(actor(r).id, reportSchema.parse(r.query));

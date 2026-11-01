@@ -6,10 +6,10 @@ const employeeNext: Partial<Record<AppointmentStatus, AppointmentStatus>> = {
   in_progress: 'completed',
 };
 /** Valida máquina de estados; admin puede corregir estados, preservando demás invariantes en service.
- * @param from - Valor tipado de from utilizado por esta operación.
- * @param to - Valor tipado de to utilizado por esta operación.
+ * @param from - Límite inicial del período o estado de origen, según su tipo.
+ * @param to - Límite final o estado destino, según su tipo.
  * @param role - Rol permitido del catálogo de seguridad.
- * @returns `void`, según el contrato de la operación.
+ * @returns `void`.
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */
 export function assertTransition(from: AppointmentStatus, to: AppointmentStatus, role: Role) {

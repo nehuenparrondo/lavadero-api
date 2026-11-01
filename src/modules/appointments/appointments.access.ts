@@ -5,7 +5,7 @@ import { isoTime } from './schedule.js';
 /** Oculta la existencia de turnos ajenos al actor.
  * @param actor - Actor autenticado por el middleware; determina rol y propiedad.
  * @param appointment - Turno autorizado que conserva datos históricos del contrato.
- * @returns `void`, según el contrato de la operación.
+ * @returns `void`.
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */
 export function assertAppointmentAccess(
@@ -19,10 +19,10 @@ export function assertAppointmentAccess(
   )
     throw new NotFoundError();
 }
-/** Proyección mínima de datos: un empleado no recibe importes ni datos de cuenta del cliente.
- * @param v - Datos tipados del elemento o formulario que se transforma.
- * @param actor - Actor autenticado por el middleware; determina rol y propiedad.
- * @returns Objeto con totalCents, paidCents, currencyCode, id, status, startsAt, endsAt, plate, brand, model.
+/** Proyecta el turno por actor sin serializar la fila interna completa.
+ * @param v Turno interno con claves de cuenta e importes históricos.
+ * @param actor Identidad vigente que determina los campos autorizados.
+ * @returns Datos operativos; el empleado recibe importes solo con canRecordPayments.
  */
 export function presentAppointment(v: Appointment, actor: Actor) {
   const common = operationalAppointment(v);

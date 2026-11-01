@@ -14,7 +14,7 @@ import { publicUser } from './users.types.js';
  * @param current - Identidad o entidad actual usada para conservar sus invariantes.
  * @param id - Identificador del recurso dentro del proyecto actual.
  * @param role - Rol permitido del catálogo de seguridad.
- * @returns `Promise<import("../../types/domain.js").User>`, según el contrato de la operación.
+ * @returns `Promise<import("../../types/domain.js").User>`.
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */
 export async function changeRole(current: Actor, id: string, role: Role) {
@@ -40,8 +40,8 @@ export async function changeRole(current: Actor, id: string, role: Role) {
  * @param current - Identidad o entidad actual usada para conservar sus invariantes.
  * @param id - Identificador del recurso dentro del proyecto actual.
  * @param input - Entrada validada por el esquema del caso de uso.
- * @param deleted - Valor tipado de deleted utilizado por esta operación.
- * @returns `Promise<{ updated: boolean; }>`, según el contrato de la operación.
+ * @param deleted - Solicita baja lógica además de desactivar la cuenta.
+ * @returns `Promise<{ updated: boolean; }>`.
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */
 export async function editAccount(

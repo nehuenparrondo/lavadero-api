@@ -29,7 +29,7 @@ const providers = {
   },
 } as const;
 /** Indica qué botones pueden iniciar OAuth sin revelar secretos.
- * @returns `{ provider: string; enabled: boolean; }[]`, según el contrato de la operación.
+ * @returns `{ provider: string; enabled: boolean; }[]`.
  */
 export function providerAvailability() {
   return Object.entries(providers).map(([provider, v]) => ({

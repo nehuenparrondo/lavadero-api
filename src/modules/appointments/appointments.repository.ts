@@ -15,7 +15,7 @@ const select = `SELECT CAST(a.id AS CHAR) id,CAST(a.client_id AS CHAR) clientId,
  * @param id - Identificador del recurso dentro del proyecto actual.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
  * @param lock - Si es verdadero, bloquea la fila hasta el final de la transacción.
- * @returns `Promise<Appointment | undefined>`, según el contrato de la operación.
+ * @returns `Promise<Appointment | undefined>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function findAppointment(id: string, executor?: Executor, lock = false) {
@@ -28,7 +28,7 @@ export async function findAppointment(id: string, executor?: Executor, lock = fa
  * @param page - Número de página desde uno.
  * @param limit - Cantidad máxima de filas permitida por el esquema de paginación.
  * @param order - Orden permitido ASC o DESC; nunca se acepta SQL libre.
- * @returns `Promise<{ items: Appointment[]; total: number; page: number; limit: number; }>`, según el contrato de la operación.
+ * @returns `Promise<{ items: Appointment[]; total: number; page: number; limit: number; }>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function listAppointments(
@@ -53,7 +53,7 @@ export async function listAppointments(
  * @param ids - Identificadores de servicios seleccionados, únicos y validados.
  * @param typeId - Tipo de vehículo para resolver su tarifa vigente.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<QuoteItem[]>`, según el contrato de la operación.
+ * @returns `Promise<QuoteItem[]>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export function quoteServices(ids: string[], typeId: string, executor?: Executor) {
@@ -70,7 +70,7 @@ export function quoteServices(ids: string[], typeId: string, executor?: Executor
  * @param end - Fin UTC en formato SQL; extremo excluido.
  * @param excludeId - Turno que debe excluirse al comprobar una reasignación o cambio de estado.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<BookingIntervalRow[]>`, según el contrato de la operación.
+ * @returns `Promise<BookingIntervalRow[]>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export function overlapping(
@@ -97,7 +97,7 @@ export {
 } from './appointments.write.repository.js';
 /** Lee servicios históricos.
  * @param id - Identificador del recurso dentro del proyecto actual.
- * @returns `Promise<RowDataPacket[]>`, según el contrato de la operación.
+ * @returns `Promise<RowDataPacket[]>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export function readItems(id: string) {

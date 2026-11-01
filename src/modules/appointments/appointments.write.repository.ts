@@ -4,7 +4,7 @@ import type { AppointmentStatus, QuoteItem } from './appointments.types.js';
 /** Inserta turno pendiente. El llamador mantiene lock de agenda y snapshot de precios.
  * @param v - Datos tipados del elemento o formulario que se transforma.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<string>`, según el contrato de la operación.
+ * @returns `Promise<string>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function insertAppointment(
@@ -33,7 +33,7 @@ export async function insertAppointment(
  * @param id - Identificador del recurso dentro del proyecto actual.
  * @param items - Renglones tipados que conservan precio, nombre y duración del contrato.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<void>`, según el contrato de la operación.
+ * @returns `Promise<void>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function insertItems(id: string, items: QuoteItem[], executor: Executor) {
@@ -47,10 +47,10 @@ export async function insertItems(id: string, items: QuoteItem[], executor: Exec
 }
 /** Cambia estado incrementando versión; las reglas viven en service.
  * @param id - Identificador del recurso dentro del proyecto actual.
- * @param status - Valor tipado de status utilizado por esta operación.
+ * @param status - Estado solicitado; el servicio comprueba si la transición está permitida.
  * @param actorId - Usuario autenticado que realizó el cambio para el historial de auditoría.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<void>`, según el contrato de la operación.
+ * @returns `Promise<void>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function setStatus(
@@ -74,7 +74,7 @@ export async function setStatus(
  * @param id - Identificador del recurso dentro del proyecto actual.
  * @param employeeId - Empleado activo que se asigna o consulta.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<import("mysql2/promise").ResultSetHeader>`, según el contrato de la operación.
+ * @returns `Promise<import("mysql2/promise").ResultSetHeader>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export function setEmployee(id: string, employeeId: string, executor: Executor) {
@@ -89,7 +89,7 @@ export function setEmployee(id: string, employeeId: string, executor: Executor) 
  * @param actorId - Usuario autenticado que realizó el cambio para el historial de auditoría.
  * @param reason - Motivo de cancelación conservado en el historial.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<import("mysql2/promise").ResultSetHeader>`, según el contrato de la operación.
+ * @returns `Promise<import("mysql2/promise").ResultSetHeader>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export function recordCancellation(

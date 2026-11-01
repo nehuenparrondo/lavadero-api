@@ -4,10 +4,10 @@ import type { ReportRange } from './reports.window.js';
 type Day = { date: string; washes: number; revenueCents: number };
 type Employee = { id: string; name: string; completed: number };
 /** Completa días vacíos y acumula trabajo e ingresos según sus fechas respectivas.
- * @param range - Valor tipado de range utilizado por esta operación.
- * @param work - Valor tipado de work utilizado por esta operación.
- * @param payments - Valor tipado de payments utilizado por esta operación.
- * @returns `{ days: Map<string, Day>; employees: Map<string, Employee>; }`, según el contrato de la operación.
+ * @param range - Período UTC calculado desde el calendario del negocio.
+ * @param work - Lavados completados del período usados para agregar actividad.
+ * @param payments - Cobros registrados en el período, expresados en centavos.
+ * @returns `{ days: Map<string, Day>; employees: Map<string, Employee>; }`.
  */
 export function aggregateReport(
   range: ReportRange,
