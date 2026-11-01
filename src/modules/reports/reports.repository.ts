@@ -1,5 +1,10 @@
 import { rows } from '../../utils/db.js';
-/** Trabajos finalizados en el intervalo UTC derivado del calendario local. */
+/** Trabajos finalizados en el intervalo UTC derivado del calendario local.
+ * @param from - Valor tipado de from utilizado por esta operación.
+ * @param to - Valor tipado de to utilizado por esta operación.
+ * @returns `Promise<import("mysql2").RowDataPacket[]>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
 export function completedWork(from: string, to: string) {
   return rows(
     `SELECT CAST(a.id AS CHAR) id,a.ends_at endsAt,CAST(a.employee_id AS CHAR) employeeId,
@@ -8,14 +13,24 @@ export function completedWork(from: string, to: string) {
     [from, to],
   );
 }
-/** Ingresos contabilizados por momento real del pago, sin multiplicarlos por servicios. */
+/** Ingresos contabilizados por momento real del pago, sin multiplicarlos por servicios.
+ * @param from - Valor tipado de from utilizado por esta operación.
+ * @param to - Valor tipado de to utilizado por esta operación.
+ * @returns `Promise<import("mysql2").RowDataPacket[]>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
 export function revenue(from: string, to: string) {
   return rows(
     'SELECT paid_at paidAt,amount_cents amountCents FROM payments WHERE paid_at>=? AND paid_at<?',
     [from, to],
   );
 }
-/** Servicios contratados por fecha de atención, excluyendo cancelados. */
+/** Servicios contratados por fecha de atención, excluyendo cancelados.
+ * @param from - Valor tipado de from utilizado por esta operación.
+ * @param to - Valor tipado de to utilizado por esta operación.
+ * @returns `Promise<import("mysql2").RowDataPacket[]>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
 export function popularServices(from: string, to: string) {
   return rows(
     `SELECT i.applied_service_name name,COUNT(*) count FROM appointment_services i
@@ -24,7 +39,13 @@ export function popularServices(from: string, to: string) {
     [from, to],
   );
 }
-/** Cuenta trabajos propios por estado y fecha, sin revelar ingresos del negocio. */
+/** Cuenta trabajos propios por estado y fecha, sin revelar ingresos del negocio.
+ * @param id - Identificador del recurso dentro del proyecto actual.
+ * @param from - Valor tipado de from utilizado por esta operación.
+ * @param to - Valor tipado de to utilizado por esta operación.
+ * @returns `Promise<import("mysql2").RowDataPacket[]>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
 export function employeeSummary(id: string, from: string, to: string) {
   return rows(
     `SELECT s.code status,COUNT(*) count FROM appointments a

@@ -5,12 +5,42 @@ import { validate } from '../../middlewares/validate.js';
 import { endpoint } from '../../utils/http.js';
 import * as c from './appointments.controller.js';
 import * as s from './appointments.schema.js';
-/** Turnos con controles adicionales de propiedad/asignación dentro de cada servicio. */
+/** Turnos con controles adicionales de propiedad/asignación dentro de cada servicio.
+ * @returns `import("express-serve-static-core").Router`, según el contrato de la operación.
+ */
 export function createAppointmentsRoutes() {
   const r = Router();
   r.use(authenticate);
   r.get('/', endpoint(c.list));
   r.get('/:id', endpoint(c.get));
+  mountAppointmentChanges(r);
+  r.patch(
+    '/:id/assignment',
+    requireRole('admin'),
+    validate(s.assignmentSchema),
+    endpoint(c.assign),
+  );
+  r.post(
+    '/:id/notes',
+    requireRole('employee', 'admin'),
+    validate(s.noteSchema),
+    endpoint(c.note, 201),
+  );
+  r.get('/:id/receipt', requireRole('client', 'admin'), endpoint(c.receipt));
+  return r;
+}
+/** Disponibilidad usa el mismo cálculo que la creación transaccional.
+ * @returns `import("express-serve-static-core").Router`, según el contrato de la operación.
+ */
+export function createAvailabilityRoutes() {
+  const r = Router();
+  r.use(authenticate, requireRole('client', 'admin'));
+  r.get('/', endpoint(c.slots));
+  return r;
+}
+
+/** Monta las tres mutaciones principales sin mezclar reglas de negocio con rutas. */
+function mountAppointmentChanges(r: ReturnType<typeof Router>) {
   r.post(
     '/',
     requireRole('client', 'admin'),
@@ -29,25 +59,4 @@ export function createAppointmentsRoutes() {
     validate(s.cancelSchema),
     endpoint(c.cancel),
   );
-  r.patch(
-    '/:id/assignment',
-    requireRole('admin'),
-    validate(s.assignmentSchema),
-    endpoint(c.assign),
-  );
-  r.post(
-    '/:id/notes',
-    requireRole('employee', 'admin'),
-    validate(s.noteSchema),
-    endpoint(c.note, 201),
-  );
-  r.get('/:id/receipt', requireRole('client', 'admin'), endpoint(c.receipt));
-  return r;
-}
-/** Disponibilidad usa el mismo cálculo que la creación transaccional. */
-export function createAvailabilityRoutes() {
-  const r = Router();
-  r.use(authenticate, requireRole('client', 'admin'));
-  r.get('/', endpoint(c.slots));
-  return r;
 }

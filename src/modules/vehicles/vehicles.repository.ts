@@ -1,6 +1,6 @@
 import type { RowDataPacket } from 'mysql2/promise';
-import { rows, execute } from '../../utils/db.js';
 import type { Executor } from '../../utils/db.js';
+import { execute, rows } from '../../utils/db.js';
 /** Vehículo con IDs serializables y campos propios. */
 export interface Vehicle extends RowDataPacket {
   id: string;
@@ -15,11 +15,23 @@ export interface Vehicle extends RowDataPacket {
 }
 const select = `SELECT CAST(v.id AS CHAR) id,CAST(v.owner_id AS CHAR) ownerId,CAST(v.vehicle_type_id AS CHAR) vehicleTypeId,
  v.plate,v.brand,v.model,v.color,t.name typeName,v.deleted_at deletedAt FROM vehicles v JOIN vehicle_types t ON t.id=v.vehicle_type_id`;
-/** Busca vehículo; autorización corresponde al servicio o requireOwnership. */
+/** Busca vehículo; autorización corresponde al servicio o requireOwnership.
+ * @param id - Identificador del recurso dentro del proyecto actual.
+ * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
+ * @returns `Promise<Vehicle | undefined>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
 export async function findVehicle(id: string, executor?: Executor) {
   return (await rows<Vehicle>(select + ' WHERE v.id=?', [id], executor))[0];
 }
-/** Lista solo propios cuando ownerId está definido. */
+/** Lista solo propios cuando ownerId está definido.
+ * @param ownerId - Valor tipado de ownerId utilizado por esta operación.
+ * @param page - Número de página desde uno.
+ * @param limit - Cantidad máxima de filas permitida por el esquema de paginación.
+ * @param search - Valor tipado de search utilizado por esta operación.
+ * @returns `Promise<{ items: Vehicle[]; page: number; limit: number; total: number; }>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
 export async function listVehicles(
   ownerId: string | undefined,
   page: number,
@@ -40,7 +52,11 @@ export async function listVehicles(
   );
   return { items, page, limit, total: Number(count[0]?.total ?? 0) };
 }
-/** Guarda vehículo validado usando parámetros. */
+/** Guarda vehículo validado usando parámetros.
+ * @param v - Datos tipados del elemento o formulario que se transforma.
+ * @returns `Promise<string>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
 export async function insertVehicle(v: Omit<Vehicle, 'id' | 'typeName' | 'deletedAt'>) {
   return String(
     (
@@ -51,7 +67,13 @@ export async function insertVehicle(v: Omit<Vehicle, 'id' | 'typeName' | 'delete
     ).insertId,
   );
 }
-/** Actualiza columnas permitidas del vehículo. */
+/** Actualiza columnas permitidas del vehículo.
+ * @param id - Identificador del recurso dentro del proyecto actual.
+ * @param v - Datos tipados del elemento o formulario que se transforma.
+ * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
+ * @returns `Promise<void>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
 export async function updateVehicle(id: string, v: Vehicle, executor?: Executor) {
   await execute(
     'UPDATE vehicles SET owner_id=?,vehicle_type_id=?,plate=?,brand=?,model=?,color=? WHERE id=?',
@@ -59,7 +81,12 @@ export async function updateVehicle(id: string, v: Vehicle, executor?: Executor)
     executor,
   );
 }
-/** Elimina lógicamente sin perder historial. */
+/** Elimina lógicamente sin perder historial.
+ * @param id - Identificador del recurso dentro del proyecto actual.
+ * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
+ * @returns `Promise<boolean>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
 export async function removeVehicle(id: string, executor?: Executor) {
   const active = await rows<RowDataPacket>(
     `SELECT a.id FROM appointments a JOIN appointment_statuses s ON s.id=a.status_id
@@ -71,7 +98,11 @@ export async function removeVehicle(id: string, executor?: Executor) {
   await execute('UPDATE vehicles SET deleted_at=UTC_TIMESTAMP(3) WHERE id=?', [id], executor);
   return true;
 }
-/** Indica si el tipo está habilitado para nuevos vehículos. */
+/** Indica si el tipo está habilitado para nuevos vehículos.
+ * @param id - Identificador del recurso dentro del proyecto actual.
+ * @returns `Promise<boolean>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
 export async function isVehicleTypeActive(id: string) {
   return Boolean(
     (await rows('SELECT id FROM vehicle_types WHERE id=? AND is_active=TRUE', [id]))[0],

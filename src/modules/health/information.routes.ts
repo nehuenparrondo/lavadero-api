@@ -1,7 +1,9 @@
 import { Router } from 'express';
 import { readFileSync } from 'node:fs';
 
-/** Publica el aviso de uso de datos necesario para la configuración de identidad. */
+/** Publica el aviso de uso de datos necesario para la configuración de identidad.
+ * @returns `import("express-serve-static-core").Router`, según el contrato de la operación.
+ */
 export function createInformationRoutes() {
   const router = Router();
   const privacy = readFileSync('docs/privacy.html', 'utf8');

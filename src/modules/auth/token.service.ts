@@ -14,7 +14,11 @@ function signingKey() {
     );
   return new TextEncoder().encode(authEnv.JWT_ACCESS_SECRET);
 }
-/** Emite JWT de quince minutos con audiencia e issuer restringidos. */
+/** Emite JWT de quince minutos con audiencia e issuer restringidos.
+ * @param user - Perfil vigente; nunca incluye una contraseña legible.
+ * @param familyId - Familia de sesión que agrupa sus renovaciones.
+ * @returns `Promise<string>`, según el contrato de la operación.
+ */
 export function signAccess(user: Actor, familyId?: string) {
   return new SignJWT({
     role: user.role,
@@ -29,7 +33,11 @@ export function signAccess(user: Actor, familyId?: string) {
     .setExpirationTime('15m')
     .sign(signingKey());
 }
-/** Verifica firma y tiempo. @throws AppError 401 si expiró o fue alterado. */
+/** Verifica firma y tiempo. @throws AppError 401 si expiró o fue alterado.
+ * @param token - Token recibido; se valida o transforma antes de utilizarlo.
+ * @returns `Promise<import("jose").JWTPayload>`, según el contrato de la operación.
+ * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
+ */
 export async function verifyAccess(token: string) {
   try {
     return (
@@ -43,11 +51,16 @@ export async function verifyAccess(token: string) {
     throw new AppError(401, 'SESSION_EXPIRED', 'La sesión venció. Volvé a ingresar.');
   }
 }
-/** Genera tokens criptográficos opacos. */
+/** Genera tokens criptográficos opacos.
+ * @returns `string`, según el contrato de la operación.
+ */
 export function opaqueToken() {
   return randomBytes(32).toString('hex');
 }
-/** Hash irreversible para persistir tokens revocables. */
+/** Hash irreversible para persistir tokens revocables.
+ * @param token - Token recibido; se valida o transforma antes de utilizarlo.
+ * @returns `NonSharedBuffer`, según el contrato de la operación.
+ */
 export function tokenHash(token: string) {
   return createHash('sha256').update(token).digest();
 }

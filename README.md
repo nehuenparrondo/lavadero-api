@@ -50,3 +50,7 @@ Ver requisitos en `tests/README.md`.
 No publicar `.env`, claves, tokens, contraseñas ni copias de la base. OAuth exige
 credenciales reales de cada proveedor; sus pruebas automatizadas usan proveedores
 simulados y no acreditan por sí solas una autorización externa real.
+
+## Revisión de la consigna
+
+[Matriz de requisitos y evidencia](docs/requirements-review.md) · [Prueba desde iPhone/Expo Go](docs/iphone-expo-go.md).

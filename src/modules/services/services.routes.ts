@@ -5,7 +5,9 @@ import { validate } from '../../middlewares/validate.js';
 import { endpoint } from '../../utils/http.js';
 import * as c from './services.controller.js';
 import * as s from './services.schema.js';
-/** Catálogo autenticado y escritura administrativa. */
+/** Catálogo autenticado y escritura administrativa.
+ * @returns `import("express-serve-static-core").Router`, según el contrato de la operación.
+ */
 export function createServicesRoutes() {
   const r = Router();
   r.use(authenticate);

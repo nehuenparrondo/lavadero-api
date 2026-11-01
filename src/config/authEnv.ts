@@ -1,5 +1,5 @@
-import { z } from 'zod';
 import 'dotenv/config';
+import { z } from 'zod';
 
 /** Configuración privada de autenticación, validada sin imprimir valores sensibles. */
 export const authEnv = z

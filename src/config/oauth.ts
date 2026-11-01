@@ -1,6 +1,6 @@
-import { authEnv } from './authEnv.js';
-import type { Provider } from '../modules/auth/oauth.types.js';
 import { AppError } from '../errors/AppError.js';
+import type { Provider } from '../modules/auth/oauth.types.js';
+import { authEnv } from './authEnv.js';
 /** Metadatos de autorización y credenciales privadas de los tres proveedores. */
 const providers = {
   google: {
@@ -28,14 +28,20 @@ const providers = {
     pkce: false,
   },
 } as const;
-/** Indica qué botones pueden iniciar OAuth sin revelar secretos. */
+/** Indica qué botones pueden iniciar OAuth sin revelar secretos.
+ * @returns `{ provider: string; enabled: boolean; }[]`, según el contrato de la operación.
+ */
 export function providerAvailability() {
   return Object.entries(providers).map(([provider, v]) => ({
     provider,
     enabled: Boolean(v.clientId && v.clientSecret && authEnv.PUBLIC_API_URL),
   }));
 }
-/** Configuración de proveedor. @throws AppError 503 si no fue habilitado. */
+/** Configuración de proveedor. @throws AppError 503 si no fue habilitado.
+ * @param provider - Proveedor permitido: Google, Discord o GitHub.
+ * @returns Objeto con clientId, clientSecret, callback, authorize, token, scope, pkce.
+ * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
+ */
 export function getProvider(provider: Provider) {
   const value = providers[provider];
   if (!value.clientId || !value.clientSecret || !authEnv.PUBLIC_API_URL)

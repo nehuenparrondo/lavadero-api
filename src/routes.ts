@@ -1,22 +1,24 @@
 import { Router } from 'express';
-import { createAuthRoutes } from './modules/auth/auth.routes.js';
-import { createUsersRoutes } from './modules/users/users.routes.js';
-import { createVehiclesRoutes } from './modules/vehicles/vehicles.routes.js';
-import { createVehicleTypesRoutes } from './modules/vehicleTypes/vehicleTypes.routes.js';
-import { createServicesRoutes } from './modules/services/services.routes.js';
-import {
-  createSettingsRoutes,
-  createBusinessRoutes,
-} from './modules/settings/settings.routes.js';
 import {
   createAppointmentsRoutes,
   createAvailabilityRoutes,
 } from './modules/appointments/appointments.routes.js';
+import { createAuthRoutes } from './modules/auth/auth.routes.js';
+import { createOAuthRoutes } from './modules/auth/oauth.routes.js';
 import { createPaymentsRoutes } from './modules/payments/payments.routes.js';
 import { createReportsRoutes } from './modules/reports/reports.routes.js';
-import { createOAuthRoutes } from './modules/auth/oauth.routes.js';
+import { createServicesRoutes } from './modules/services/services.routes.js';
+import {
+  createBusinessRoutes,
+  createSettingsRoutes,
+} from './modules/settings/settings.routes.js';
+import { createUsersRoutes } from './modules/users/users.routes.js';
+import { createVehiclesRoutes } from './modules/vehicles/vehicles.routes.js';
+import { createVehicleTypesRoutes } from './modules/vehicleTypes/vehicleTypes.routes.js';
 
-/** Compone módulos autónomos bajo /api/v1 sin lógica de negocio. */
+/** Compone módulos autónomos bajo /api/v1 sin lógica de negocio.
+ * @returns `import("express-serve-static-core").Router`, según el contrato de la operación.
+ */
 export function createApiRoutes() {
   const r = Router();
   r.use('/auth', createOAuthRoutes());

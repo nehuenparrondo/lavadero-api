@@ -1,7 +1,8 @@
 import { z } from 'zod';
+import { ROLES } from '../../constants/business.js';
+import { paginationSchema } from '../../utils/pagination.js';
 import { passwordSchema } from '../../utils/password.js';
 import { registerSchema } from '../auth/auth.schema.js';
-import { paginationSchema } from '../../utils/pagination.js';
 
 /** Perfil propio sin campos de privilegios. */
 export const profileSchema = z
@@ -14,7 +15,7 @@ export const profileSchema = z
   .strict();
 /** Alta por administrador con rol explícito opcional. */
 export const createUserSchema = registerSchema.extend({
-  role: z.enum(['client', 'employee', 'admin']).default('client'),
+  role: z.enum(ROLES).default('client'),
 });
 /** Edición administrativa, separada de promoción/degradación. */
 export const adminPatchSchema = profileSchema.extend({
@@ -28,7 +29,7 @@ export const passwordChangeSchema = z
   .strict();
 /** Filtro de usuarios administrativo. */
 export const usersQuerySchema = paginationSchema.extend({
-  role: z.enum(['client', 'employee', 'admin']).optional(),
+  role: z.enum(ROLES).optional(),
 });
 /** Rol sin posibilidad de incluir campos de perfil. */
-export const roleSchema = z.object({ role: z.enum(['client', 'employee', 'admin']) }).strict();
+export const roleSchema = z.object({ role: z.enum(ROLES) }).strict();

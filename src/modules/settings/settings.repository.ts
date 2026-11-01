@@ -1,9 +1,10 @@
 import type { RowDataPacket } from 'mysql2/promise';
-import { rows, execute } from '../../utils/db.js';
 import type { Executor } from '../../utils/db.js';
+import { execute, rows } from '../../utils/db.js';
 /** Configuración interna de una sucursal. */
 export interface Settings extends RowDataPacket {
   currencyCode: string;
+  /** Zona IANA del negocio para horarios de atención y fechas de reportes. */
   timeZone: string;
   cancellationNoticeMinutes: number;
   simultaneousCapacity: number;
@@ -17,11 +18,20 @@ export interface BusinessHour extends RowDataPacket {
 }
 const select = `SELECT currency_code currencyCode,time_zone timeZone,cancellation_notice_minutes cancellationNoticeMinutes,
  simultaneous_capacity simultaneousCapacity,slot_step_minutes slotStepMinutes FROM business_settings WHERE id=1`;
-/** Lee configuración o bloquea la fila común para serializar cambios de agenda y reservas. */
+/** Lee configuración o bloquea la fila común para serializar cambios de agenda y reservas.
+ * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
+ * @param lock - Si es verdadero, bloquea la fila hasta el final de la transacción.
+ * @returns `Promise<Settings | undefined>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
 export async function readSettings(executor?: Executor, lock = false) {
   return (await rows<Settings>(select + (lock ? ' FOR UPDATE' : ''), [], executor))[0];
 }
-/** Lee días abiertos, sin filas para días cerrados. */
+/** Lee días abiertos, sin filas para días cerrados.
+ * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
+ * @returns `Promise<BusinessHour[]>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
 export function readHours(executor?: Executor) {
   return rows<BusinessHour>(
     'SELECT weekday,opens_at opensAt,closes_at closesAt FROM business_hours ORDER BY weekday',
@@ -29,7 +39,12 @@ export function readHours(executor?: Executor) {
     executor,
   );
 }
-/** Guarda parámetros bajo la misma transacción de horario. */
+/** Guarda parámetros bajo la misma transacción de horario.
+ * @param input - Entrada validada por el esquema del caso de uso.
+ * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
+ * @returns `Promise<void>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
 export async function updateSettings(
   input: {
     timeZone: string;
@@ -50,7 +65,12 @@ export async function updateSettings(
     executor,
   );
 }
-/** Reemplaza la semana completa de forma atómica. */
+/** Reemplaza la semana completa de forma atómica.
+ * @param hours - Días y horarios de atención en la zona del negocio.
+ * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
+ * @returns `Promise<void>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
 export async function updateHours(
   hours: { weekday: number; opensAt: string; closesAt: string }[],
   executor: Executor,

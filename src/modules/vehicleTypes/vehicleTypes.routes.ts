@@ -5,7 +5,9 @@ import { validate } from '../../middlewares/validate.js';
 import { endpoint } from '../../utils/http.js';
 import * as c from './vehicleTypes.controller.js';
 import { vehicleTypeSchema } from './vehicleTypes.schema.js';
-/** Tipos visibles para todos, administrables solo por admin. */
+/** Tipos visibles para todos, administrables solo por admin.
+ * @returns `import("express-serve-static-core").Router`, según el contrato de la operación.
+ */
 export function createVehicleTypesRoutes() {
   const r = Router();
   r.use(authenticate);

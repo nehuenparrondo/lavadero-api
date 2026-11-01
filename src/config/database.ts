@@ -1,5 +1,5 @@
-import { createPool } from 'mysql2/promise';
 import type { PoolOptions } from 'mysql2/promise';
+import { createPool } from 'mysql2/promise';
 import { env } from './env.js';
 
 /** Crea un pool con CA verificada y valores temporales en UTC. */

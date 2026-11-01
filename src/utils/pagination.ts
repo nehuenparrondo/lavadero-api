@@ -6,7 +6,13 @@ export const paginationSchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(50),
   search: z.string().max(100).default(''),
 });
-/** Construye metadatos de una lista. */
+/** Construye metadatos de una lista.
+ * @param items - Renglones tipados que conservan precio, nombre y duración del contrato.
+ * @param total - Valor tipado de total utilizado por esta operación.
+ * @param page - Número de página desde uno.
+ * @param limit - Cantidad máxima de filas permitida por el esquema de paginación.
+ * @returns `{ items: T[]; total: number; page: number; limit: number; }`, según el contrato de la operación.
+ */
 export function pageResult<T>(items: T[], total: number, page: number, limit: number) {
   return { items, total, page, limit };
 }

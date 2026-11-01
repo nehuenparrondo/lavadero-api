@@ -1,18 +1,28 @@
 import type { z } from 'zod';
+import { AppError } from '../../errors/AppError.js';
 import type { Actor } from '../../types/domain.js';
 import { transaction } from '../../utils/transaction.js';
-import { findAppointment } from '../appointments/appointments.repository.js';
 import { assertAppointmentAccess } from '../appointments/appointments.access.js';
-import { AppError } from '../../errors/AppError.js';
-import type { paymentSchema } from './payments.schema.js';
+import { findAppointment } from '../appointments/appointments.repository.js';
 import * as repo from './payments.repository.js';
-/** Lista cobros propios o administrados; empleados solo pueden registrar cuando están habilitados. */
+import type { paymentSchema } from './payments.schema.js';
+/** Lista cobros propios o administrados; empleados solo pueden registrar cuando están habilitados.
+ * @param actor - Actor autenticado por el middleware; determina rol y propiedad.
+ * @param id - Identificador del recurso dentro del proyecto actual.
+ * @returns `Promise<import("mysql2").RowDataPacket[]>`, según el contrato de la operación.
+ */
 export async function getPayments(actor: Actor, id: string) {
   const a = await findAppointment(id);
   assertAppointmentAccess(actor, a);
   return repo.listPayments(id);
 }
-/** Registra saldo sin cobros duplicados ni sobrepago, incluso con solicitudes concurrentes. */
+/** Registra saldo sin cobros duplicados ni sobrepago, incluso con solicitudes concurrentes.
+ * @param actor - Actor autenticado por el middleware; determina rol y propiedad.
+ * @param id - Identificador del recurso dentro del proyecto actual.
+ * @param input - Entrada validada por el esquema del caso de uso.
+ * @returns `Promise<{ recorded: boolean; replayed: boolean; id?: never; } | { recorded: boolean; id: string; replayed: boolean; }>`, según el contrato de la operación.
+ * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
+ */
 export async function recordPayment(
   actor: Actor,
   id: string,
@@ -29,17 +39,7 @@ export async function recordPayment(
       );
     const previous = await repo.findPayment(input.idempotencyKey, connection);
     if (previous) {
-      if (
-        previous.appointmentId !== id ||
-        previous.amountCents !== input.amountCents ||
-        previous.method !== input.method ||
-        (previous.reference ?? null) !== (input.reference ?? null)
-      )
-        throw new AppError(
-          409,
-          'IDEMPOTENCY_CONFLICT',
-          'La clave de pago ya se usó con otros datos.',
-        );
+      assertSamePayment(previous, id, input);
       return { recorded: true, replayed: true };
     }
     if (!['in_progress', 'completed'].includes(appointment.status))
@@ -53,4 +53,23 @@ export async function recordPayment(
     const paymentId = await repo.insertPayment(id, actor.id, input, connection);
     return { recorded: true, id: paymentId, replayed: false };
   });
+}
+
+/** Una clave de idempotencia solo puede representar la misma operación e importe. */
+function assertSamePayment(
+  previous: NonNullable<Awaited<ReturnType<typeof repo.findPayment>>>,
+  id: string,
+  input: z.infer<typeof paymentSchema>,
+) {
+  if (
+    previous.appointmentId !== id ||
+    previous.amountCents !== input.amountCents ||
+    previous.method !== input.method ||
+    (previous.reference ?? null) !== (input.reference ?? null)
+  )
+    throw new AppError(
+      409,
+      'IDEMPOTENCY_CONFLICT',
+      'La clave de pago ya se usó con otros datos.',
+    );
 }

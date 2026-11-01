@@ -1,10 +1,16 @@
 import type { RequestHandler } from 'express';
-import { verifyAccess } from '../modules/auth/token.service.js';
-import { findUser } from '../modules/users/users.repository.js';
 import { AppError } from '../errors/AppError.js';
 import { isFamilyActive } from '../modules/auth/session.repository.js';
+import { verifyAccess } from '../modules/auth/token.service.js';
+import { findUser } from '../modules/users/users.repository.js';
 
-/** Verifica JWT y permisos actuales; desactivar o cambiar rol invalida inmediatamente el access. */
+/** Verifica JWT y permisos actuales; desactivar o cambiar rol invalida inmediatamente el access.
+ * @param request - Valor tipado de request utilizado por esta operación.
+ * @param _response - Valor tipado de _response utilizado por esta operación.
+ * @param next - Valor tipado de next utilizado por esta operación.
+ * @returns `Promise<void>`, según el contrato de la operación.
+ * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
+ */
 export const authenticate: RequestHandler = async (request, _response, next) => {
   const header = request.headers.authorization;
   if (!header?.startsWith('Bearer '))

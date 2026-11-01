@@ -1,15 +1,15 @@
+import { AppError } from '../../errors/AppError.js';
 import type { Actor } from '../../types/domain.js';
-import type { AppointmentStatus } from './appointments.types.js';
+import type { Executor } from '../../utils/db.js';
 import { transaction } from '../../utils/transaction.js';
 import { readSettings } from '../settings/settings.repository.js';
 import { findUser } from '../users/users.repository.js';
-import { AppError } from '../../errors/AppError.js';
-import * as repo from './appointments.repository.js';
 import { assertAppointmentAccess } from './appointments.access.js';
+import * as repo from './appointments.repository.js';
+import type { Appointment, AppointmentStatus } from './appointments.types.js';
+import { bookingIntervals } from './intervals.js';
+import { canFit, utcMillis } from './schedule.js';
 import { assertTransition } from './transitions.js';
-import { utcMillis, canFit } from './schedule.js';
-import type { Executor } from '../../utils/db.js';
-import type { Appointment } from './appointments.types.js';
 
 /** Valida empleado activo y evita doble asignación al reactivar/asignar un turno. */
 async function assertEmployee(
@@ -27,12 +27,7 @@ async function assertEmployee(
     appointment.id,
     executor,
   );
-  const intervals = existing.map((v) => ({
-    start: utcMillis(v.startsAt),
-    end: utcMillis(v.endsAt),
-    employeeId: v.employeeId as string | null,
-    vehicleId: String(v.vehicleId),
-  }));
+  const intervals = bookingIntervals(existing);
   if (
     !canFit(
       utcMillis(appointment.startsAt),
@@ -49,7 +44,14 @@ async function assertEmployee(
       'El empleado o la capacidad no están disponibles.',
     );
 }
-/** Cambia estado con permisos, ownership, ventana de cancelación y bloqueo de agenda. */
+/** Cambia estado con permisos, ownership, ventana de cancelación y bloqueo de agenda.
+ * @param actor - Actor autenticado por el middleware; determina rol y propiedad.
+ * @param id - Identificador del recurso dentro del proyecto actual.
+ * @param status - Valor tipado de status utilizado por esta operación.
+ * @param reason - Motivo de cancelación conservado en el historial.
+ * @returns `Promise<{ updated: boolean; status: "pending" | "confirmed" | "in_progress" | "completed" | "cancelled"; }>`, según el contrato de la operación.
+ * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
+ */
 export async function changeStatus(
   actor: Actor,
   id: string,
@@ -62,16 +64,7 @@ export async function changeStatus(
     const appointment = await repo.findAppointment(id, connection, true);
     assertAppointmentAccess(actor, appointment);
     assertTransition(appointment.status, status, actor.role);
-    if (
-      actor.role === 'client' &&
-      utcMillis(appointment.startsAt) - Date.now() <=
-        settings.cancellationNoticeMinutes * 60000
-    )
-      throw new AppError(
-        409,
-        'CANCELLATION_WINDOW',
-        'Ya pasó el plazo para cancelar desde la app.',
-      );
+    assertCancellationNotice(actor, appointment, settings.cancellationNoticeMinutes);
     if (['confirmed', 'in_progress', 'completed'].includes(status)) {
       if (!appointment.employeeId)
         throw new AppError(409, 'EMPLOYEE_REQUIRED', 'Asigná un empleado antes de confirmar.');
@@ -88,7 +81,13 @@ export async function changeStatus(
     return { updated: true, status };
   });
 }
-/** Asigna/reasigna sin cambiar estado; confirmar es una acción administrativa separada. */
+/** Asigna/reasigna sin cambiar estado; confirmar es una acción administrativa separada.
+ * @param actor - Actor autenticado por el middleware; determina rol y propiedad.
+ * @param id - Identificador del recurso dentro del proyecto actual.
+ * @param employeeId - Empleado activo que se asigna o consulta.
+ * @returns `Promise<{ assigned: boolean; }>`, según el contrato de la operación.
+ * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
+ */
 export async function assignEmployee(actor: Actor, id: string, employeeId: string) {
   return transaction(async (connection) => {
     const settings = await readSettings(connection, true);
@@ -101,4 +100,17 @@ export async function assignEmployee(actor: Actor, id: string, employeeId: strin
     await repo.setEmployee(id, employeeId, connection);
     return { assigned: true };
   });
+}
+
+/** Admin conserva cancelación de emergencia; el cliente respeta la anticipación configurada. */
+function assertCancellationNotice(actor: Actor, appointment: Appointment, notice: number) {
+  if (
+    actor.role === 'client' &&
+    utcMillis(appointment.startsAt) - Date.now() <= notice * 60000
+  )
+    throw new AppError(
+      409,
+      'CANCELLATION_WINDOW',
+      'Ya pasó el plazo para cancelar desde la app.',
+    );
 }

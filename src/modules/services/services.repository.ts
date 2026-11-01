@@ -1,6 +1,6 @@
 import type { RowDataPacket } from 'mysql2/promise';
-import { rows, execute } from '../../utils/db.js';
 import type { Executor } from '../../utils/db.js';
+import { execute, rows } from '../../utils/db.js';
 /** Servicio de catálogo. */
 export interface Service extends RowDataPacket {
   id: string;
@@ -12,26 +12,42 @@ export interface Service extends RowDataPacket {
 }
 const select =
   'SELECT CAST(id AS CHAR) id,code,name,description,duration_minutes durationMinutes,is_active isActive FROM services';
-/** Lee catálogo sin borrar historia; admin puede incluir inactivos. */
+/** Lee catálogo sin borrar historia; admin puede incluir inactivos.
+ * @param includeInactive - Valor tipado de includeInactive utilizado por esta operación.
+ * @returns `Promise<Service[]>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
 export function listServices(includeInactive: boolean) {
   return rows<Service>(
     select + ' WHERE deleted_at IS NULL AND (? OR is_active=TRUE) ORDER BY id',
     [includeInactive],
   );
 }
-/** Busca servicio por ID. */
+/** Busca servicio por ID.
+ * @param id - Identificador del recurso dentro del proyecto actual.
+ * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
+ * @returns `Promise<Service | undefined>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
 export async function findService(id: string, executor?: Executor) {
   return (
     await rows<Service>(select + ' WHERE id=? AND deleted_at IS NULL', [id], executor)
   )[0];
 }
-/** Precios vigentes, agrupables por tipo en el servicio. */
+/** Precios vigentes, agrupables por tipo en el servicio.
+ * @returns `Promise<RowDataPacket[]>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
 export function listPrices() {
   return rows<RowDataPacket>(
     `SELECT CAST(service_id AS CHAR) serviceId,CAST(vehicle_type_id AS CHAR) vehicleTypeId,price_cents priceCents FROM service_prices`,
   );
 }
-/** Inserta un servicio de catálogo validado. */
+/** Inserta un servicio de catálogo validado.
+ * @param v - Datos tipados del elemento o formulario que se transforma.
+ * @returns `Promise<string>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
 export async function insertService(v: {
   code: string;
   name: string;
@@ -48,7 +64,12 @@ export async function insertService(v: {
     ).insertId,
   );
 }
-/** Actualiza datos sin modificar snapshots de turnos previos. */
+/** Actualiza datos sin modificar snapshots de turnos previos.
+ * @param id - Identificador del recurso dentro del proyecto actual.
+ * @param v - Datos tipados del elemento o formulario que se transforma.
+ * @returns `Promise<void>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
 export async function updateService(
   id: string,
   v: {
@@ -64,14 +85,24 @@ export async function updateService(
     [v.code, v.name, v.description, v.durationMinutes, v.isActive, id],
   );
 }
-/** Desactiva y borra lógicamente un servicio. */
+/** Desactiva y borra lógicamente un servicio.
+ * @param id - Identificador del recurso dentro del proyecto actual.
+ * @returns `Promise<import("mysql2/promise").ResultSetHeader>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
 export function removeService(id: string) {
   return execute(
     'UPDATE services SET is_active=FALSE,deleted_at=UTC_TIMESTAMP(3) WHERE id=?',
     [id],
   );
 }
-/** Upsert de un precio vigente por par servicio/tipo. */
+/** Upsert de un precio vigente por par servicio/tipo.
+ * @param id - Identificador del recurso dentro del proyecto actual.
+ * @param typeId - Tipo de vehículo para resolver su tarifa vigente.
+ * @param cents - Valor tipado de cents utilizado por esta operación.
+ * @returns `Promise<import("mysql2/promise").ResultSetHeader>`, según el contrato de la operación.
+ * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
+ */
 export function savePrice(id: string, typeId: string, cents: number) {
   return execute(
     `INSERT INTO service_prices(service_id,vehicle_type_id,price_cents)
