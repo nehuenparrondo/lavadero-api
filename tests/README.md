@@ -1,8 +1,8 @@
 # Pruebas
 
-`npm test`: 14 pruebas unitarias/HTTP sin MySQL. `npm run check`: además tipos, lint y build.
+`npm test`: 15 pruebas unitarias/HTTP sin MySQL. `npm run check`: además tipos, lint, build y auditoría de fuente.
 `npm run test:database`: restricciones SQL con una base exclusiva ya migrada/sembrada.
-`npm run test:acceptance`: 14 escenarios sobre app Express y MySQL reales.
+`npm run test:acceptance`: 17 escenarios sobre app Express y MySQL reales.
 
 Para aceptación definir NODE_ENV=test, DATABASE_URL a una base desechable, TLS/CA según
 el servidor, JWT_ACCESS_SECRET de al menos 32 caracteres, SEED_ADMIN_EMAIL y
@@ -18,4 +18,4 @@ DISCORD_CLIENT_ID=test-discord, DISCORD_CLIENT_SECRET=test-discord-secret.
 Son valores ficticios, no credenciales externas. El PKCE se verifica contra RFC 7636.
 
 Los permisos y la concurrencia se comprueban por HTTP, no llamando directamente a
-funciones internas. En esta entrega pasaron los 14 escenarios con MySQL 8.4 real.
+funciones internas. En esta entrega pasaron los 17 escenarios con MySQL 8.4 real.
