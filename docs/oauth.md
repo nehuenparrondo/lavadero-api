@@ -37,3 +37,11 @@ propios jamás aparecen en el deep link. Cancelar autorización devuelve access_
 Consultar delivery.md para distinguir proveedores configurados de pruebas automatizadas
 con respuestas simuladas. Una respuesta enabled=true solo acredita presencia de variables,
 no que el usuario haya completado el consentimiento del proveedor.
+
+## Preparación web y servidor en reposo
+
+Desde 1.1.1, la web prepara PKCE con AuthRequest y envía sus parámetros a `POST /api/v1/auth/oauth/:provider/start`. El backend aplica el mismo esquema, allowlist, estado opaco y límite de intentos que GET authorize, pero responde `{ data: { url } }`. El cliente verifica el origen HTTPS del proveedor y navega directamente allí. GET authorize se conserva para aplicaciones anteriores y el flujo nativo.
+
+Los transportes esperan una comprobación compartida de GET /ready antes de enviar credenciales o escrituras. No se reenvían mutaciones tras timeouts. Si el intercambio con el proveedor falla después de consumir un state válido, se devuelve `provider_unavailable` al retorno persistido con el state original. Un state inválido no permite elegir un redirect. Todas las rutas OAuth declaran `Cache-Control: no-store`.
+
+El 2 de noviembre de 2026 se completó otra vez el acceso web real con Google, GitHub y Discord, con autorización previa del propietario. Ver reliability.md para las demás pruebas y los límites del alojamiento gratuito.
