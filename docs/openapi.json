@@ -6957,6 +6957,170 @@
           }
         }
       }
+    },
+    "/api/v1/auth/oauth/{provider}/start": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Preparar OAuth por JSON sin salir de la app durante el arranque",
+        "description": "Roles: public. Mismas validaciones de state, PKCE S256 y redirect allowlisted que GET authorize. Devuelve la URL HTTPS del proveedor. La app espera readiness antes de enviar la solicitud y navega directamente al proveedor.",
+        "operationId": "startSocialLogin",
+        "security": [],
+        "x-roles": ["public"],
+        "responses": {
+          "400": {
+            "description": "Datos inválidos. Revisar error.fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sesión ausente, vencida, revocada o credenciales inválidas.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol/permiso insuficiente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el actor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto, duplicado, estado, capacidad o pago inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Demasiados intentos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno sin datos sensibles.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio o proveedor todavía sin configurar/no disponible.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Autorización preparada; no contiene tokens de acceso ni secretos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data"],
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "required": ["url"],
+                      "properties": {
+                        "url": {
+                          "type": "string",
+                          "format": "uri"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["google", "discord", "github"]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "redirect_uri",
+                  "state",
+                  "code_challenge",
+                  "code_challenge_method",
+                  "response_type"
+                ],
+                "properties": {
+                  "redirect_uri": {
+                    "type": "string",
+                    "maxLength": 2048
+                  },
+                  "state": {
+                    "type": "string",
+                    "minLength": 16,
+                    "maxLength": 256
+                  },
+                  "code_challenge": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]{43}$"
+                  },
+                  "code_challenge_method": {
+                    "const": "S256"
+                  },
+                  "response_type": {
+                    "const": "code"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -8023,6 +8187,11 @@
           "currencyCode": {
             "type": "string",
             "enum": ["ARS"]
+          },
+          "unavailableReason": {
+            "type": ["string", "null"],
+            "enum": ["closed", "past", "duration", "full", null],
+            "description": "Motivo de una lista vacía: cerrado, jornada terminada, duración que excede la jornada o cupos ocupados. null si hay horarios."
           }
         },
         "required": ["slots", "totalCents", "durationMinutes", "currencyCode"]

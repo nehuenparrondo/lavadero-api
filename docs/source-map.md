@@ -329,6 +329,16 @@ Inserta turno pendiente. El llamador mantiene lock de agenda y snapshot de preci
 | setEmployee        | Asignación administrativa.                                                          |
 | recordCancellation | Autor y motivo de cancelación.                                                      |
 
+## src/modules/appointments/availability.reason.ts
+
+Explica un resultado vacío sin confundir un día cerrado con un cupo ocupado.
+
+[Abrir fuente](../src/modules/appointments/availability.reason.ts)
+
+| Exportación       | Responsabilidad                                                              |
+| ----------------- | ---------------------------------------------------------------------------- |
+| unavailableReason | Explica un resultado vacío sin confundir un día cerrado con un cupo ocupado. |
+
 ## src/modules/appointments/availability.service.ts
 
 Cotiza servicios activos para un vehículo visible y habilitado.
@@ -479,12 +489,13 @@ Disponibilidad de botones sociales.
 
 [Abrir fuente](../src/modules/auth/oauth.controller.ts)
 
-| Exportación | Responsabilidad                                                      |
-| ----------- | -------------------------------------------------------------------- |
-| providers   | Disponibilidad de botones sociales.                                  |
-| authorize   | Inicio OAuth con state/PKCE validado.                                |
-| callback    | Callback HTTPS validado, después redirección allowlisted al cliente. |
-| exchange    | Canje final de grant y verifier por sesión propia.                   |
+| Exportación | Responsabilidad                                                             |
+| ----------- | --------------------------------------------------------------------------- |
+| providers   | Disponibilidad de botones sociales.                                         |
+| authorize   | Inicio OAuth con state/PKCE validado.                                       |
+| start       | Prepara la URL social sin redirigir el navegador hacia un servidor dormido. |
+| callback    | Callback HTTPS validado, después redirección allowlisted al cliente.        |
+| exchange    | Canje final de grant y verifier por sesión propia.                          |
 
 ## src/modules/auth/oauth.exchange.service.ts
 
@@ -533,6 +544,16 @@ Persiste estado opaco con vencimiento corto.
 | takeState   | Bloquea/consume estado una vez antes de contactar al proveedor. |
 | findSocial  | Busca identidad externa por sujeto estable del proveedor.       |
 | linkSocial  | Vincula email verificado a la identidad ya existente.           |
+
+## src/modules/auth/oauth.return.ts
+
+Retorna errores públicos únicamente al redirect de un estado ya validado y consumido.
+
+[Abrir fuente](../src/modules/auth/oauth.return.ts)
+
+| Exportación      | Responsabilidad                                                                       |
+| ---------------- | ------------------------------------------------------------------------------------- |
+| oauthErrorReturn | Retorna errores públicos únicamente al redirect de un estado ya validado y consumido. |
 
 ## src/modules/auth/oauth.routes.ts
 

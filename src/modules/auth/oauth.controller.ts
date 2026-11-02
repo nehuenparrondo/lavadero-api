@@ -22,6 +22,18 @@ export async function authorize(r: Request, s: Response) {
     ),
   );
 }
+/** Prepara la URL social sin redirigir el navegador hacia un servidor dormido.
+ * @param r Petición con state, retorno y desafío PKCE validados.
+ * @returns URL HTTPS de un proveedor configurado en el servidor.
+ */
+export async function start(r: Request) {
+  return {
+    url: await service.authorize(
+      providerSchema.parse(r.params.provider),
+      authorizeSchema.parse(r.body),
+    ),
+  };
+}
 /** Callback HTTPS validado, después redirección allowlisted al cliente.
  * @param r - Petición HTTP; los valores se validan antes de ejecutar el servicio.
  * @param s - Respuesta HTTP usada para emitir la redirección del flujo.

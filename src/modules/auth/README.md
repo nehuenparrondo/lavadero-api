@@ -16,6 +16,7 @@ Acceso local/social, sesiones y PKCE. Persistir hashes de tokens y confirmar rev
 | [oauth.grants.repository.ts](oauth.grants.repository.ts) | Candidato verificado por el proveedor; aún no vinculado a la cuenta local.                   |
 | [oauth.identity.service.ts](oauth.identity.service.ts)   | Emite un código de un uso; una cuenta local requiere probar su contraseña antes de vincular. |
 | [oauth.repository.ts](oauth.repository.ts)               | Persiste estado opaco con vencimiento corto.                                                 |
+| [oauth.return.ts](oauth.return.ts)                       | Retorna errores públicos únicamente al redirect de un estado ya validado y consumido.        |
 | [oauth.routes.ts](oauth.routes.ts)                       | Inicio, retorno y canje de códigos sociales; todos limitados por origen.                     |
 | [oauth.schema.ts](oauth.schema.ts)                       | Provider cerrado evita redirecciones y SSRF por URLs recibidas del cliente.                  |
 | [oauth.service.ts](oauth.service.ts)                     | Metadatos públicos, solo habilitado/deshabilitado por proveedor.                             |

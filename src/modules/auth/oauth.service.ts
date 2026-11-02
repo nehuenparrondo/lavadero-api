@@ -4,6 +4,7 @@ import { getProvider, providerAvailability } from '../../config/oauth.js';
 import { AppError } from '../../errors/AppError.js';
 import { transaction } from '../../utils/transaction.js';
 import { issueGrant } from './oauth.identity.service.js';
+import { oauthErrorReturn } from './oauth.return.js';
 import * as repo from './oauth.repository.js';
 import type { authorizeSchema } from './oauth.schema.js';
 import type { Provider } from './oauth.types.js';
@@ -68,17 +69,16 @@ export async function callback(
       'INVALID_OAUTH_STATE',
       'La solicitud social venció o ya se utilizó.',
     );
-  if (input.error || !input.code) {
-    const url = new URL(state.redirectUri);
-    url.searchParams.set('error', 'access_denied');
-    url.searchParams.set('state', state.clientState);
-    return url.toString();
+  if (input.error || !input.code) return oauthErrorReturn(state, 'access_denied');
+  try {
+    return await issueGrant(
+      provider,
+      await exchangeProvider(provider, input.code, state.providerVerifier),
+      state,
+    );
+  } catch {
+    return oauthErrorReturn(state, 'provider_unavailable');
   }
-  return issueGrant(
-    provider,
-    await exchangeProvider(provider, input.code, state.providerVerifier),
-    state,
-  );
 }
 
 /** Solo admite retornos completos declarados por el propietario del backend. */

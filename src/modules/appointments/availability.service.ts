@@ -8,6 +8,7 @@ import { readHours, readSettings } from '../settings/settings.repository.js';
 import { findVehicle } from '../vehicles/vehicles.repository.js';
 import { overlapping, quoteServices } from './appointments.repository.js';
 import type { availabilitySchema } from './appointments.schema.js';
+import { unavailableReason } from './availability.reason.js';
 import { bookingIntervals } from './intervals.js';
 import { businessWindow, canFit, sqlTime } from './schedule.js';
 
@@ -75,6 +76,7 @@ export async function availability(current: Actor, input: z.infer<typeof availab
     totalCents: quoted.totalCents,
     durationMinutes: quoted.durationMinutes,
     slots,
+    unavailableReason: unavailableReason(window, quoted.durationMinutes, slots),
     currencyCode: settings.currencyCode,
   };
 }

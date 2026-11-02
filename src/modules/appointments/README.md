@@ -15,6 +15,7 @@ Agenda y contratos históricos. Compartir el lock de settings para reservar/asig
 | [appointments.service.ts](appointments.service.ts)                       | Lista exclusivamente propios/asignados y admite filtros administrativos sin ampliar acceso.        |
 | [appointments.types.ts](appointments.types.ts)                           | Flujo compartido por rutas y reglas del módulo.                                                    |
 | [appointments.write.repository.ts](appointments.write.repository.ts)     | Inserta turno pendiente. El llamador mantiene lock de agenda y snapshot de precios.                |
+| [availability.reason.ts](availability.reason.ts)                         | Explica un resultado vacío sin confundir un día cerrado con un cupo ocupado.                       |
 | [availability.service.ts](availability.service.ts)                       | Cotiza servicios activos para un vehículo visible y habilitado.                                    |
 | [booking.service.ts](booking.service.ts)                                 | Reserva y guarda el contrato histórico bajo el bloqueo compartido de agenda.                       |
 | [bookingSlot.service.ts](bookingSlot.service.ts)                         | Revalida horario y ocupación dentro de la transacción que mantiene el lock de agenda.              |

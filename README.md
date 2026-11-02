@@ -59,3 +59,7 @@ simulados y no acreditan por sí solas una autorización externa real.
 
 - [Guía de código e invariantes](docs/code-guide.md)
 - [Mapa de todos los módulos](docs/source-map.md)
+
+## Correcciones de acceso y reservas
+
+Ver [comportamiento, módulos y pruebas de la versión 1.1.1](docs/reliability.md).
