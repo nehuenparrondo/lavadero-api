@@ -16,7 +16,7 @@ import { sqlTime } from './schedule.js';
 /** Reserva y guarda el contrato histórico bajo el bloqueo compartido de agenda.
  * @param actor Actor autenticado; un cliente solo reserva para su propio vehículo.
  * @param input Vehículo, servicios e inicio; clientId es opcional para reserva asistida.
- * @returns Turno pendiente con precios y duraciones recalculados por el servidor.
+ * @returns Turno confirmado automáticamente para la agenda compartida con precios y duraciones recalculados por el servidor.
  * @throws AppError Si falta configuración, el titular no corresponde o el horario se ocupó.
  * @remarks El lock de settings serializa reservas, asignaciones y cambios de configuración.
  */
@@ -102,6 +102,6 @@ async function persistBooking(
     connection,
   );
   await repo.insertItems(id, items, connection);
-  await repo.setStatus(id, 'pending', actor.id, connection);
+  await repo.setStatus(id, 'confirmed', actor.id, connection);
   return presentAppointment((await repo.findAppointment(id, connection))!, actor);
 }

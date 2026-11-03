@@ -5115,7 +5115,7 @@
       "get": {
         "tags": ["appointments"],
         "summary": "Listar turnos visibles",
-        "description": "Roles: client, employee, admin. Cliente: propios. Empleado: asignados. Admin: todos. Filtros adicionales clientId y employeeId no amplían visibilidad.",
+        "description": "Roles: client, employee, admin. Cliente: turnos propios sin información de asignación. Todo empleado activo: agenda operativa compartida, filtrada por fecha local e historial. Admin: todos y filtros internos de responsable. Importes de empleado solo con permiso de cobro.",
         "operationId": "get37",
         "security": [
           {
@@ -5280,7 +5280,7 @@
       "post": {
         "tags": ["appointments"],
         "summary": "Reservar turno",
-        "description": "Roles: client, admin. Admin puede incluir clientId; debe ser titular activo del vehículo. Precio/duración se recalculan y congelan bajo lock de agenda. 409 si otro ocupa el horario.",
+        "description": "Roles: client, admin. Reserva confirmada automáticamente y visible para todo el equipo. Revalida titular, servicios, horario y capacidad física en una transacción. No devuelve responsable al cliente.",
         "operationId": "post38",
         "security": [
           {
@@ -5314,11 +5314,9 @@
                     "color": "Gris",
                     "clientName": "Ana Pérez",
                     "clientPhone": "1100000000",
-                    "employeeName": null,
                     "version": 1,
                     "clientId": "1",
                     "vehicleId": "1",
-                    "employeeId": null,
                     "currencyCode": "ARS",
                     "totalCents": 900000,
                     "paidCents": 0
@@ -5429,7 +5427,7 @@
       "get": {
         "tags": ["appointments"],
         "summary": "Consultar detalle del turno",
-        "description": "Roles: client, employee, admin. Solo propio/asignado o Admin. Empleado recibe nombre/teléfono operativos; importes solo si está habilitado para cobros.",
+        "description": "Roles: client, employee, admin. Cliente propietario; equipo con acceso operativo compartido. Responsable solo para administrador. Importes del empleado solo con permiso de cobro.",
         "operationId": "get39",
         "security": [
           {
@@ -5463,11 +5461,9 @@
                     "color": "Gris",
                     "clientName": "Ana Pérez",
                     "clientPhone": "1100000000",
-                    "employeeName": null,
                     "version": 1,
                     "clientId": "1",
                     "vehicleId": "1",
-                    "employeeId": null,
                     "currencyCode": "ARS",
                     "totalCents": 900000,
                     "paidCents": 0
@@ -5717,7 +5713,7 @@
       "patch": {
         "tags": ["appointments"],
         "summary": "Cambiar estado",
-        "description": "Roles: employee, admin. Empleado asignado: confirmed→in_progress→completed. Admin puede corregir estados respetando empleado/capacidad. Transición inválida: 409.",
+        "description": "Roles: employee, admin. Empleado: confirmed o pending anterior → in_progress → completed. Al iniciar se registra el actor como responsable interno, sin exclusividad de acceso. La transacción evita inicios duplicados y revalida capacidad. Admin puede corregir estados.",
         "operationId": "patch41",
         "security": [
           {
@@ -6003,7 +5999,7 @@
       "post": {
         "tags": ["appointments"],
         "summary": "Registrar observación",
-        "description": "Roles: employee, admin. Empleado solo asignados; autor se toma de la sesión.",
+        "description": "Roles: employee, admin. Equipo sobre agenda compartida; autor autenticado, nunca elegido por el body.",
         "operationId": "post43",
         "security": [
           {
@@ -6179,11 +6175,9 @@
                     "color": "Gris",
                     "clientName": "Ana Pérez",
                     "clientPhone": "1100000000",
-                    "employeeName": null,
                     "version": 1,
                     "clientId": "1",
                     "vehicleId": "1",
-                    "employeeId": null,
                     "currencyCode": "ARS",
                     "totalCents": 900000,
                     "paidCents": 0,
@@ -6428,7 +6422,7 @@
       "post": {
         "tags": ["appointments"],
         "summary": "Registrar cobro",
-        "description": "Roles: employee, admin. Empleado: asignado y habilitado por Admin. Solo en proceso/finalizado. Mismo reintento no duplica; otro importe con misma clave: 409. Nunca supera saldo.",
+        "description": "Roles: employee, admin. Empleado habilitado por Admin, sobre agenda compartida. Solo en proceso/finalizado. Reintento idéntico no duplica; clave con otro importe: 409. Nunca supera saldo.",
         "operationId": "post46",
         "security": [
           {
@@ -6726,7 +6720,7 @@
       "get": {
         "tags": ["reports"],
         "summary": "Ver resumen propio de jornada",
-        "description": "Roles: employee. Solo sus trabajos hechos/pendientes. No revela ingresos del negocio.",
+        "description": "Roles: employee. Jornada compartida del equipo en la fecha local consultada. Trabajos finalizados y pendientes; no revela ingresos.",
         "operationId": "get48",
         "security": [
           {
@@ -8005,7 +7999,8 @@
             "type": ["string", "null"]
           },
           "employeeName": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "description": "Solo administrador; ausente para clientes y empleados."
           },
           "clientId": {
             "type": "string",
@@ -8013,7 +8008,8 @@
             "example": "1"
           },
           "employeeId": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "description": "Responsable interno, solo administrador. No limita la agenda compartida."
           },
           "vehicleId": {
             "type": "string",
@@ -8096,7 +8092,6 @@
           "color",
           "clientName",
           "clientPhone",
-          "employeeName",
           "version"
         ]
       },

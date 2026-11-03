@@ -10,6 +10,7 @@ import type { Appointment, AppointmentStatus } from './appointments.types.js';
 import { bookingIntervals } from './intervals.js';
 import { canFit, utcMillis } from './schedule.js';
 import { assertTransition } from './transitions.js';
+import { assertTeamCapacity } from './teamCapacity.js';
 
 /** Valida empleado activo y evita doble asignación al reactivar/asignar un turno. */
 async function assertEmployee(
@@ -66,14 +67,9 @@ export async function changeStatus(
     assertTransition(appointment.status, status, actor.role);
     assertCancellationNotice(actor, appointment, settings.cancellationNoticeMinutes);
     if (['confirmed', 'in_progress', 'completed'].includes(status)) {
-      if (!appointment.employeeId)
-        throw new AppError(409, 'EMPLOYEE_REQUIRED', 'Asigná un empleado antes de confirmar.');
-      await assertEmployee(
-        appointment,
-        appointment.employeeId,
-        settings.simultaneousCapacity,
-        connection,
-      );
+      await assertTeamCapacity(appointment, settings.simultaneousCapacity, connection);
+      if (status === 'in_progress' && actor.role === 'employee')
+        await repo.setEmployee(id, actor.id, connection);
     }
     await repo.setStatus(id, status, actor.id, connection);
     if (status === 'cancelled')

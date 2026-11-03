@@ -8,7 +8,7 @@ import * as repo from './appointments.repository.js';
 import type { appointmentQuerySchema } from './appointments.schema.js';
 import * as notesRepo from './notes.repository.js';
 
-/** Lista exclusivamente propios/asignados y admite filtros administrativos sin ampliar acceso.
+/** Lista turnos propios para clientes y agenda compartida para el equipo y admite filtros administrativos sin ampliar acceso.
  * @param actor - Actor autenticado por el middleware; determina rol y propiedad.
  * @param input - Entrada validada por el esquema del caso de uso.
  * @returns Promesa de un objeto con items, total, page, limit.
@@ -50,7 +50,7 @@ export async function getAppointment(actor: Actor, id: string) {
     notes,
   };
 }
-/** Registra observación solo en turno asignado (o admin).
+/** Registra observación por el equipo o administrador, con autor autenticado.
  * @param actor - Actor autenticado por el middleware; determina rol y propiedad.
  * @param id - Identificador del recurso dentro del proyecto actual.
  * @param body - Carga validada de la operación de escritura.

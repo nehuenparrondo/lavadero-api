@@ -31,7 +31,7 @@ con `npm run db:seed:production`. Las migraciones comprueban su checksum.
 - Propiedad y rol se comprueban en cada solicitud. Cambios de rol invalidan sesiones.
 - Reservas bajo transacción: horario, capacidad, propietario y precio se recalculan.
   Los precios y duraciones históricos permanecen aunque cambie el catálogo.
-- Empleados solo acceden a trabajos asignados. Cobran únicamente si están habilitados.
+- Todos los empleados activos acceden a la agenda compartida. Cobran únicamente si están habilitados.
 - Importes enteros en centavos ARS; fechas UTC y calendario Buenos Aires.
 - Atención inicial lunes a sábado 09:30–16:30, capacidad 1, grilla 5 minutos.
   Servicios de ejemplo: interior 30, exterior 35 y completo 40 minutos.
@@ -63,3 +63,5 @@ simulados y no acreditan por sí solas una autorización externa real.
 ## Correcciones de acceso y reservas
 
 Ver [comportamiento, módulos y pruebas de la versión 1.1.1](docs/reliability.md).
+
+La regla vigente de agenda compartida y los controles de pantalla están documentados en [docs/shared-agenda.md](docs/shared-agenda.md).

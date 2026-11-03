@@ -2,6 +2,7 @@ import { ConflictError } from '../../errors/ConflictError.js';
 import type { Role } from '../../types/domain.js';
 import type { AppointmentStatus } from './appointments.types.js';
 const employeeNext: Partial<Record<AppointmentStatus, AppointmentStatus>> = {
+  pending: 'in_progress', // Compatibilidad con reservas anteriores al flujo compartido.
   confirmed: 'in_progress',
   in_progress: 'completed',
 };

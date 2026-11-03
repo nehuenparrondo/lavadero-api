@@ -59,7 +59,7 @@ fin posterior al inicio y pagos con idempotencia se garantizan con SQL.
 No se hace cascada destructiva de usuarios, vehículos, servicios, turnos ni pagos.
 Email y patente permanecen reservados tras el borrado lógico para conservar trazabilidad.
 
-Rol del cliente/asignado, propiedad, último admin, transiciones, duración, total cobrado,
+Rol del cliente/equipo, propiedad, último admin, transiciones, duración, total cobrado,
 solapamientos y capacidad se garantizan en los servicios transaccionales implementados.
 Esta versión usa la fila común de `business_settings` como mutex de agenda.
 `booking_day_locks` queda reservada para una futura optimización por fecha; no es el lock activo.
@@ -212,22 +212,22 @@ Estados admitidos del flujo.
 
 Reserva con fechas, participantes y estado actual.
 
-| Columna               | Tipo SQL           | Significado                                     |
-| --------------------- | ------------------ | ----------------------------------------------- |
-| `id`                  | `BIGINT UNSIGNED`  | Identificador primario.                         |
-| `client_id`           | `BIGINT UNSIGNED`  | Cliente titular al reservar.                    |
-| `vehicle_id`          | `BIGINT UNSIGNED`  | Vehículo atendido.                              |
-| `employee_id`         | `BIGINT UNSIGNED`  | Empleado asignado, opcional hasta confirmación. |
-| `status_id`           | `TINYINT UNSIGNED` | Estado actual o auditado.                       |
-| `starts_at`           | `DATETIME(3)`      | Inicio UTC del intervalo.                       |
-| `ends_at`             | `DATETIME(3)`      | Fin UTC exclusivo del intervalo.                |
-| `currency_code`       | `CHAR(3)`          | Código ISO de moneda, ARS en este proyecto.     |
-| `created_by_id`       | `BIGINT UNSIGNED`  | Usuario que creó la reserva.                    |
-| `cancelled_by_id`     | `BIGINT UNSIGNED`  | Usuario que canceló.                            |
-| `cancellation_reason` | `VARCHAR(500)`     | Motivo de cancelación.                          |
-| `version`             | `INT UNSIGNED`     | Versión para concurrencia optimista.            |
-| `created_at`          | `DATETIME(3)`      | Instante de creación UTC.                       |
-| `updated_at`          | `DATETIME(3)`      | Última modificación UTC.                        |
+| Columna               | Tipo SQL           | Significado                                            |
+| --------------------- | ------------------ | ------------------------------------------------------ |
+| `id`                  | `BIGINT UNSIGNED`  | Identificador primario.                                |
+| `client_id`           | `BIGINT UNSIGNED`  | Cliente titular al reservar.                           |
+| `vehicle_id`          | `BIGINT UNSIGNED`  | Vehículo atendido.                                     |
+| `employee_id`         | `BIGINT UNSIGNED`  | Responsable interno al iniciar; no limita visibilidad. |
+| `status_id`           | `TINYINT UNSIGNED` | Estado actual o auditado.                              |
+| `starts_at`           | `DATETIME(3)`      | Inicio UTC del intervalo.                              |
+| `ends_at`             | `DATETIME(3)`      | Fin UTC exclusivo del intervalo.                       |
+| `currency_code`       | `CHAR(3)`          | Código ISO de moneda, ARS en este proyecto.            |
+| `created_by_id`       | `BIGINT UNSIGNED`  | Usuario que creó la reserva.                           |
+| `cancelled_by_id`     | `BIGINT UNSIGNED`  | Usuario que canceló.                                   |
+| `cancellation_reason` | `VARCHAR(500)`     | Motivo de cancelación.                                 |
+| `version`             | `INT UNSIGNED`     | Versión para concurrencia optimista.                   |
+| `created_at`          | `DATETIME(3)`      | Instante de creación UTC.                              |
+| `updated_at`          | `DATETIME(3)`      | Última modificación UTC.                               |
 
 ### appointment_services
 
@@ -340,3 +340,5 @@ y se consume una sola vez; los intentos fallidos se confirman antes del error HT
 La migración 007 agrega un CHECK más estricto con nombre nuevo. Conserva el anterior y no necesita conceder DROP al usuario de la aplicación.
 
 Los checksums nuevos se calculan sobre SQL con saltos LF. También se reconoce el checksum histórico CRLF del mismo contenido, para migraciones aplicadas desde Windows. Cambiar columnas, datos, comentarios u otros caracteres sigue produciendo error. `.gitattributes` fija LF para SQL y una prueba unitaria cubre ambos sistemas y el rechazo de una modificación real.
+
+> Actualización: la decisión posterior del usuario establece agenda compartida. Consultar [shared-agenda.md](shared-agenda.md) para la regla vigente; capturas anteriores documentan su versión original.

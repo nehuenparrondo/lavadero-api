@@ -2,7 +2,7 @@ import { NotFoundError } from '../../errors/NotFoundError.js';
 import type { Actor } from '../../types/domain.js';
 import type { Appointment } from './appointments.types.js';
 import { isoTime } from './schedule.js';
-/** Oculta la existencia de turnos ajenos al actor.
+/** Oculta turnos de otros clientes; el equipo comparte la agenda operativa.
  * @param actor - Actor autenticado por el middleware; determina rol y propiedad.
  * @param appointment - Turno autorizado que conserva datos históricos del contrato.
  * @returns `void`.
@@ -12,11 +12,7 @@ export function assertAppointmentAccess(
   actor: Actor,
   appointment: Appointment | undefined,
 ): asserts appointment is Appointment {
-  if (
-    !appointment ||
-    (actor.role === 'client' && appointment.clientId !== actor.id) ||
-    (actor.role === 'employee' && appointment.employeeId !== actor.id)
-  )
+  if (!appointment || (actor.role === 'client' && appointment.clientId !== actor.id))
     throw new NotFoundError();
 }
 /** Proyecta el turno por actor sin serializar la fila interna completa.
@@ -41,7 +37,9 @@ export function presentAppointment(v: Appointment, actor: Actor) {
         ...common,
         clientId: v.clientId,
         vehicleId: v.vehicleId,
-        employeeId: v.employeeId,
+        ...(actor.role === 'admin'
+          ? { employeeId: v.employeeId, employeeName: v.employeeName }
+          : {}),
         totalCents: Number(v.totalCents),
         paidCents: Number(v.paidCents),
         currencyCode: v.currencyCode,
@@ -62,7 +60,7 @@ function operationalAppointment(v: Appointment) {
     serviceSummary: v.serviceSummary,
     clientName: v.clientName,
     clientPhone: v.clientPhone,
-    employeeName: v.employeeName,
+
     version: v.version,
   };
 }

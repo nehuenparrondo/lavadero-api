@@ -19,10 +19,9 @@ export function appointmentFilter(actor: Actor, input: Filters, timeZone: string
     values.push(value);
   };
   if (actor.role === 'client') add('a.client_id=?', actor.id);
-  if (actor.role === 'employee') add('a.employee_id=?', actor.id);
   if (input.status) add('s.code=?', input.status);
   if (input.clientId) add('a.client_id=?', input.clientId);
-  if (input.employeeId) add('a.employee_id=?', input.employeeId);
+  if (actor.role === 'admin' && input.employeeId) add('a.employee_id=?', input.employeeId);
   if (input.history)
     conditions.push(
       input.history === 'true'

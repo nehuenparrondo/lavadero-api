@@ -39,17 +39,17 @@ export function popularServices(from: string, to: string) {
     [from, to],
   );
 }
-/** Cuenta trabajos propios por estado y fecha, sin revelar ingresos del negocio.
+/** Cuenta la jornada compartida por estado y fecha, sin revelar ingresos del negocio.
  * @param id - Identificador del recurso dentro del proyecto actual.
  * @param from - Límite inicial del período o estado de origen, según su tipo.
  * @param to - Límite final o estado destino, según su tipo.
  * @returns `Promise<import("mysql2").RowDataPacket[]>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
-export function employeeSummary(id: string, from: string, to: string) {
+export function employeeSummary(from: string, to: string) {
   return rows(
     `SELECT s.code status,COUNT(*) count FROM appointments a
- JOIN appointment_statuses s ON s.id=a.status_id WHERE a.employee_id=? AND a.starts_at>=? AND a.starts_at<? GROUP BY s.code`,
-    [id, from, to],
+ JOIN appointment_statuses s ON s.id=a.status_id WHERE a.starts_at>=? AND a.starts_at<? GROUP BY s.code`,
+    [from, to],
   );
 }

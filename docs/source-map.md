@@ -204,14 +204,14 @@ Valida y elimina campos no admitidos antes de llegar al controller.
 
 ## src/modules/appointments/appointments.access.ts
 
-Oculta la existencia de turnos ajenos al actor.
+Oculta turnos de otros clientes; el equipo comparte la agenda operativa.
 
 [Abrir fuente](../src/modules/appointments/appointments.access.ts)
 
-| Exportación             | Responsabilidad                                                      |
-| ----------------------- | -------------------------------------------------------------------- |
-| assertAppointmentAccess | Oculta la existencia de turnos ajenos al actor.                      |
-| presentAppointment      | Proyecta el turno por actor sin serializar la fila interna completa. |
+| Exportación             | Responsabilidad                                                          |
+| ----------------------- | ------------------------------------------------------------------------ |
+| assertAppointmentAccess | Oculta turnos de otros clientes; el equipo comparte la agenda operativa. |
+| presentAppointment      | Proyecta el turno por actor sin serializar la fila interna completa.     |
 
 ## src/modules/appointments/appointments.controller.ts
 
@@ -290,16 +290,16 @@ Valores únicos y acotados evitan consultas y totales ambiguos.
 
 ## src/modules/appointments/appointments.service.ts
 
-Lista exclusivamente propios/asignados y admite filtros administrativos sin ampliar acceso.
+Lista turnos propios para clientes y agenda compartida para el equipo y admite filtros administrativos sin ampliar acceso.
 
 [Abrir fuente](../src/modules/appointments/appointments.service.ts)
 
-| Exportación      | Responsabilidad                                                                                |
-| ---------------- | ---------------------------------------------------------------------------------------------- |
-| listAppointments | Lista exclusivamente propios/asignados y admite filtros administrativos sin ampliar acceso.    |
-| getAppointment   | Detalle autorizado con servicios/observaciones; empleado recibe solo datos operativos.         |
-| addNote          | Registra observación solo en turno asignado (o admin).                                         |
-| receipt          | Comprobante de trabajo finalizado, visible al dueño y admin. No equivale a una factura fiscal. |
+| Exportación      | Responsabilidad                                                                                                            |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| listAppointments | Lista turnos propios para clientes y agenda compartida para el equipo y admite filtros administrativos sin ampliar acceso. |
+| getAppointment   | Detalle autorizado con servicios/observaciones; empleado recibe solo datos operativos.                                     |
+| addNote          | Registra observación por el equipo o administrador, con autor autenticado.                                                 |
+| receipt          | Comprobante de trabajo finalizado, visible al dueño y admin. No equivale a una factura fiscal.                             |
 
 ## src/modules/appointments/appointments.types.ts
 
@@ -416,6 +416,16 @@ Interpreta un DATETIME de MySQL como UTC sin depender de la zona del servidor.
 | businessWindow    | Calcula ventana local de atención de una fecha. Devuelve null si está cerrado.          |
 | canFit            | Comprueba capacidad simultánea por barrido de eventos y exclusión de vehículo/empleado. |
 | assertWorkingTime | Exige futuro, día abierto, alineación a grilla y finalización dentro de atención.       |
+
+## src/modules/appointments/teamCapacity.ts
+
+Revalida capacidad física y vehículo al activar un turno, sin exclusividad por empleado.
+
+[Abrir fuente](../src/modules/appointments/teamCapacity.ts)
+
+| Exportación        | Responsabilidad                                                                          |
+| ------------------ | ---------------------------------------------------------------------------------------- |
+| assertTeamCapacity | Revalida capacidad física y vehículo al activar un turno, sin exclusividad por empleado. |
 
 ## src/modules/appointments/transitions.ts
 
@@ -811,7 +821,7 @@ Trabajos finalizados en el intervalo UTC derivado del calendario local.
 | completedWork   | Trabajos finalizados en el intervalo UTC derivado del calendario local.              |
 | revenue         | Ingresos contabilizados por momento real del pago, sin multiplicarlos por servicios. |
 | popularServices | Servicios contratados por fecha de atención, excluyendo cancelados.                  |
-| employeeSummary | Cuenta trabajos propios por estado y fecha, sin revelar ingresos del negocio.        |
+| employeeSummary | Cuenta la jornada compartida por estado y fecha, sin revelar ingresos del negocio.   |
 
 ## src/modules/reports/reports.routes.ts
 
@@ -842,7 +852,7 @@ Reporte administrativo: lavados, ingresos, populares y rendimiento por empleado.
 | Exportación    | Responsabilidad                                                                  |
 | -------------- | -------------------------------------------------------------------------------- |
 | businessReport | Reporte administrativo: lavados, ingresos, populares y rendimiento por empleado. |
-| personalReport | Resumen exclusivo de la jornada asignada al empleado.                            |
+| personalReport | Resumen de la jornada compartida, sin datos financieros.                         |
 
 ## src/modules/reports/reports.window.ts
 

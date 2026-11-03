@@ -30,14 +30,14 @@ export async function businessReport(input: z.infer<typeof reportSchema>) {
     employees: [...employees.values()],
   };
 }
-/** Resumen exclusivo de la jornada asignada al empleado.
+/** Resumen de la jornada compartida, sin datos financieros.
  * @param id - Identificador del recurso dentro del proyecto actual.
  * @param input - Entrada validada por el esquema del caso de uso.
  * @returns `Promise<{ date: string; completed: number; pending: number; }>`.
  */
-export async function personalReport(id: string, input: z.infer<typeof reportSchema>) {
+export async function personalReport(_id: string, input: z.infer<typeof reportSchema>) {
   const range = await reportWindow({ ...input, period: 'day' });
-  const counts = await repo.employeeSummary(id, range.from, range.to);
+  const counts = await repo.employeeSummary(range.from, range.to);
   return {
     date: range.start.toISODate(),
     completed: Number(counts.find((c) => c.status === 'completed')?.count ?? 0),

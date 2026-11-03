@@ -29,16 +29,20 @@ test('reserva, propiedad, flujo del empleado, observaciones, cobro y comprobante
     }).expect(201)
   ).body.data;
   await api('get', `/appointments/${created.id}`, outsider.accessToken).expect(404);
-  await api('get', `/appointments/${created.id}`, otherStaff.accessToken).expect(404);
-  await api('patch', `/appointments/${created.id}/status`, owner.accessToken, {
-    status: 'confirmed',
-  }).expect(409);
-  await api('patch', `/appointments/${created.id}/assignment`, owner.accessToken, {
-    employeeId: staff.user.id,
-  }).expect(200);
-  await api('patch', `/appointments/${created.id}/status`, owner.accessToken, {
-    status: 'confirmed',
-  }).expect(200);
+  assert.equal(created.status, 'confirmed');
+  assert.ok(!('employeeId' in created));
+  assert.ok(!('employeeName' in created));
+  const shared = await api(
+    'get',
+    `/appointments/${created.id}`,
+    otherStaff.accessToken,
+  ).expect(200);
+  assert.ok(!('totalCents' in shared.body.data));
+  await api('post', `/appointments/${created.id}/payments`, otherStaff.accessToken, {
+    amountCents: 1,
+    method: 'cash',
+    idempotencyKey: crypto.randomUUID(),
+  }).expect(403);
   await api('patch', `/appointments/${created.id}/status`, staff.accessToken, {
     status: 'completed',
   }).expect(409);
@@ -48,7 +52,7 @@ test('reserva, propiedad, flujo del empleado, observaciones, cobro y comprobante
   await api('patch', `/appointments/${created.id}/status`, staff.accessToken, {
     status: 'in_progress',
   }).expect(200);
-  await api('patch', `/appointments/${created.id}/status`, staff.accessToken, {
+  await api('patch', `/appointments/${created.id}/status`, otherStaff.accessToken, {
     status: 'completed',
   }).expect(200);
   const key = crypto.randomUUID();
@@ -112,7 +116,7 @@ test('dos reservas simultáneas no superan capacidad; cancelar libera horario', 
     startsAt: quote.slots[0],
   }).expect(201);
 });
-test('catálogo actualizado no altera el precio histórico; listas de empleado solo asignados', async () => {
+test('catálogo actualizado conserva precio histórico y todos los empleados ven el turno', async () => {
   const owner = await admin();
   const customer = await client();
   const staff = await employee(owner.accessToken);
@@ -133,7 +137,7 @@ test('catálogo actualizado no altera el precio histórico; listas de empleado s
   );
   assert.equal(detail.body.data.totalCents, quote.totalCents);
   const list = await api('get', '/appointments', staff.accessToken).expect(200);
-  assert.equal(list.body.data.total, 0);
+  assert.ok(list.body.data.items.some((item: { id: string }) => item.id === created.id));
   await api('get', `/appointments/${created.id}/receipt`, customer.accessToken).expect(409);
   await login(customer.user.email);
 });

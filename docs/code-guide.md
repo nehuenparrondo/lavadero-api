@@ -71,7 +71,7 @@ cambiar su orden puede introducir carreras o deadlocks.
 ## Estados, notas y cancelación
 
 transitions declara el alcance de cada rol. El cliente cancela pendientes/confirmados;
-el empleado asignado avanza confirmado → en proceso → finalizado; administración
+cualquier empleado avanza confirmado (o pendiente anterior) → en proceso → finalizado; administración
 puede corregir estados respetando las demás invariantes del servicio.
 Confirmar requiere empleado activo y capacidad. Los cambios conservan historial.
 La anticipación del cliente es estrictamente mayor al límite configurado: exactamente
@@ -120,3 +120,5 @@ cuando cambie una regla, especialmente concurrencia, saldo, sesión o límites d
 Ejecutar npm run check y las suites de aceptación de base cuando corresponda.
 La auditoría comprueba archivos de src de hasta 149 líneas, cuerpos de hasta 30,
 TSDoc público y ausencia de ciclos, incluidos imports de tipos.
+
+> Actualización: la decisión posterior del usuario establece agenda compartida. Consultar [shared-agenda.md](shared-agenda.md) para la regla vigente; capturas anteriores documentan su versión original.
