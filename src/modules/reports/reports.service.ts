@@ -31,7 +31,7 @@ export async function businessReport(input: z.infer<typeof reportSchema>) {
   };
 }
 /** Resumen de la jornada compartida, sin datos financieros.
- * @param id - Identificador del recurso dentro del proyecto actual.
+ * @param _id Identidad autenticada conservada por compatibilidad; no restringe la jornada compartida.
  * @param input - Entrada validada por el esquema del caso de uso.
  * @returns `Promise<{ date: string; completed: number; pending: number; }>`.
  */

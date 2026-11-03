@@ -1290,7 +1290,7 @@ Errores: 400, 401, 403, 404, 409, 429, 500, 503. El código estable `error.code`
 
 **Listar turnos visibles** · Roles: client, employee, admin.
 
-Cliente: propios. Empleado: asignados. Admin: todos. Filtros adicionales clientId y employeeId no amplían visibilidad.
+Cliente: propios, sin datos de asignación. Empleado activo: agenda compartida del equipo por fecha local e historial. Admin: todos; puede filtrar por responsable interno.
 
 Parámetros: `page` (query, opcional), `limit` (query, opcional), `date` (query, opcional), `status` (query, opcional), `history` (query, opcional).
 
@@ -1315,7 +1315,7 @@ Errores: 400, 401, 403, 404, 409, 429, 500, 503. El código estable `error.code`
 
 **Reservar turno** · Roles: client, admin.
 
-Admin puede incluir clientId; debe ser titular activo del vehículo. Precio/duración se recalculan y congelan bajo lock de agenda. 409 si otro ocupa el horario.
+Reserva confirmada automáticamente y visible para todo el equipo. Admin puede incluir clientId; debe ser titular activo del vehículo. Precio/duración se recalculan y congelan bajo lock de agenda. 409 si otro ocupa el horario.
 
 Body validado por `appointmentSchema`; campos/tipos/restricciones exactos en [request-schemas.json](docs/request-schemas.json).
 
@@ -1333,7 +1333,7 @@ Respuesta exitosa: **201**. Esquema completo en Swagger, incluyendo proyecciones
 {
   "data": {
     "id": "1",
-    "status": "pending",
+    "status": "confirmed",
     "startsAt": "2026-12-01T12:30:00.000Z",
     "endsAt": "2026-12-01T13:05:00.000Z",
     "plate": "AB123CD",
@@ -1342,11 +1342,9 @@ Respuesta exitosa: **201**. Esquema completo en Swagger, incluyendo proyecciones
     "color": "Gris",
     "clientName": "Ana Pérez",
     "clientPhone": "1100000000",
-    "employeeName": null,
     "version": 1,
     "clientId": "1",
     "vehicleId": "1",
-    "employeeId": null,
     "currencyCode": "ARS",
     "totalCents": 900000,
     "paidCents": 0
@@ -1360,7 +1358,7 @@ Errores: 400, 401, 403, 404, 409, 429, 500, 503. El código estable `error.code`
 
 **Consultar detalle del turno** · Roles: client, employee, admin.
 
-Solo propio/asignado o Admin. Empleado recibe nombre/teléfono operativos; importes solo si está habilitado para cobros.
+Cliente propietario; equipo con acceso operativo compartido. Responsable interno solo para Admin. Empleado recibe nombre/teléfono operativos; importes solo con permiso de cobro.
 
 Parámetros: `id` (path, obligatorio).
 
@@ -1381,11 +1379,9 @@ Respuesta exitosa: **200**. Esquema completo en Swagger, incluyendo proyecciones
     "color": "Gris",
     "clientName": "Ana Pérez",
     "clientPhone": "1100000000",
-    "employeeName": null,
     "version": 1,
     "clientId": "1",
     "vehicleId": "1",
-    "employeeId": null,
     "currencyCode": "ARS",
     "totalCents": 900000,
     "paidCents": 0
@@ -1427,7 +1423,7 @@ Errores: 400, 401, 403, 404, 409, 429, 500, 503. El código estable `error.code`
 
 **Cambiar estado** · Roles: employee, admin.
 
-Empleado asignado: confirmed→in_progress→completed. Admin puede corregir estados respetando empleado/capacidad. Transición inválida: 409.
+Equipo: confirmed (o pending anterior) → in_progress → completed. Al iniciar se registra el responsable interno. El acceso continúa compartido. Lock transaccional evita doble inicio y valida capacidad. Admin puede corregir estados. Transición inválida: 409.
 
 Parámetros: `id` (path, obligatorio).
 
@@ -1485,7 +1481,7 @@ Errores: 400, 401, 403, 404, 409, 429, 500, 503. El código estable `error.code`
 
 **Registrar observación** · Roles: employee, admin.
 
-Empleado solo asignados; autor se toma de la sesión.
+Equipo sobre agenda compartida; autor autenticado se toma de la sesión.
 
 Parámetros: `id` (path, obligatorio).
 
@@ -1534,11 +1530,9 @@ Respuesta exitosa: **200**. Esquema completo en Swagger, incluyendo proyecciones
     "color": "Gris",
     "clientName": "Ana Pérez",
     "clientPhone": "1100000000",
-    "employeeName": null,
     "version": 1,
     "clientId": "1",
     "vehicleId": "1",
-    "employeeId": null,
     "currencyCode": "ARS",
     "totalCents": 900000,
     "paidCents": 0,
@@ -1584,7 +1578,7 @@ Errores: 400, 401, 403, 404, 409, 429, 500, 503. El código estable `error.code`
 
 **Registrar cobro** · Roles: employee, admin.
 
-Empleado: asignado y habilitado por Admin. Solo en proceso/finalizado. Mismo reintento no duplica; otro importe con misma clave: 409. Nunca supera saldo.
+Empleado del equipo habilitado por Admin. Solo en proceso/finalizado. Mismo reintento no duplica; otro importe con misma clave: 409. Nunca supera saldo.
 
 Parámetros: `id` (path, obligatorio).
 
@@ -1653,7 +1647,7 @@ Errores: 400, 401, 403, 404, 409, 429, 500, 503. El código estable `error.code`
 
 **Ver resumen propio de jornada** · Roles: employee.
 
-Solo sus trabajos hechos/pendientes. No revela ingresos del negocio.
+Jornada compartida del equipo en la fecha local consultada, con trabajos hechos y pendientes. No revela ingresos del negocio.
 
 Parámetros: `date` (query, opcional).
 

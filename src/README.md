@@ -4,10 +4,10 @@ Composición y contratos del módulo.
 
 ## Archivos y responsabilidades
 
-| Archivo | Responsabilidad |
-| --- | --- |
-| [app.ts](app.ts) | Compone Express. No abre puertos ni conecta MySQL al importarse. |
-| [routes.ts](routes.ts) | Compone módulos autónomos bajo /api/v1 sin lógica de negocio. |
+| Archivo                | Responsabilidad                                                   |
+| ---------------------- | ----------------------------------------------------------------- |
+| [app.ts](app.ts)       | Compone Express. No abre puertos ni conecta MySQL al importarse.  |
+| [routes.ts](routes.ts) | Compone módulos autónomos bajo /api/v1 sin lógica de negocio.     |
 | [server.ts](server.ts) | Cierra conexiones para permitir un despliegue o apagado ordenado. |
 
 ## Mantenimiento

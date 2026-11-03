@@ -926,7 +926,7 @@
         "method": "GET",
         "header": [],
         "url": "{{baseUrl}}/api/v1/appointments?page=1&limit=20&date=2026-12-01&status=confirmed&history=false",
-        "description": "Roles: client, employee, admin. Cliente: propios. Empleado: asignados. Admin: todos. Filtros adicionales clientId y employeeId no amplían visibilidad.",
+        "description": "Roles: client, employee, admin. Cliente: propios, sin datos de asignación. Empleado activo: agenda compartida del equipo por fecha local e historial. Admin: todos; puede filtrar por responsable interno.",
         "auth": {
           "type": "bearer",
           "bearer": [
@@ -950,7 +950,7 @@
           }
         ],
         "url": "{{baseUrl}}/api/v1/appointments",
-        "description": "Roles: client, admin. Admin puede incluir clientId; debe ser titular activo del vehículo. Precio/duración se recalculan y congelan bajo lock de agenda. 409 si otro ocupa el horario.",
+        "description": "Roles: client, admin. Reserva confirmada automáticamente y visible para todo el equipo. Admin puede incluir clientId; debe ser titular activo del vehículo. Precio/duración se recalculan y congelan bajo lock de agenda. 409 si otro ocupa el horario.",
         "auth": {
           "type": "bearer",
           "bearer": [
@@ -978,7 +978,7 @@
         "method": "GET",
         "header": [],
         "url": "{{baseUrl}}/api/v1/appointments/{{id}}",
-        "description": "Roles: client, employee, admin. Solo propio/asignado o Admin. Empleado recibe nombre/teléfono operativos; importes solo si está habilitado para cobros.",
+        "description": "Roles: client, employee, admin. Cliente propietario; equipo con acceso operativo compartido. Responsable interno solo para Admin. Empleado recibe nombre/teléfono operativos; importes solo con permiso de cobro.",
         "auth": {
           "type": "bearer",
           "bearer": [
@@ -1035,7 +1035,7 @@
           }
         ],
         "url": "{{baseUrl}}/api/v1/appointments/{{id}}/status",
-        "description": "Roles: employee, admin. Empleado asignado: confirmed→in_progress→completed. Admin puede corregir estados respetando empleado/capacidad. Transición inválida: 409.",
+        "description": "Roles: employee, admin. Equipo: confirmed (o pending anterior) → in_progress → completed. Al iniciar se registra el responsable interno. El acceso continúa compartido. Lock transaccional evita doble inicio y valida capacidad. Admin puede corregir estados. Transición inválida: 409.",
         "auth": {
           "type": "bearer",
           "bearer": [
@@ -1101,7 +1101,7 @@
           }
         ],
         "url": "{{baseUrl}}/api/v1/appointments/{{id}}/notes",
-        "description": "Roles: employee, admin. Empleado solo asignados; autor se toma de la sesión.",
+        "description": "Roles: employee, admin. Equipo sobre agenda compartida; autor autenticado se toma de la sesión.",
         "auth": {
           "type": "bearer",
           "bearer": [
@@ -1172,7 +1172,7 @@
           }
         ],
         "url": "{{baseUrl}}/api/v1/appointments/{{id}}/payments",
-        "description": "Roles: employee, admin. Empleado: asignado y habilitado por Admin. Solo en proceso/finalizado. Mismo reintento no duplica; otro importe con misma clave: 409. Nunca supera saldo.",
+        "description": "Roles: employee, admin. Empleado del equipo habilitado por Admin. Solo en proceso/finalizado. Mismo reintento no duplica; otro importe con misma clave: 409. Nunca supera saldo.",
         "auth": {
           "type": "bearer",
           "bearer": [
@@ -1219,7 +1219,7 @@
         "method": "GET",
         "header": [],
         "url": "{{baseUrl}}/api/v1/reports/me?date=2026-12-01",
-        "description": "Roles: employee. Solo sus trabajos hechos/pendientes. No revela ingresos del negocio.",
+        "description": "Roles: employee. Jornada compartida del equipo en la fecha local consultada, con trabajos hechos y pendientes. No revela ingresos del negocio.",
         "auth": {
           "type": "bearer",
           "bearer": [

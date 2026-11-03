@@ -40,7 +40,6 @@ export function popularServices(from: string, to: string) {
   );
 }
 /** Cuenta la jornada compartida por estado y fecha, sin revelar ingresos del negocio.
- * @param id - Identificador del recurso dentro del proyecto actual.
  * @param from - Límite inicial del período o estado de origen, según su tipo.
  * @param to - Límite final o estado destino, según su tipo.
  * @returns `Promise<import("mysql2").RowDataPacket[]>`.

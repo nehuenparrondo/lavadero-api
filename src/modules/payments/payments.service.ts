@@ -17,7 +17,7 @@ export async function getPayments(actor: Actor, id: string) {
   return repo.listPayments(id);
 }
 /** Registra un cobro de forma atómica; no ejecuta una transferencia bancaria.
- * @param actor Administrador o empleado asignado con canRecordPayments vigente.
+ * @param actor Administrador o empleado del equipo con canRecordPayments vigente.
  * @param id Turno cuyo saldo se bloquea antes de insertar.
  * @param input Centavos, medio, referencia y clave de idempotencia de la misma intención.
  * @returns replayed true para un reintento idéntico; una alta nueva incluye id.
