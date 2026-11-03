@@ -1231,6 +1231,32 @@
           ]
         }
       }
+    },
+    {
+      "name": "Preparar OAuth por JSON (web 1.1.1)",
+      "request": {
+        "method": "POST",
+        "auth": {
+          "type": "noauth"
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/auth/oauth/{{provider}}/start",
+        "description": "Público. Ejemplo del contrato: reemplazar state y code_challenge por valores aleatorios/PKCE generados por AuthSession para un ingreso real. La respuesta contiene la URL HTTPS del proveedor; no hay client secrets en el cliente.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"redirect_uri\": \"lavadero://oauth\",\n  \"state\": \"estado-aleatorio-de-al-menos-16-caracteres\",\n  \"code_challenge\": \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\n  \"code_challenge_method\": \"S256\",\n  \"response_type\": \"code\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
     }
   ]
 }
