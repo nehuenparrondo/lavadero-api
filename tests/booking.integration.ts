@@ -9,6 +9,7 @@ import {
   future,
   firstSlot,
   login,
+  completeAt,
 } from './support/context.js';
 
 test('reserva, propiedad, flujo del empleado, observaciones, cobro y comprobante', async () => {
@@ -52,9 +53,23 @@ test('reserva, propiedad, flujo del empleado, observaciones, cobro y comprobante
   await api('patch', `/appointments/${created.id}/status`, staff.accessToken, {
     status: 'in_progress',
   }).expect(200);
-  await api('patch', `/appointments/${created.id}/status`, otherStaff.accessToken, {
-    status: 'completed',
-  }).expect(200);
+  for (const [token, instant] of [
+    [otherStaff.accessToken, '2026-11-03T09:29:59-03:00'],
+    [owner.accessToken, '2026-11-03T16:30:00-03:00'],
+    [otherStaff.accessToken, '2026-11-08T12:00:00-03:00'],
+  ] as const) {
+    const rejected = await completeAt(token, created.id, instant);
+    assert.equal(rejected.status, 409);
+    assert.equal(rejected.body.error.code, 'OUTSIDE_BUSINESS_HOURS');
+  }
+  const stillRunning = await api(
+    'get',
+    `/appointments/${created.id}`,
+    staff.accessToken,
+  ).expect(200);
+  assert.equal(stillRunning.body.data.status, 'in_progress');
+  const completed = await completeAt(otherStaff.accessToken, created.id, quote.slots[0]!);
+  assert.equal(completed.status, 200);
   const key = crypto.randomUUID();
   const payment = { amountCents: quote.totalCents, method: 'cash', idempotencyKey: key };
   await api('post', `/appointments/${created.id}/payments`, staff.accessToken, payment).expect(

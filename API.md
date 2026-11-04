@@ -1423,7 +1423,7 @@ Errores: 400, 401, 403, 404, 409, 429, 500, 503. El código estable `error.code`
 
 **Cambiar estado** · Roles: employee, admin.
 
-Equipo: confirmed (o pending anterior) → in_progress → completed. Al iniciar se registra el responsable interno. El acceso continúa compartido. Lock transaccional evita doble inicio y valida capacidad. Admin puede corregir estados. Transición inválida: 409.
+Equipo: confirmed (o pending anterior) → in_progress → completed. Al iniciar se registra el responsable interno. El acceso continúa compartido. Lock transaccional evita doble inicio y valida capacidad. Admin puede corregir estados. Finalizar requiere que el negocio esté abierto según su horario local. Fuera de horario devuelve 409 OUTSIDE_BUSINESS_HOURS.
 
 Parámetros: `id` (path, obligatorio).
 

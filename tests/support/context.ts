@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { randomUUID } from 'node:crypto';
 import { after } from 'node:test';
-import { DateTime } from 'luxon';
+import { DateTime, Settings as LuxonSettings } from 'luxon';
 import { createApp } from '../../src/app.js';
 import { database } from '../../src/config/database.js';
 import type { User } from '../../src/types/domain.js';
@@ -36,6 +36,17 @@ export function api(
   if (token) result.set('Authorization', `Bearer ${token}`);
   if (body !== undefined) result.send(body as object);
   return result;
+}
+
+/** Ejecuta la finalización con una hora comercial fija sin alterar la validez del JWT. */
+export async function completeAt(token: string, id: string, instant: string) {
+  const realClock = LuxonSettings.now;
+  LuxonSettings.now = () => Date.parse(instant);
+  try {
+    return await api('patch', `/appointments/${id}/status`, token, { status: 'completed' });
+  } finally {
+    LuxonSettings.now = realClock;
+  }
 }
 /** Login de un fixture o del administrador semilla. */
 export async function login(email: string, password = testPassword): Promise<TestSession> {

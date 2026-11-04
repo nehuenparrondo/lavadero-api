@@ -2,13 +2,13 @@ import { AppError } from '../../errors/AppError.js';
 import type { Actor } from '../../types/domain.js';
 import type { Executor } from '../../utils/db.js';
 import { transaction } from '../../utils/transaction.js';
-import { readSettings } from '../settings/settings.repository.js';
+import { readHours, readSettings } from '../settings/settings.repository.js';
 import { findUser } from '../users/users.repository.js';
 import { assertAppointmentAccess } from './appointments.access.js';
 import * as repo from './appointments.repository.js';
 import type { Appointment, AppointmentStatus } from './appointments.types.js';
 import { bookingIntervals } from './intervals.js';
-import { canFit, utcMillis } from './schedule.js';
+import { assertCompletionTime, canFit, utcMillis } from './schedule.js';
 import { assertTransition } from './transitions.js';
 import { assertTeamCapacity } from './teamCapacity.js';
 
@@ -45,7 +45,7 @@ async function assertEmployee(
       'El empleado o la capacidad no están disponibles.',
     );
 }
-/** Cambia estado con permisos, ownership, ventana de cancelación y bloqueo de agenda.
+/** Cambia estado con permisos, horario de finalización, plazo de cancelación y bloqueo de agenda.
  * @param actor - Actor autenticado por el middleware; determina rol y propiedad.
  * @param id - Identificador del recurso dentro del proyecto actual.
  * @param status - Estado solicitado; el servicio comprueba si la transición está permitida.
@@ -65,6 +65,7 @@ export async function changeStatus(
     const appointment = await repo.findAppointment(id, connection, true);
     assertAppointmentAccess(actor, appointment);
     assertTransition(appointment.status, status, actor.role);
+    if (status === 'completed') assertCompletionTime(settings, await readHours(connection));
     assertCancellationNotice(actor, appointment, settings.cancellationNoticeMinutes);
     if (['confirmed', 'in_progress', 'completed'].includes(status)) {
       await assertTeamCapacity(appointment, settings.simultaneousCapacity, connection);

@@ -22,11 +22,15 @@ INSERT INTO services (code, name, description, duration_minutes) VALUES
 ON DUPLICATE KEY UPDATE code = services.code;
 
 -- statement-breakpoint
--- Precios ficticios de ejemplo en centavos ARS, no son una cotización comercial.
+-- Tarifas iniciales en centavos ARS. Las motos conservan sus valores anteriores.
 INSERT INTO service_prices (service_id, vehicle_type_id, price_cents)
 SELECT s.id, v.id,
-  CASE s.code WHEN 'exterior' THEN 800000 WHEN 'interior' THEN 700000 ELSE 1400000 END
-  + CASE v.code WHEN 'pickup' THEN 300000 WHEN 'suv' THEN 200000 WHEN 'motorcycle' THEN 0 ELSE 100000 END
+  CASE v.code
+    WHEN 'car' THEN IF(s.code = 'complete', 2800000, 1500000)
+    WHEN 'pickup' THEN IF(s.code = 'complete', 4400000, 2000000)
+    WHEN 'suv' THEN IF(s.code = 'complete', 3400000, 1700000)
+    ELSE CASE s.code WHEN 'exterior' THEN 800000 WHEN 'interior' THEN 700000 ELSE 1400000 END
+  END
 FROM services s CROSS JOIN vehicle_types v
 WHERE s.code IN ('exterior','interior','complete') AND v.code IN ('car','pickup','suv','motorcycle')
 ON DUPLICATE KEY UPDATE price_cents = service_prices.price_cents;

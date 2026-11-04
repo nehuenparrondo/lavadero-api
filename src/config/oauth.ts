@@ -9,6 +9,7 @@ const providers = {
     authorize: 'https://accounts.google.com/o/oauth2/v2/auth',
     token: 'https://oauth2.googleapis.com/token',
     scope: 'openid email profile',
+    prompt: 'select_account',
     pkce: true,
   },
   github: {
@@ -17,6 +18,7 @@ const providers = {
     authorize: 'https://github.com/login/oauth/authorize',
     token: 'https://github.com/login/oauth/access_token',
     scope: 'read:user user:email',
+    prompt: 'select_account',
     pkce: true,
   },
   discord: {
@@ -25,6 +27,7 @@ const providers = {
     authorize: 'https://discord.com/oauth2/authorize',
     token: 'https://discord.com/api/oauth2/token',
     scope: 'identify email',
+    prompt: 'consent',
     pkce: false,
   },
 } as const;
@@ -39,7 +42,7 @@ export function providerAvailability() {
 }
 /** Configuración de proveedor. @throws AppError 503 si no fue habilitado.
  * @param provider - Proveedor permitido: Google, Discord o GitHub.
- * @returns Objeto con clientId, clientSecret, callback, authorize, token, scope, pkce.
+ * @returns Credenciales, endpoints, alcance, opción de selección o consentimiento y soporte PKCE.
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */
 export function getProvider(provider: Provider) {

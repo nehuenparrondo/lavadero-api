@@ -51,7 +51,12 @@ for (const provider of ['google', 'github', 'discord'])
       code_challenge_method: 'S256',
       response_type: 'code',
     }).expect(200);
-    const providerState = new URL(start.body.data.url).searchParams.get('state')!;
+    const authorization = new URL(start.body.data.url);
+    assert.equal(
+      authorization.searchParams.get('prompt'),
+      provider === 'discord' ? 'consent' : 'select_account',
+    );
+    const providerState = authorization.searchParams.get('state')!;
     const callback = await api('get', `/auth/oauth/${provider}/callback`)
       .query({ state: providerState, code: 'provider-code' })
       .expect(302);

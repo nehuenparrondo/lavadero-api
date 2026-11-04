@@ -42,6 +42,24 @@ export function businessWindow(date: string, settings: Settings, hours: Business
   const close = DateTime.fromISO(`${date}T${h.closesAt}`, { zone: settings.timeZone });
   return { open: open.toMillis(), close: close.toMillis() };
 }
+
+/** Exige que la finalización ocurra durante la jornada local vigente del negocio.
+ * @param settings Configuración con la zona horaria del lavadero.
+ * @param hours Horarios de atención por día de la semana.
+ * @returns void cuando la hora del servidor está entre apertura incluida y cierre excluido.
+ * @throws AppError Fuera de horario o en un día cerrado.
+ */
+export function assertCompletionTime(settings: Settings, hours: BusinessHour[]) {
+  const now = DateTime.now().setZone(settings.timeZone);
+  const window = businessWindow(now.toISODate()!, settings, hours);
+  const instant = now.toMillis();
+  if (!window || instant < window.open || instant >= window.close)
+    throw new AppError(
+      409,
+      'OUTSIDE_BUSINESS_HOURS',
+      'Solo se puede finalizar un lavado durante el horario de atención del lavadero.',
+    );
+}
 /** Comprueba capacidad simultánea por barrido de eventos y exclusión de vehículo/empleado.
  * @param start Inicio UTC en milisegundos, incluido.
  * @param end Fin UTC en milisegundos, excluido.

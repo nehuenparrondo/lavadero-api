@@ -42,6 +42,7 @@ export async function authorize(provider: Provider, input: z.infer<typeof author
     redirect_uri: config.callback,
     response_type: 'code',
     scope: config.scope,
+    prompt: config.prompt,
     state,
   }).toString();
   if (config.pkce) {

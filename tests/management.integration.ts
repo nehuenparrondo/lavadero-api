@@ -1,7 +1,15 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { api, admin, client, vehicle, future, firstSlot } from './support/context.js';
+import {
+  api,
+  admin,
+  client,
+  vehicle,
+  future,
+  firstSlot,
+  completeAt,
+} from './support/context.js';
 
 test('perfil, vehículo, categorías, servicios y tarifas completan su ciclo administrativo', async () => {
   const owner = await admin();
@@ -137,9 +145,10 @@ test('pagos parciales por transferencia y efectivo conservan saldo e idempotenci
     customer.accessToken,
   ).expect(200);
   assert.equal(payments.body.data.length, 2);
-  await api('patch', `/appointments/${appointment.id}/status`, owner.accessToken, {
-    status: 'completed',
-  }).expect(200);
+  assert.equal(
+    (await completeAt(owner.accessToken, appointment.id, quote.slots[0]!)).status,
+    200,
+  );
   const receipt = await api(
     'get',
     `/appointments/${appointment.id}/receipt`,

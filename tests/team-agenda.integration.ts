@@ -8,6 +8,7 @@ import {
   vehicle,
   firstSlot,
   future,
+  completeAt,
 } from './support/context.js';
 
 test('reserva automática en fecha local para todo el equipo; iniciar es atómico y cliente no ve responsable', async () => {
@@ -53,9 +54,7 @@ test('reserva automática en fecha local para todo el equipo; iniciar es atómic
     await api('get', `/appointments/${created.id}`, owner.accessToken).expect(200)
   ).body.data;
   assert.ok([staff.user.id, peer.user.id].includes(adminView.employeeId));
-  await api('patch', `/appointments/${created.id}/status`, peer.accessToken, {
-    status: 'completed',
-  }).expect(200);
+  assert.equal((await completeAt(peer.accessToken, created.id, quote.slots[0]!)).status, 200);
   for (const worker of [staff, peer]) {
     const history = await api('get', '/appointments', worker.accessToken)
       .query({ date, history: 'true' })
