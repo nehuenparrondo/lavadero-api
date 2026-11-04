@@ -5713,7 +5713,7 @@
       "patch": {
         "tags": ["appointments"],
         "summary": "Cambiar estado",
-        "description": "Roles: employee, admin. Empleado: confirmed o pending anterior → in_progress → completed. Al iniciar se registra el actor como responsable interno, sin exclusividad de acceso. La transacción evita inicios duplicados y revalida capacidad. Admin puede corregir estados.",
+        "description": "Roles: employee, admin. Empleado: confirmed o pending anterior → in_progress → completed. Al iniciar se registra el actor como responsable interno, sin exclusividad de acceso. La transacción evita inicios duplicados y revalida capacidad. Admin puede corregir estados. Finalizar requiere que el negocio esté abierto según su horario local. Fuera de horario devuelve 409 OUTSIDE_BUSINESS_HOURS.",
         "operationId": "patch41",
         "security": [
           {
