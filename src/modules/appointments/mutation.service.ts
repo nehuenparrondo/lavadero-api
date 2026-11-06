@@ -1,14 +1,16 @@
 import { AppError } from '../../errors/AppError.js';
+import { ForbiddenError } from '../../errors/ForbiddenError.js';
 import type { Actor } from '../../types/domain.js';
 import type { Executor } from '../../utils/db.js';
 import { transaction } from '../../utils/transaction.js';
-import { readHours, readSettings } from '../settings/settings.repository.js';
+import { readSettings } from '../settings/settings.repository.js';
 import { findUser } from '../users/users.repository.js';
-import { assertAppointmentAccess } from './appointments.access.js';
+import { assertAppointmentAccess, canReassign } from './appointments.access.js';
 import * as repo from './appointments.repository.js';
 import type { Appointment, AppointmentStatus } from './appointments.types.js';
 import { bookingIntervals } from './intervals.js';
-import { assertCompletionTime, canFit, utcMillis } from './schedule.js';
+import { assignAvailableEmployee } from './responsibility.repository.js';
+import { canFit, utcMillis } from './schedule.js';
 import { assertTransition } from './transitions.js';
 import { assertTeamCapacity } from './teamCapacity.js';
 
@@ -65,18 +67,41 @@ export async function changeStatus(
     const appointment = await repo.findAppointment(id, connection, true);
     assertAppointmentAccess(actor, appointment);
     assertTransition(appointment.status, status, actor.role);
-    if (status === 'completed') assertCompletionTime(settings, await readHours(connection));
-    assertCancellationNotice(actor, appointment, settings.cancellationNoticeMinutes);
-    if (['confirmed', 'in_progress', 'completed'].includes(status)) {
+    if (status === 'cancelled')
+      assertCancellationNotice(actor, appointment, settings.cancellationNoticeMinutes);
+    if (status === 'confirmed' || status === 'in_progress') {
       await assertTeamCapacity(appointment, settings.simultaneousCapacity, connection);
-      if (status === 'in_progress' && actor.role === 'employee')
-        await repo.setEmployee(id, actor.id, connection);
+      if (status === 'in_progress') await claimAppointment(actor, appointment, connection);
+      else if (!appointment.employeeId)
+        await assignAvailableEmployee(
+          id,
+          appointment.startsAt,
+          appointment.endsAt,
+          connection,
+        );
     }
     await repo.setStatus(id, status, actor.id, connection);
     if (status === 'cancelled')
       await repo.recordCancellation(id, actor.id, reason, connection);
     return { updated: true, status };
   });
+}
+
+/** Permite tomar turnos anteriores o sin responsable sin desplazar una asignación vigente. */
+async function claimAppointment(actor: Actor, appointment: Appointment, executor: Executor) {
+  if (appointment.employeeId && appointment.employeeId !== actor.id)
+    throw new ForbiddenError('Este turno ya tiene un empleado responsable.');
+  if (!appointment.employeeId) {
+    const scheduled = await repo.overlapping(
+      appointment.startsAt,
+      appointment.endsAt,
+      appointment.id,
+      executor,
+    );
+    if (scheduled.some((v) => v.employeeId === actor.id))
+      throw new AppError(409, 'EMPLOYEE_BUSY', 'Ya tenés otro turno en ese horario.');
+    await repo.setEmployee(appointment.id, actor.id, executor);
+  }
 }
 /** Asigna/reasigna sin cambiar estado; confirmar es una acción administrativa separada.
  * @param actor - Actor autenticado por el middleware; determina rol y propiedad.
@@ -91,8 +116,8 @@ export async function assignEmployee(actor: Actor, id: string, employeeId: strin
     const appointment = await repo.findAppointment(id, connection, true);
     assertAppointmentAccess(actor, appointment);
     if (!settings) throw new AppError(503, 'SETTINGS_MISSING', 'Falta configurar el negocio.');
-    if (['completed', 'cancelled'].includes(appointment.status))
-      throw new AppError(409, 'APPOINTMENT_CLOSED', 'No se puede reasignar un turno cerrado.');
+    if (!canReassign(appointment))
+      throw new AppError(409, 'ASSIGNMENT_CLOSED', 'El turno ya no admite reasignaciones.');
     await assertEmployee(appointment, employeeId, settings.simultaneousCapacity, connection);
     await repo.setEmployee(id, employeeId, connection);
     return { assigned: true };

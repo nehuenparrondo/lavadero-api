@@ -4,6 +4,8 @@ import {
   createAvailabilityRoutes,
 } from './modules/appointments/appointments.routes.js';
 import { createAuthRoutes } from './modules/auth/auth.routes.js';
+import { createAttendanceRoutes } from './modules/attendance/attendance.routes.js';
+import { createMessageRoutes } from './modules/customerMessages/messages.routes.js';
 import { createOAuthRoutes } from './modules/auth/oauth.routes.js';
 import { createPaymentsRoutes } from './modules/payments/payments.routes.js';
 import { createReportsRoutes } from './modules/reports/reports.routes.js';
@@ -33,5 +35,7 @@ export function createApiRoutes() {
   r.use('/appointments/:id/payments', createPaymentsRoutes());
   r.use('/appointments', createAppointmentsRoutes());
   r.use('/reports', createReportsRoutes());
+  r.use('/attendance', createAttendanceRoutes());
+  r.use('/customer-messages', createMessageRoutes());
   return r;
 }

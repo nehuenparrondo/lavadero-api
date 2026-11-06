@@ -11,6 +11,7 @@ import type { appointmentSchema } from './appointments.schema.js';
 import type { QuoteItem } from './appointments.types.js';
 import { quote } from './availability.service.js';
 import { assertBookingSlot } from './bookingSlot.service.js';
+import { assignAvailableEmployee } from './responsibility.repository.js';
 import { sqlTime } from './schedule.js';
 
 /** Reserva y guarda el contrato histórico bajo el bloqueo compartido de agenda.
@@ -102,6 +103,7 @@ async function persistBooking(
     connection,
   );
   await repo.insertItems(id, items, connection);
+  await assignAvailableEmployee(id, sqlTime(start), sqlTime(end), connection);
   await repo.setStatus(id, 'confirmed', actor.id, connection);
   return presentAppointment((await repo.findAppointment(id, connection))!, actor);
 }

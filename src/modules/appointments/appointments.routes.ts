@@ -5,6 +5,7 @@ import { validate } from '../../middlewares/validate.js';
 import { endpoint } from '../../utils/http.js';
 import * as c from './appointments.controller.js';
 import * as s from './appointments.schema.js';
+import { mountWorkRoutes } from './work.routes.js';
 /** Turnos con controles adicionales de propiedad/asignación dentro de cada servicio.
  * @returns `import("express-serve-static-core").Router`.
  */
@@ -14,6 +15,7 @@ export function createAppointmentsRoutes() {
   r.get('/', endpoint(c.list));
   r.get('/:id', endpoint(c.get));
   mountAppointmentChanges(r);
+  mountWorkRoutes(r);
   r.patch(
     '/:id/assignment',
     requireRole('admin'),

@@ -418,7 +418,14 @@
       },
       "status": {
         "type": "string",
-        "enum": ["pending", "confirmed", "in_progress", "completed", "cancelled"]
+        "enum": [
+          "pending",
+          "confirmed",
+          "in_progress",
+          "awaiting_review",
+          "completed",
+          "cancelled"
+        ]
       },
       "clientId": {
         "type": "string",
@@ -427,6 +434,10 @@
       "employeeId": {
         "type": "string",
         "pattern": "^[1-9]\\d{0,18}$"
+      },
+      "plate": {
+        "type": "string",
+        "pattern": "^[a-z0-9 -]{1,24}$"
       },
       "history": {
         "type": "string",
@@ -541,10 +552,167 @@
     "properties": {
       "status": {
         "type": "string",
-        "enum": ["pending", "confirmed", "in_progress", "completed", "cancelled"]
+        "enum": [
+          "pending",
+          "confirmed",
+          "in_progress",
+          "awaiting_review",
+          "completed",
+          "cancelled"
+        ]
       }
     },
     "required": ["status"],
+    "additionalProperties": false
+  },
+  "reviewSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "oneOf": [
+      {
+        "type": "object",
+        "properties": {
+          "submissionId": {
+            "type": "string",
+            "pattern": "^[1-9]\\d{0,18}$"
+          },
+          "decision": {
+            "type": "string",
+            "const": "approved"
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 1000
+          }
+        },
+        "required": ["submissionId", "decision"],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "submissionId": {
+            "type": "string",
+            "pattern": "^[1-9]\\d{0,18}$"
+          },
+          "decision": {
+            "type": "string",
+            "const": "returned"
+          },
+          "note": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        },
+        "required": ["submissionId", "decision", "note"],
+        "additionalProperties": false
+      }
+    ]
+  },
+  "vehicleDetailSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "description": {
+        "type": "string",
+        "maxLength": 1000
+      }
+    },
+    "required": ["description"],
+    "additionalProperties": false
+  },
+  "washSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "description": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2000
+      }
+    },
+    "required": ["description"],
+    "additionalProperties": false
+  },
+  "messageQuery": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "page": {
+        "default": 1,
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 9007199254740991
+      },
+      "limit": {
+        "default": 50,
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 100
+      },
+      "search": {
+        "default": "",
+        "type": "string",
+        "maxLength": 100
+      },
+      "state": {
+        "type": "string",
+        "enum": ["open", "resolved"]
+      }
+    }
+  },
+  "messageSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "oneOf": [
+      {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "complaint"
+          },
+          "body": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        "required": ["kind", "body"],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "feedback"
+          },
+          "body": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "appointmentId": {
+            "type": "string",
+            "pattern": "^[1-9]\\d{0,18}$"
+          }
+        },
+        "required": ["kind", "body", "appointmentId"],
+        "additionalProperties": false
+      }
+    ]
+  },
+  "replySchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "reply": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2000
+      }
+    },
+    "required": ["reply"],
     "additionalProperties": false
   },
   "vehicleTypeSchema": {

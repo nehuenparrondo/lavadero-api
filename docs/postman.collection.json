@@ -1257,6 +1257,171 @@
           }
         }
       }
+    },
+    {
+      "name": "Atención y operación del equipo",
+      "item": [
+        {
+          "name": "Guardar descripción del vehículo",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/appointments/{{appointmentId}}/vehicle-detail",
+            "description": "Titular de un turno confirmado, antes del inicio.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Revisar el asiento trasero.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Enviar lavado a revisión",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/appointments/{{appointmentId}}/wash-submission",
+            "description": "Empleado asignado, lavado en curso y horario de atención. Fuera de horario devuelve OUTSIDE_BUSINESS_HOURS.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Lavado exterior y encerado.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Aprobar o devolver lavado",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/appointments/{{appointmentId}}/wash-review",
+            "description": "Administración revisa un parte específico. Aprobar requiere horario de atención; devolver requiere motivo.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"submissionId\": \"1\",\n  \"decision\": \"approved\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Consultar mensajes de clientes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/customer-messages",
+            "description": "Cliente: bandeja propia. Administración: todos los mensajes."
+          }
+        },
+        {
+          "name": "Enviar reclamo o devolución",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/customer-messages",
+            "description": "El cliente puede abrir un reclamo o enviar una devolución sobre un parte aprobado.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kind\": \"complaint\",\n  \"body\": \"Consulta sobre el servicio.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Responder y cerrar mensaje",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/customer-messages/{{resourceId}}/reply",
+            "description": "La respuesta de Administración se muestra al cliente.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reply\": \"Gracias por contactarnos.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Consultar asistencia",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/attendance",
+            "description": "Para hoy muestra plantel activo y llegadas. Para otros días muestra fichajes guardados."
+          }
+        },
+        {
+          "name": "Fichar llegada",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/attendance/{{resourceId}}/arrival",
+            "description": "El id corresponde al empleado. La fecha del body debe coincidir con el día actual del negocio.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2026-11-06\"\n}"
+            }
+          }
+        }
+      ]
     }
   ]
 }

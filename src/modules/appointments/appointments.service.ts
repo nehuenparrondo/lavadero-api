@@ -7,6 +7,7 @@ import { appointmentFilter } from './appointments.filters.repository.js';
 import * as repo from './appointments.repository.js';
 import type { appointmentQuerySchema } from './appointments.schema.js';
 import * as notesRepo from './notes.repository.js';
+import { presentWash } from './wash.service.js';
 
 /** Lista turnos propios para clientes y agenda compartida para el equipo y admite filtros administrativos sin ampliar acceso.
  * @param actor - Actor autenticado por el middleware; determina rol y propiedad.
@@ -36,9 +37,15 @@ export async function listAppointments(
 export async function getAppointment(actor: Actor, id: string) {
   const appointment = await repo.findAppointment(id);
   assertAppointmentAccess(actor, appointment);
-  const [items, notes] = await Promise.all([repo.readItems(id), notesRepo.readNotes(id)]);
+  const [items, notes, wash] = await Promise.all([
+    repo.readItems(id),
+    notesRepo.readNotes(id),
+    presentWash(actor, id),
+  ]);
   return {
     ...presentAppointment(appointment, actor),
+    vehicleDescription: appointment.vehicleDescription,
+    wash,
     services:
       actor.role === 'employee'
         ? items.map((i) => ({

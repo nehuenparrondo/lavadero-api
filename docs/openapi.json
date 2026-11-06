@@ -4966,7 +4966,7 @@
       "get": {
         "tags": ["availability"],
         "summary": "Cotizar y consultar horarios",
-        "description": "Roles: client, admin. Cliente solo vehículo propio. Suma duración y precios; capacidad se vuelve a comprobar al reservar. Grilla de cinco minutos por defecto.",
+        "description": "Roles: client, admin. Cliente solo vehículo propio. Suma duración y precios; capacidad se vuelve a comprobar al reservar. Grilla de cinco minutos por defecto. El encerado requiere exterior o completo.",
         "operationId": "get36",
         "security": [
           {
@@ -5115,7 +5115,7 @@
       "get": {
         "tags": ["appointments"],
         "summary": "Listar turnos visibles",
-        "description": "Roles: client, employee, admin. Cliente: turnos propios sin información de asignación. Todo empleado activo: agenda operativa compartida, filtrada por fecha local e historial. Admin: todos y filtros internos de responsable. Importes de empleado solo con permiso de cobro.",
+        "description": "Cliente: turnos propios con nombre del responsable. Empleado: agenda compartida, con importes según permiso de cobro. Administración: agenda con filtros de titular y responsable.",
         "operationId": "get37",
         "security": [
           {
@@ -5274,13 +5274,37 @@
               "type": "string"
             },
             "example": "false"
+          },
+          {
+            "name": "plate",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Patente completa o parcial para empleado o administrador."
+          },
+          {
+            "name": "clientId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filtra titular dentro de los resultados autorizados."
+          },
+          {
+            "name": "employeeId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filtra responsable para Administración."
           }
         ]
       },
       "post": {
         "tags": ["appointments"],
         "summary": "Reservar turno",
-        "description": "Roles: client, admin. Reserva confirmada automáticamente y visible para todo el equipo. Revalida titular, servicios, horario y capacidad física en una transacción. No devuelve responsable al cliente.",
+        "description": "Reserva confirmada automáticamente; asigna empleado activo y libre si hay uno disponible. Verifica el contrato y la capacidad física en una transacción.",
         "operationId": "post38",
         "security": [
           {
@@ -5427,7 +5451,7 @@
       "get": {
         "tags": ["appointments"],
         "summary": "Consultar detalle del turno",
-        "description": "Roles: client, employee, admin. Cliente propietario; equipo con acceso operativo compartido. Responsable solo para administrador. Importes del empleado solo con permiso de cobro.",
+        "description": "Turno autorizado con descripción del auto y parte de trabajo cuando corresponde. El cliente ve el parte aprobado y su devolución. El equipo también ve revisiones pendientes y correcciones.",
         "operationId": "get39",
         "security": [
           {
@@ -5571,7 +5595,7 @@
       "patch": {
         "tags": ["appointments"],
         "summary": "Asignar o reasignar empleado",
-        "description": "Roles: admin. Empleado activo; no asigna a turnos cerrados ni solapa su agenda.",
+        "description": "Administración puede asignar antes de empezar o recuperar un trabajo cuyo responsable ya no está habilitado.",
         "operationId": "patch40",
         "security": [
           {
@@ -5713,7 +5737,7 @@
       "patch": {
         "tags": ["appointments"],
         "summary": "Cambiar estado",
-        "description": "Roles: employee, admin. Empleado: confirmed o pending anterior → in_progress → completed. Al iniciar se registra el actor como responsable interno, sin exclusividad de acceso. La transacción evita inicios duplicados y revalida capacidad. Admin puede corregir estados. Finalizar requiere que el negocio esté abierto según su horario local. Fuera de horario devuelve 409 OUTSIDE_BUSINESS_HOURS.",
+        "description": "El empleado responsable comienza el lavado; Administración puede confirmar un pendiente o cancelar un turno elegible. La finalización usa wash-submission y wash-review.",
         "operationId": "patch41",
         "security": [
           {
@@ -7115,6 +7139,1078 @@
           }
         }
       }
+    },
+    "/api/v1/appointments/{id}/vehicle-detail": {
+      "patch": {
+        "tags": ["appointments"],
+        "summary": "Guardar descripción del vehículo",
+        "description": "Titular de un turno confirmado, antes del inicio.",
+        "operationId": "patch_api_v1_appointments_id_vehicle_detail",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": ["client"],
+        "responses": {
+          "200": {
+            "description": "Operación exitosa.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object"
+                    }
+                  },
+                  "required": ["data"]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos. Revisar error.fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sesión ausente, vencida, revocada o credenciales inválidas.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol/permiso insuficiente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el actor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto, duplicado, estado, capacidad o pago inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Demasiados intentos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno sin datos sensibles.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio o proveedor todavía sin configurar/no disponible.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$",
+              "example": "1"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/vehicleDetailSchema"
+              },
+              "example": {
+                "description": "Revisar el asiento trasero."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/appointments/{id}/wash-submission": {
+      "post": {
+        "tags": ["appointments"],
+        "summary": "Enviar lavado a revisión",
+        "description": "Empleado asignado, lavado en curso y horario de atención. Fuera de horario devuelve OUTSIDE_BUSINESS_HOURS.",
+        "operationId": "post_api_v1_appointments_id_wash_submission",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": ["employee"],
+        "responses": {
+          "201": {
+            "description": "Operación exitosa.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object"
+                    }
+                  },
+                  "required": ["data"]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos. Revisar error.fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sesión ausente, vencida, revocada o credenciales inválidas.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol/permiso insuficiente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el actor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto, duplicado, estado, capacidad o pago inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Demasiados intentos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno sin datos sensibles.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio o proveedor todavía sin configurar/no disponible.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$",
+              "example": "1"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/washSchema"
+              },
+              "example": {
+                "description": "Lavado exterior y encerado."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/appointments/{id}/wash-review": {
+      "patch": {
+        "tags": ["appointments"],
+        "summary": "Aprobar o devolver lavado",
+        "description": "Administración revisa un parte específico. Aprobar requiere horario de atención; devolver requiere motivo.",
+        "operationId": "patch_api_v1_appointments_id_wash_review",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": ["admin"],
+        "responses": {
+          "200": {
+            "description": "Operación exitosa.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object"
+                    }
+                  },
+                  "required": ["data"]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos. Revisar error.fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sesión ausente, vencida, revocada o credenciales inválidas.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol/permiso insuficiente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el actor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto, duplicado, estado, capacidad o pago inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Demasiados intentos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno sin datos sensibles.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio o proveedor todavía sin configurar/no disponible.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$",
+              "example": "1"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/reviewSchema"
+              },
+              "example": {
+                "submissionId": "1",
+                "decision": "approved"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/customer-messages": {
+      "get": {
+        "tags": ["customer-messages"],
+        "summary": "Consultar mensajes de clientes",
+        "description": "Cliente: bandeja propia. Administración: todos los mensajes.",
+        "operationId": "get_api_v1_customer_messages",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": ["client", "admin"],
+        "responses": {
+          "200": {
+            "description": "Operación exitosa.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/CustomerMessagePage"
+                    }
+                  },
+                  "required": ["data"]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos. Revisar error.fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sesión ausente, vencida, revocada o credenciales inválidas.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol/permiso insuficiente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el actor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto, duplicado, estado, capacidad o pago inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Demasiados intentos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno sin datos sensibles.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio o proveedor todavía sin configurar/no disponible.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "state",
+            "in": "query",
+            "schema": {
+              "enum": ["open", "resolved"]
+            },
+            "description": "Estado del caso."
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Página."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Tamaño de página."
+          }
+        ]
+      },
+      "post": {
+        "tags": ["customer-messages"],
+        "summary": "Enviar reclamo o devolución",
+        "description": "El cliente puede abrir un reclamo o enviar una devolución sobre un parte aprobado.",
+        "operationId": "post_api_v1_customer_messages",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": ["client"],
+        "responses": {
+          "201": {
+            "description": "Operación exitosa.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object"
+                    }
+                  },
+                  "required": ["data"]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos. Revisar error.fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sesión ausente, vencida, revocada o credenciales inválidas.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol/permiso insuficiente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el actor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto, duplicado, estado, capacidad o pago inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Demasiados intentos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno sin datos sensibles.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio o proveedor todavía sin configurar/no disponible.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/messageSchema"
+              },
+              "example": {
+                "kind": "complaint",
+                "body": "Consulta sobre el servicio."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/customer-messages/{id}/reply": {
+      "patch": {
+        "tags": ["customer-messages"],
+        "summary": "Responder y cerrar mensaje",
+        "description": "La respuesta de Administración se muestra al cliente.",
+        "operationId": "patch_api_v1_customer_messages_id_reply",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": ["admin"],
+        "responses": {
+          "200": {
+            "description": "Operación exitosa.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object"
+                    }
+                  },
+                  "required": ["data"]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos. Revisar error.fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sesión ausente, vencida, revocada o credenciales inválidas.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol/permiso insuficiente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el actor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto, duplicado, estado, capacidad o pago inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Demasiados intentos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno sin datos sensibles.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio o proveedor todavía sin configurar/no disponible.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$",
+              "example": "1"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/replySchema"
+              },
+              "example": {
+                "reply": "Gracias por contactarnos."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/attendance": {
+      "get": {
+        "tags": ["attendance"],
+        "summary": "Consultar asistencia",
+        "description": "Para hoy muestra plantel activo y llegadas. Para otros días muestra fichajes guardados.",
+        "operationId": "get_api_v1_attendance",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": ["admin"],
+        "responses": {
+          "200": {
+            "description": "Operación exitosa.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Attendance"
+                    }
+                  },
+                  "required": ["data"]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos. Revisar error.fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sesión ausente, vencida, revocada o credenciales inválidas.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol/permiso insuficiente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el actor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto, duplicado, estado, capacidad o pago inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Demasiados intentos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno sin datos sensibles.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio o proveedor todavía sin configurar/no disponible.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Fecha del negocio, por defecto hoy."
+          }
+        ]
+      }
+    },
+    "/api/v1/attendance/{id}/arrival": {
+      "post": {
+        "tags": ["attendance"],
+        "summary": "Fichar llegada",
+        "description": "El id corresponde al empleado. La fecha del body debe coincidir con el día actual del negocio.",
+        "operationId": "post_api_v1_attendance_id_arrival",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": ["admin"],
+        "responses": {
+          "200": {
+            "description": "Operación exitosa.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object"
+                    }
+                  },
+                  "required": ["data"]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos. Revisar error.fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sesión ausente, vencida, revocada o credenciales inválidas.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol/permiso insuficiente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el actor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto, duplicado, estado, capacidad o pago inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Demasiados intentos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno sin datos sensibles.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio o proveedor todavía sin configurar/no disponible.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$",
+              "example": "1"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/arrivalSchema"
+              },
+              "example": {
+                "date": "2026-11-06"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -7519,7 +8615,6 @@
         "additionalProperties": false
       },
       "appointmentQuerySchema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
           "page": {
@@ -7545,7 +8640,14 @@
           },
           "status": {
             "type": "string",
-            "enum": ["pending", "confirmed", "in_progress", "completed", "cancelled"]
+            "enum": [
+              "pending",
+              "confirmed",
+              "in_progress",
+              "awaiting_review",
+              "completed",
+              "cancelled"
+            ]
           },
           "clientId": {
             "type": "string",
@@ -7554,6 +8656,10 @@
           "employeeId": {
             "type": "string",
             "pattern": "^[1-9]\\d{0,18}$"
+          },
+          "plate": {
+            "type": "string",
+            "pattern": "^[a-z0-9 -]{1,24}$"
           },
           "history": {
             "type": "string",
@@ -7663,12 +8769,18 @@
         }
       },
       "statusSchema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
           "status": {
             "type": "string",
-            "enum": ["pending", "confirmed", "in_progress", "completed", "cancelled"]
+            "enum": [
+              "pending",
+              "confirmed",
+              "in_progress",
+              "awaiting_review",
+              "completed",
+              "cancelled"
+            ]
           }
         },
         "required": ["status"],
@@ -7970,7 +9082,14 @@
           },
           "status": {
             "type": "string",
-            "enum": ["pending", "confirmed", "in_progress", "completed", "cancelled"]
+            "enum": [
+              "pending",
+              "confirmed",
+              "in_progress",
+              "awaiting_review",
+              "completed",
+              "cancelled"
+            ]
           },
           "startsAt": {
             "type": "string",
@@ -8000,7 +9119,7 @@
           },
           "employeeName": {
             "type": ["string", "null"],
-            "description": "Solo administrador; ausente para clientes y empleados."
+            "description": "Nombre visible del responsable o null mientras está por asignar."
           },
           "clientId": {
             "type": "string",
@@ -8009,7 +9128,7 @@
           },
           "employeeId": {
             "type": ["string", "null"],
-            "description": "Responsable interno, solo administrador. No limita la agenda compartida."
+            "description": "Identificador del responsable, exclusivo de Administración."
           },
           "vehicleId": {
             "type": "string",
@@ -8079,6 +9198,33 @@
               },
               "required": ["id", "body", "authorName", "createdAt"]
             }
+          },
+          "vehicleType": {
+            "type": "string"
+          },
+          "vehicleDescription": {
+            "type": ["string", "null"]
+          },
+          "serviceSummary": {
+            "type": "string"
+          },
+          "canWork": {
+            "type": "boolean",
+            "description": "Solo empleado. Indica que puede iniciar o enviar el trabajo, según el estado."
+          },
+          "canReassign": {
+            "type": "boolean",
+            "description": "Solo Administración. Indica si el turno admite reasignación."
+          },
+          "wash": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/WashSubmission"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -8524,6 +9670,263 @@
           }
         },
         "required": ["items", "page", "limit", "total"]
+      },
+      "messageSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "complaint"
+              },
+              "body": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              }
+            },
+            "required": ["kind", "body"],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "feedback"
+              },
+              "body": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              },
+              "appointmentId": {
+                "type": "string",
+                "pattern": "^[1-9]\\d{0,18}$"
+              }
+            },
+            "required": ["kind", "body", "appointmentId"],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "replySchema": {
+        "type": "object",
+        "properties": {
+          "reply": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        "required": ["reply"],
+        "additionalProperties": false
+      },
+      "vehicleDetailSchema": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "maxLength": 1000
+          }
+        },
+        "required": ["description"],
+        "additionalProperties": false
+      },
+      "washSchema": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        "required": ["description"],
+        "additionalProperties": false
+      },
+      "reviewSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "submissionId": {
+                "type": "string",
+                "pattern": "^[1-9]\\d{0,18}$"
+              },
+              "decision": {
+                "type": "string",
+                "const": "approved"
+              },
+              "note": {
+                "type": "string",
+                "maxLength": 1000
+              }
+            },
+            "required": ["submissionId", "decision"],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "submissionId": {
+                "type": "string",
+                "pattern": "^[1-9]\\d{0,18}$"
+              },
+              "decision": {
+                "type": "string",
+                "const": "returned"
+              },
+              "note": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1000
+              }
+            },
+            "required": ["submissionId", "decision", "note"],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "WashSubmission": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "employeeName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "submittedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "decision": {
+            "enum": ["approved", "returned", null]
+          },
+          "reviewedAt": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "reviewerName": {
+            "type": ["string", "null"]
+          },
+          "reviewNote": {
+            "type": ["string", "null"]
+          },
+          "feedbackId": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "CustomerMessage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": ["complaint", "feedback"]
+          },
+          "body": {
+            "type": "string"
+          },
+          "clientName": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "resolvedAt": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "reply": {
+            "type": ["string", "null"]
+          },
+          "appointmentId": {
+            "type": ["string", "null"]
+          },
+          "plate": {
+            "type": ["string", "null"]
+          },
+          "employeeName": {
+            "type": ["string", "null"]
+          },
+          "workDescription": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "CustomerMessagePage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomerMessage"
+            }
+          },
+          "total": {
+            "type": "integer"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          }
+        }
+      },
+      "Attendance": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "today": {
+            "type": "string",
+            "format": "date"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "employeeId": {
+                  "type": "string"
+                },
+                "employeeName": {
+                  "type": "string"
+                },
+                "arrivedAt": {
+                  "type": ["string", "null"],
+                  "format": "date-time"
+                },
+                "recordedByName": {
+                  "type": ["string", "null"]
+                }
+              }
+            }
+          }
+        }
+      },
+      "arrivalSchema": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "required": ["date"],
+        "additionalProperties": false
       }
     }
   }

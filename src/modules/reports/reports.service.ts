@@ -42,7 +42,9 @@ export async function personalReport(_id: string, input: z.infer<typeof reportSc
     date: range.start.toISODate(),
     completed: Number(counts.find((c) => c.status === 'completed')?.count ?? 0),
     pending: counts
-      .filter((c) => ['pending', 'confirmed', 'in_progress'].includes(String(c.status)))
+      .filter((c) =>
+        ['pending', 'confirmed', 'in_progress', 'awaiting_review'].includes(String(c.status)),
+      )
       .reduce((sum, c) => sum + Number(c.count), 0),
   };
 }

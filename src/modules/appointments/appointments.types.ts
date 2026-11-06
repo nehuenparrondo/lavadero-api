@@ -16,10 +16,13 @@ export interface Appointment extends RowDataPacket {
   brand: string;
   model: string;
   color: string;
+  vehicleType: string;
+  vehicleDescription: string | null;
   serviceSummary: string;
   clientName: string;
   clientPhone: string | null;
   employeeName: string | null;
+  employeeAvailable: number;
   version: number;
   /** Total histórico del contrato, expresado en centavos ARS. */
   totalCents: number;
@@ -29,6 +32,7 @@ export interface Appointment extends RowDataPacket {
 /** Renglón contratado y precio vigente para el tipo elegido. */
 export interface QuoteItem extends RowDataPacket {
   serviceId: string;
+  code: string;
   name: string;
   /** Tiempo estimado completo del servicio, en minutos. */
   durationMinutes: number;

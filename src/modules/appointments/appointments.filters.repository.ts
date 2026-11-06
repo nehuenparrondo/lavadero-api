@@ -22,11 +22,13 @@ export function appointmentFilter(actor: Actor, input: Filters, timeZone: string
   if (input.status) add('s.code=?', input.status);
   if (input.clientId) add('a.client_id=?', input.clientId);
   if (actor.role === 'admin' && input.employeeId) add('a.employee_id=?', input.employeeId);
+  if (actor.role !== 'client' && input.plate)
+    add('v.plate LIKE ?', `%${input.plate.replace(/[ -]/gu, '').toUpperCase()}%`);
   if (input.history)
     conditions.push(
       input.history === 'true'
         ? "s.code IN ('completed','cancelled')"
-        : "s.code IN ('pending','confirmed','in_progress')",
+        : "s.code IN ('pending','confirmed','in_progress','awaiting_review')",
     );
   if (input.date) {
     conditions.push('a.starts_at>=? AND a.starts_at<?');

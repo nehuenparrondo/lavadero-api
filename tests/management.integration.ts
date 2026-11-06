@@ -8,7 +8,8 @@ import {
   vehicle,
   future,
   firstSlot,
-  completeAt,
+  employee,
+  verifyWash,
 } from './support/context.js';
 
 test('perfil, vehículo, categorías, servicios y tarifas completan su ciclo administrativo', async () => {
@@ -104,6 +105,7 @@ test('configuración se guarda y los reportes aceptan todos los períodos', asyn
 
 test('pagos parciales por transferencia y efectivo conservan saldo e idempotencia', async () => {
   const owner = await admin();
+  const staff = await employee(owner.accessToken);
   const customer = await client();
   const car = await vehicle(customer.accessToken);
   const { serviceId, quote } = await firstSlot(customer.accessToken, car.id, future(100));
@@ -114,7 +116,10 @@ test('pagos parciales por transferencia y efectivo conservan saldo e idempotenci
       startsAt: quote.slots[0],
     }).expect(201)
   ).body.data;
-  await api('patch', `/appointments/${appointment.id}/status`, owner.accessToken, {
+  await api('patch', `/appointments/${appointment.id}/assignment`, owner.accessToken, {
+    employeeId: staff.user.id,
+  }).expect(200);
+  await api('patch', `/appointments/${appointment.id}/status`, staff.accessToken, {
     status: 'in_progress',
   }).expect(200);
   const partial = Math.floor(quote.totalCents / 2);
@@ -145,10 +150,7 @@ test('pagos parciales por transferencia y efectivo conservan saldo e idempotenci
     customer.accessToken,
   ).expect(200);
   assert.equal(payments.body.data.length, 2);
-  assert.equal(
-    (await completeAt(owner.accessToken, appointment.id, quote.slots[0]!)).status,
-    200,
-  );
+  await verifyWash(staff.accessToken, owner.accessToken, appointment.id, quote.slots[0]!);
   const receipt = await api(
     'get',
     `/appointments/${appointment.id}/receipt`,

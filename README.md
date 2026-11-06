@@ -64,4 +64,4 @@ simulados y no acreditan por sí solas una autorización externa real.
 
 Ver [comportamiento, módulos y pruebas de la versión 1.1.1](docs/reliability.md).
 
-La regla vigente de agenda compartida y los controles de pantalla están documentados en [docs/shared-agenda.md](docs/shared-agenda.md).
+El flujo vigente de agenda, asignación, verificación, reclamos y fichajes está documentado en [docs/work-operations.md](docs/work-operations.md).

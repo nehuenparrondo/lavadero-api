@@ -40,12 +40,26 @@ export async function quote(
       'INVALID_SERVICES',
       'Algún servicio no está activo o no tiene precio para tu vehículo.',
     );
+  assertServiceCombination(items.map((item) => item.code));
   return {
     vehicle,
     items,
     totalCents: items.reduce((sum, i) => sum + i.priceCents, 0),
     durationMinutes: items.reduce((sum, i) => sum + i.durationMinutes, 0),
   };
+}
+
+/** El encerado requiere un servicio que ya incluya lavado exterior. */
+function assertServiceCombination(codes: string[]) {
+  if (
+    codes.includes('wax') &&
+    !codes.some((code) => code === 'exterior' || code === 'complete')
+  )
+    throw new AppError(
+      400,
+      'WAX_REQUIRES_WASH',
+      'Para agregar encerado, elegí lavado exterior o completo.',
+    );
 }
 /** Genera opciones de inicio respetando duración completa, capacidad y vehículo.
  * @param current - Identidad o entidad actual usada para conservar sus invariantes.

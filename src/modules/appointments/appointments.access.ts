@@ -25,6 +25,8 @@ export function presentAppointment(v: Appointment, actor: Actor) {
   return actor.role === 'employee'
     ? {
         ...common,
+        canWork:
+          v.employeeId === actor.id || (v.employeeId === null && v.status !== 'in_progress'),
         ...(actor.canRecordPayments
           ? {
               totalCents: Number(v.totalCents),
@@ -38,12 +40,23 @@ export function presentAppointment(v: Appointment, actor: Actor) {
         clientId: v.clientId,
         vehicleId: v.vehicleId,
         ...(actor.role === 'admin'
-          ? { employeeId: v.employeeId, employeeName: v.employeeName }
+          ? { employeeId: v.employeeId, canReassign: canReassign(v) }
           : {}),
         totalCents: Number(v.totalCents),
         paidCents: Number(v.paidCents),
         currencyCode: v.currencyCode,
       };
+}
+
+/** Un turno en proceso puede recuperarse si el responsable anterior ya no está habilitado.
+ * @param v - Turno y disponibilidad vigente del responsable.
+ * @returns Si Administración puede elegir otro responsable.
+ */
+export function canReassign(v: Appointment) {
+  return (
+    ['pending', 'confirmed'].includes(v.status) ||
+    (v.status === 'in_progress' && !v.employeeAvailable)
+  );
 }
 
 /** Datos mínimos de operación; no contiene identidad de cuenta ni información financiera. */
@@ -57,6 +70,8 @@ function operationalAppointment(v: Appointment) {
     brand: v.brand,
     model: v.model,
     color: v.color,
+    vehicleType: v.vehicleType,
+    employeeName: v.employeeName,
     serviceSummary: v.serviceSummary,
     clientName: v.clientName,
     clientPhone: v.clientPhone,

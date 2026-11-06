@@ -42,7 +42,7 @@ export async function recordPayment(
       assertSamePayment(previous, id, input);
       return { recorded: true, replayed: true };
     }
-    if (!['in_progress', 'completed'].includes(appointment.status))
+    if (!['in_progress', 'awaiting_review', 'completed'].includes(appointment.status))
       throw new AppError(
         409,
         'PAYMENT_STATE',

@@ -5,6 +5,8 @@ import * as users from '../src/modules/users/users.schema.js';
 import * as vehicles from '../src/modules/vehicles/vehicles.schema.js';
 import * as services from '../src/modules/services/services.schema.js';
 import * as appointments from '../src/modules/appointments/appointments.schema.js';
+import * as work from '../src/modules/appointments/work.schema.js';
+import * as messages from '../src/modules/customerMessages/messages.schema.js';
 import { vehicleTypeSchema } from '../src/modules/vehicleTypes/vehicleTypes.schema.js';
 import { settingsSchema } from '../src/modules/settings/settings.schema.js';
 import { paymentSchema } from '../src/modules/payments/payments.schema.js';
@@ -17,6 +19,8 @@ const schemas = {
   ...vehicles,
   ...services,
   ...appointments,
+  ...work,
+  ...messages,
   vehicleTypeSchema,
   settingsSchema,
   paymentSchema,

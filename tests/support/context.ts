@@ -38,15 +38,35 @@ export function api(
   return result;
 }
 
-/** Ejecuta la finalización con una hora comercial fija sin alterar la validez del JWT. */
-export async function completeAt(token: string, id: string, instant: string) {
+/** Fija la hora de negocio sin alterar la validez del JWT. */
+export async function atBusinessTime<T>(instant: string, run: () => PromiseLike<T>) {
   const realClock = LuxonSettings.now;
   LuxonSettings.now = () => Date.parse(instant);
   try {
-    return await api('patch', `/appointments/${id}/status`, token, { status: 'completed' });
+    return await run();
   } finally {
     LuxonSettings.now = realClock;
   }
+}
+
+/** Completa el flujo del empleado y del administrador con una hora comercial válida. */
+export async function verifyWash(
+  employee: string,
+  admin: string,
+  id: string,
+  instant: string,
+) {
+  const base = `/appointments/${id}`;
+  return atBusinessTime(instant, async () => {
+    await api('post', base + '/wash-submission', employee, {
+      description: 'Trabajo completo.',
+    }).expect(201);
+    const detail = await api('get', base, admin).expect(200);
+    return api('patch', base + '/wash-review', admin, {
+      submissionId: detail.body.data.wash.id,
+      decision: 'approved',
+    }).expect(200);
+  });
 }
 /** Login de un fixture o del administrador semilla. */
 export async function login(email: string, password = testPassword): Promise<TestSession> {
@@ -96,7 +116,7 @@ export async function vehicle(token: string) {
       color: 'Azul',
       vehicleTypeId: type.id,
     }).expect(201)
-  ).body.data as { id: string; ownerId: string };
+  ).body.data as { id: string; ownerId: string; plate: string };
 }
 /** Fecha futura hábil para usar horarios de atención sin depender de la hora de ejecución. */
 export function future(offset: number) {

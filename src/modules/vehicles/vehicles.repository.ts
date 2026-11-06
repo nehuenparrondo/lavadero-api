@@ -90,7 +90,7 @@ export async function updateVehicle(id: string, v: Vehicle, executor?: Executor)
 export async function removeVehicle(id: string, executor?: Executor) {
   const active = await rows<RowDataPacket>(
     `SELECT a.id FROM appointments a JOIN appointment_statuses s ON s.id=a.status_id
- WHERE a.vehicle_id=? AND s.code IN ('pending','confirmed','in_progress') LIMIT 1`,
+ WHERE a.vehicle_id=? AND s.code IN ('pending','confirmed','in_progress','awaiting_review') LIMIT 1`,
     [id],
     executor,
   );
