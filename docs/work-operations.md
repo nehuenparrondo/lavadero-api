@@ -2,6 +2,8 @@
 
 La reserva se confirma en una transacción que guarda los servicios y sus precios históricos. La misma transacción busca a un empleado activo sin superposición de turnos, priorizando al que lleva más tiempo sin una asignación. Si el equipo no tiene disponibilidad, la reserva queda confirmada sin responsable y Administración puede asignar uno después. La agenda sigue siendo compartida.
 
+La disponibilidad omite los inicios ya reservados y comprueba que la duración completa entre en la capacidad configurada. Cada inicio se puede reservar una sola vez. Si aumenta la capacidad, pueden coincidir lavados con distintas horas de inicio. El servidor repite la comprobación bajo el bloqueo de agenda al confirmar. Una reserva cancelada vuelve a liberar su horario.
+
 En la cotización y en la reserva, `wax` exige `exterior` o `complete`. La migración 010 y el seed fijan inicialmente $15.000 ARS y 15 minutos para encerado, y $20.000 ARS y 35 minutos para tapizados de autos, SUV y camionetas. Los minutos son estimaciones que se ajustan en Servicios y precios. Las reservas anteriores conservan sus renglones y totales.
 
 ## Turno y revisión

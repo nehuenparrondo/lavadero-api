@@ -37,7 +37,14 @@ export function createAppointmentsRoutes() {
 export function createAvailabilityRoutes() {
   const r = Router();
   r.use(authenticate, requireRole('client', 'admin'));
-  r.get('/', endpoint(c.slots));
+  r.get(
+    '/',
+    (_request, response, next) => {
+      response.set('Cache-Control', 'no-store');
+      next();
+    },
+    endpoint(c.slots),
+  );
   return r;
 }
 

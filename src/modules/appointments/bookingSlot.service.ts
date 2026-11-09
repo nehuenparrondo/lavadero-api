@@ -4,8 +4,30 @@ import type { Executor } from '../../utils/db.js';
 import type { Settings } from '../settings/settings.repository.js';
 import { readHours } from '../settings/settings.repository.js';
 import { overlapping } from './appointments.repository.js';
+import type { Interval } from './appointments.types.js';
 import { bookingIntervals } from './intervals.js';
 import { assertWorkingTime, canFit, sqlTime } from './schedule.js';
+
+/** Comparte la regla de agenda entre las opciones visibles y la reserva efectiva.
+ * @param start - Hora de inicio UTC, única entre las reservas no canceladas.
+ * @param end - Fin UTC, excluido del intervalo.
+ * @param capacity - Máximo de lavados en paralelo con inicios distintos.
+ * @param intervals - Reservas que podrían cruzarse con el intervalo.
+ * @param vehicleId - Vehículo a reservar, sin superposiciones propias.
+ * @returns Si la hora de inicio está libre y el lavado completo cabe.
+ */
+export function canBookSlot(
+  start: number,
+  end: number,
+  capacity: number,
+  intervals: Interval[],
+  vehicleId: string,
+) {
+  return (
+    !intervals.some((v) => v.start === start) &&
+    canFit(start, end, capacity, intervals, null, vehicleId)
+  );
+}
 /** Revalida horario y ocupación dentro de la transacción que mantiene el lock de agenda.
  * @param startsAt - Inicio ISO con zona explícita, convertido a UTC antes de comparar.
  * @param duration - Duración completa del lavado en minutos.
@@ -27,12 +49,11 @@ export async function assertBookingSlot(
   assertWorkingTime(start, end, settings, await readHours(connection));
   const existing = await overlapping(sqlTime(start), sqlTime(end), undefined, connection);
   if (
-    !canFit(
+    !canBookSlot(
       start,
       end,
       settings.simultaneousCapacity,
       bookingIntervals(existing),
-      null,
       vehicleId,
     )
   )

@@ -9,8 +9,9 @@ import { findVehicle } from '../vehicles/vehicles.repository.js';
 import { overlapping, quoteServices } from './appointments.repository.js';
 import type { availabilitySchema } from './appointments.schema.js';
 import { unavailableReason } from './availability.reason.js';
+import { canBookSlot } from './bookingSlot.service.js';
 import { bookingIntervals } from './intervals.js';
-import { businessWindow, canFit, sqlTime } from './schedule.js';
+import { businessWindow, sqlTime } from './schedule.js';
 
 /** Cotiza servicios activos para un vehículo visible y habilitado.
  * @param current - Identidad o entidad actual usada para conservar sus invariantes.
@@ -113,14 +114,7 @@ function availableStarts(
   ) {
     if (
       start > Date.now() &&
-      canFit(
-        start,
-        start + duration,
-        settings.simultaneousCapacity,
-        intervals,
-        null,
-        vehicleId,
-      )
+      canBookSlot(start, start + duration, settings.simultaneousCapacity, intervals, vehicleId)
     )
       slots.push(DateTime.fromMillis(start, { zone: 'utc' }).toISO()!);
   }

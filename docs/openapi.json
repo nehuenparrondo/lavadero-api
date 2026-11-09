@@ -4966,7 +4966,7 @@
       "get": {
         "tags": ["availability"],
         "summary": "Cotizar y consultar horarios",
-        "description": "Roles: client, admin. Cliente solo vehículo propio. Suma duración y precios; capacidad se vuelve a comprobar al reservar. Grilla de cinco minutos por defecto. El encerado requiere exterior o completo.",
+        "description": "Roles: client, admin. Cliente solo vehículo propio. Cotiza servicios y ofrece horarios de inicio libres donde cabe el lavado completo. Grilla de cinco minutos por defecto. El encerado requiere exterior o completo. La respuesta no se almacena en caché.",
         "operationId": "get36",
         "security": [
           {
@@ -5304,7 +5304,7 @@
       "post": {
         "tags": ["appointments"],
         "summary": "Reservar turno",
-        "description": "Reserva confirmada automáticamente; asigna empleado activo y libre si hay uno disponible. Verifica el contrato y la capacidad física en una transacción.",
+        "description": "Reserva confirmada automáticamente; asigna empleado activo y libre si hay uno disponible. Verifica en una transacción que el inicio sea único y que el lavado completo quepa en la capacidad física. Un inicio ocupado devuelve 409 SLOT_UNAVAILABLE.",
         "operationId": "post38",
         "security": [
           {

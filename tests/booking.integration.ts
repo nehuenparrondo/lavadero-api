@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { database } from '../src/config/database.js';
 import {
   api,
   admin,
@@ -110,19 +111,34 @@ test('dos reservas simultáneas no superan capacidad; cancelar libera horario', 
   const b = await client();
   const va = await vehicle(a.accessToken);
   const vb = await vehicle(b.accessToken);
-  const { serviceId, quote } = await firstSlot(a.accessToken, va.id, future(30));
+  const date = future(30);
+  const { serviceId, quote } = await firstSlot(a.accessToken, va.id, date);
+  const startsAt = quote.slots[0]!;
+  const overlaps = new Date(Date.parse(startsAt) + 5 * 60000).toISOString();
+  const nextStart = new Date(Date.parse(startsAt) + 35 * 60000).toISOString();
+  const availability = () =>
+    api('get', '/availability', b.accessToken)
+      .query({ date, vehicleId: vb.id, serviceIds: serviceId })
+      .expect(200)
+      .expect('Cache-Control', 'no-store');
+  assert.ok((await availability()).body.data.slots.includes(startsAt));
   const first = api('post', '/appointments', a.accessToken, {
     vehicleId: va.id,
     serviceIds: [serviceId],
-    startsAt: quote.slots[0],
+    startsAt,
   });
   const second = api('post', '/appointments', b.accessToken, {
     vehicleId: vb.id,
     serviceIds: [serviceId],
-    startsAt: quote.slots[0],
+    startsAt,
   });
   const results = await Promise.all([first, second]);
   assert.deepEqual(results.map((r) => r.status).sort(), [201, 409]);
+  assert.equal(results.find((r) => r.status === 409)!.body.error.code, 'SLOT_UNAVAILABLE');
+  const remaining: string[] = (await availability()).body.data.slots;
+  assert.ok(!remaining.includes(startsAt));
+  assert.ok(!remaining.includes(overlaps));
+  assert.ok(remaining.includes(nextStart));
   const winner = results[0]!.status === 201 ? a : b;
   const id = results.find((r) => r.status === 201)!.body.data.id;
   await api('delete', `/vehicles/${winner === a ? va.id : vb.id}`, winner.accessToken).expect(
@@ -132,11 +148,48 @@ test('dos reservas simultáneas no superan capacidad; cancelar libera horario', 
     reason: 'Cambio de planes',
   }).expect(200);
   await api('post', `/appointments/${id}/cancel`, winner.accessToken, {}).expect(409);
+  assert.ok((await availability()).body.data.slots.includes(startsAt));
   await api('post', '/appointments', a.accessToken, {
     vehicleId: va.id,
     serviceIds: [serviceId],
-    startsAt: quote.slots[0],
+    startsAt,
   }).expect(201);
+});
+test('una hora de inicio se reserva una sola vez aun con capacidad para dos lavados', async () => {
+  await database!.execute('UPDATE business_settings SET simultaneous_capacity=2 WHERE id=1');
+  try {
+    const a = await client();
+    const b = await client();
+    const va = await vehicle(a.accessToken);
+    const vb = await vehicle(b.accessToken);
+    const date = future(35);
+    const { serviceId, quote } = await firstSlot(a.accessToken, va.id, date);
+    const startsAt = quote.slots[0]!;
+    const book = (token: string, vehicleId: string, start: string) =>
+      api('post', '/appointments', token, {
+        vehicleId,
+        serviceIds: [serviceId],
+        startsAt: start,
+      });
+    const sameInstant = `${date}T09:30:00-03:00`;
+    assert.equal(Date.parse(sameInstant), Date.parse(startsAt));
+    const outcomes = await Promise.all([
+      book(a.accessToken, va.id, startsAt),
+      book(b.accessToken, vb.id, sameInstant),
+    ]);
+    assert.deepEqual(outcomes.map((r) => r.status).sort(), [201, 409]);
+    const [token, vehicleId] =
+      outcomes[0]!.status === 409
+        ? ([a.accessToken, va.id] as const)
+        : ([b.accessToken, vb.id] as const);
+    const refreshed = await firstSlot(token, vehicleId, date);
+    assert.ok(!refreshed.quote.slots.includes(startsAt));
+    const adjacent = new Date(Date.parse(startsAt) + 5 * 60000).toISOString();
+    assert.ok(refreshed.quote.slots.includes(adjacent));
+    await book(token, vehicleId, adjacent).expect(201);
+  } finally {
+    await database!.execute('UPDATE business_settings SET simultaneous_capacity=1 WHERE id=1');
+  }
 });
 test('catálogo actualizado conserva precio histórico y todos los empleados ven el turno', async () => {
   const owner = await admin();
