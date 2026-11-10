@@ -1,67 +1,16 @@
 import { DateTime } from 'luxon';
 import type { z } from 'zod';
 import { AppError } from '../../errors/AppError.js';
-import { NotFoundError } from '../../errors/NotFoundError.js';
 import type { Actor } from '../../types/domain.js';
-import type { Executor } from '../../utils/db.js';
 import { readHours, readSettings } from '../settings/settings.repository.js';
-import { findVehicle } from '../vehicles/vehicles.repository.js';
-import { overlapping, quoteServices } from './appointments.repository.js';
+import { overlapping } from './appointments.repository.js';
 import type { availabilitySchema } from './appointments.schema.js';
 import { unavailableReason } from './availability.reason.js';
+import { quote } from './bookingQuote.service.js';
 import { canBookSlot } from './bookingSlot.service.js';
 import { bookingIntervals } from './intervals.js';
 import { businessWindow, sqlTime } from './schedule.js';
 
-/** Cotiza servicios activos para un vehículo visible y habilitado.
- * @param current - Identidad o entidad actual usada para conservar sus invariantes.
- * @param vehicleId - Identificador del vehículo cuyo titular y disponibilidad se verifican.
- * @param ids - Identificadores de servicios seleccionados, únicos y validados.
- * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
- * @returns `Promise<{ vehicle: import("../vehicles/vehicles.repository.js").Vehicle; items: import("./appointments.types.js").QuoteItem[]; totalCents: number; durationMinutes: number; }>`.
- * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
- */
-export async function quote(
-  current: Actor,
-  vehicleId: string,
-  ids: string[],
-  executor?: Executor,
-) {
-  const vehicle = await findVehicle(vehicleId, executor);
-  if (
-    !vehicle ||
-    vehicle.deletedAt ||
-    (current.role === 'client' && vehicle.ownerId !== current.id)
-  )
-    throw new NotFoundError();
-  const items = await quoteServices(ids, vehicle.vehicleTypeId, executor);
-  if (items.length !== ids.length)
-    throw new AppError(
-      400,
-      'INVALID_SERVICES',
-      'Algún servicio no está activo o no tiene precio para tu vehículo.',
-    );
-  assertServiceCombination(items.map((item) => item.code));
-  return {
-    vehicle,
-    items,
-    totalCents: items.reduce((sum, i) => sum + i.priceCents, 0),
-    durationMinutes: items.reduce((sum, i) => sum + i.durationMinutes, 0),
-  };
-}
-
-/** El encerado requiere un servicio que ya incluya lavado exterior. */
-function assertServiceCombination(codes: string[]) {
-  if (
-    codes.includes('wax') &&
-    !codes.some((code) => code === 'exterior' || code === 'complete')
-  )
-    throw new AppError(
-      400,
-      'WAX_REQUIRES_WASH',
-      'Para agregar encerado, elegí lavado exterior o completo.',
-    );
-}
 /** Genera opciones de inicio respetando duración completa, capacidad y vehículo.
  * @param current - Identidad o entidad actual usada para conservar sus invariantes.
  * @param input - Entrada validada por el esquema del caso de uso.
@@ -72,7 +21,7 @@ export async function availability(current: Actor, input: z.infer<typeof availab
   const settings = await readSettings();
   if (!settings)
     throw new AppError(503, 'SETTINGS_MISSING', 'El negocio requiere configuración.');
-  const quoted = await quote(current, input.vehicleId, input.serviceIds);
+  const quoted = await quote(current, input);
   const hours = await readHours();
   const window = businessWindow(input.date, settings, hours);
   const booked = window
@@ -84,7 +33,7 @@ export async function availability(current: Actor, input: z.infer<typeof availab
     quoted.durationMinutes,
     settings,
     intervals,
-    input.vehicleId,
+    quoted.vehicle?.id ?? null,
   );
   return {
     items: quoted.items,
@@ -102,7 +51,7 @@ function availableStarts(
   durationMinutes: number,
   settings: NonNullable<Awaited<ReturnType<typeof readSettings>>>,
   intervals: ReturnType<typeof bookingIntervals>,
-  vehicleId: string,
+  vehicleId: string | null,
 ) {
   if (!window) return [];
   const slots: string[] = [];

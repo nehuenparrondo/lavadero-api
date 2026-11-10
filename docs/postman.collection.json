@@ -1420,6 +1420,27 @@
               "raw": "{\n  \"date\": \"2026-11-06\"\n}"
             }
           }
+        },
+        {
+          "name": "Vincular vehículo a un turno confirmado",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/v1/appointments/{{appointmentId}}/vehicle",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vehicle\": {\n    \"plate\": \"AB123CD\",\n    \"brand\": \"Toyota\",\n    \"model\": \"Corolla\",\n    \"color\": \"Gris\"\n  }\n}"
+            }
+          }
         }
       ]
     }

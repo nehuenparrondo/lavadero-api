@@ -40,7 +40,9 @@ export async function findService(id: string, executor?: Executor) {
  */
 export function listPrices() {
   return rows<RowDataPacket>(
-    `SELECT CAST(service_id AS CHAR) serviceId,CAST(vehicle_type_id AS CHAR) vehicleTypeId,price_cents priceCents FROM service_prices`,
+    `SELECT CAST(p.service_id AS CHAR) serviceId,CAST(p.vehicle_type_id AS CHAR) vehicleTypeId,p.price_cents priceCents
+     FROM service_prices p JOIN vehicle_types t ON t.id=p.vehicle_type_id JOIN services s ON s.id=p.service_id
+     WHERE (t.code='motorcycle') = (s.code='motorcycle_wash')`,
   );
 }
 /** Inserta un servicio de catálogo validado.
@@ -100,13 +102,15 @@ export function removeService(id: string) {
  * @param id - Identificador del recurso dentro del proyecto actual.
  * @param typeId - Tipo de vehículo para resolver su tarifa vigente.
  * @param cents - Importe entero en centavos ARS.
+ * @param executor - Transacción del tipo de vehículo si se guardan varias tarifas juntas.
  * @returns `Promise<import("mysql2/promise").ResultSetHeader>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
-export function savePrice(id: string, typeId: string, cents: number) {
+export function savePrice(id: string, typeId: string, cents: number, executor?: Executor) {
   return execute(
     `INSERT INTO service_prices(service_id,vehicle_type_id,price_cents)
  VALUES(?,?,?) ON DUPLICATE KEY UPDATE price_cents=?`,
     [id, typeId, cents, cents],
+    executor,
   );
 }

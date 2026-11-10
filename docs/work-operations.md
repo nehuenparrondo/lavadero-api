@@ -4,6 +4,10 @@ La reserva se confirma en una transacción que guarda los servicios y sus precio
 
 La disponibilidad omite los inicios ya reservados y comprueba que la duración completa entre en la capacidad configurada. Cada inicio se puede reservar una sola vez. Si aumenta la capacidad, pueden coincidir lavados con distintas horas de inicio. El servidor repite la comprobación bajo el bloqueo de agenda al confirmar. Una reserva cancelada vuelve a liberar su horario.
 
+La cotización y el alta aceptan una categoría elegida mediante `vehicleTypeId` o un vehículo ya registrado mediante `vehicleId`. Si el cliente reserva por categoría, el turno nace confirmado con el vehículo pendiente y ocupa su horario completo. El titular o Administración pueden usar `PUT /api/v1/appointments/:id/vehicle` para registrar o vincular el vehículo del tipo reservado. El vínculo conserva el total, la duración y la asignación. El empleado puede comenzar después de que exista ese vínculo.
+
+Se permite un solo lavado base. Encerado requiere exterior o completo y tapizados puede contratarse por separado. Para Moto se ofrece únicamente el servicio Lavado, con tarifa inicial de $15.000 y duración estimada de 35 minutos. Administración puede registrar tipos y sus tarifas por servicio en la misma transacción. Las tarifas se aplican a los próximos turnos de esa categoría.
+
 En la cotización y en la reserva, `wax` exige `exterior` o `complete`. La migración 010 y el seed fijan inicialmente $15.000 ARS y 15 minutos para encerado, y $20.000 ARS y 35 minutos para tapizados de autos, SUV y camionetas. Los minutos son estimaciones que se ajustan en Servicios y precios. Las reservas anteriores conservan sus renglones y totales.
 
 ## Turno y revisión

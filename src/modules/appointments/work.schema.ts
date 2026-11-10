@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { vehicleSchema } from '../vehicles/vehicles.schema.js';
 
 /** Datos adicionales del auto ingresados después de confirmar. */
 export const vehicleDetailSchema = z
@@ -11,6 +12,11 @@ export const washSchema = z
   .strict();
 
 const submissionId = z.string().regex(/^[1-9]\d{0,18}$/u);
+/** Identidad existente o nuevo vehículo sin tipo ni dueño editable desde la reserva. */
+export const attachVehicleSchema = z.union([
+  z.object({ vehicleId: submissionId }).strict(),
+  z.object({ vehicle: vehicleSchema.omit({ ownerId: true, vehicleTypeId: true }) }).strict(),
+]);
 /** Una devolución requiere instrucciones para el empleado. */
 export const reviewSchema = z.discriminatedUnion('decision', [
   z

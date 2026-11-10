@@ -10,7 +10,8 @@ import type { AppointmentStatus, QuoteItem } from './appointments.types.js';
 export async function insertAppointment(
   v: {
     clientId: string;
-    vehicleId: string;
+    vehicleId: string | null;
+    vehicleTypeId: string;
     startsAt: string;
     endsAt: string;
     createdById: string;
@@ -21,9 +22,17 @@ export async function insertAppointment(
   return String(
     (
       await execute(
-        `INSERT INTO appointments(client_id,vehicle_id,status_id,starts_at,ends_at,created_by_id,currency_code)
- SELECT ?,?,id,?,?,?,? FROM appointment_statuses WHERE code='pending'`,
-        [v.clientId, v.vehicleId, v.startsAt, v.endsAt, v.createdById, v.currencyCode],
+        `INSERT INTO appointments(client_id,vehicle_id,reserved_vehicle_type_id,status_id,starts_at,ends_at,created_by_id,currency_code)
+ SELECT ?,?,?,id,?,?,?,? FROM appointment_statuses WHERE code='pending'`,
+        [
+          v.clientId,
+          v.vehicleId,
+          v.vehicleTypeId,
+          v.startsAt,
+          v.endsAt,
+          v.createdById,
+          v.currencyCode,
+        ],
         executor,
       )
     ).insertId,

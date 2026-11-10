@@ -21,7 +21,7 @@ export function canBookSlot(
   end: number,
   capacity: number,
   intervals: Interval[],
-  vehicleId: string,
+  vehicleId: string | null,
 ) {
   return (
     !intervals.some((v) => v.start === start) &&
@@ -40,7 +40,7 @@ export function canBookSlot(
 export async function assertBookingSlot(
   startsAt: string,
   duration: number,
-  vehicleId: string,
+  vehicleId: string | null,
   settings: Settings,
   connection: Executor,
 ) {

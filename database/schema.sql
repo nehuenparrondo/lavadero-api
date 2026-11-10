@@ -126,7 +126,8 @@ CREATE TABLE IF NOT EXISTS appointment_statuses (
 CREATE TABLE IF NOT EXISTS appointments (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   client_id BIGINT UNSIGNED NOT NULL COMMENT 'Titular histórico al reservar',
-  vehicle_id BIGINT UNSIGNED NOT NULL,
+  vehicle_id BIGINT UNSIGNED NULL,
+  reserved_vehicle_type_id SMALLINT UNSIGNED NULL,
   employee_id BIGINT UNSIGNED NULL,
   status_id TINYINT UNSIGNED NOT NULL,
   starts_at DATETIME(3) NOT NULL COMMENT 'UTC, convertir horario de negocio en la API',
@@ -140,6 +141,8 @@ CREATE TABLE IF NOT EXISTS appointments (
   updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
   CONSTRAINT fk_appointment_client FOREIGN KEY (client_id) REFERENCES users(id),
   CONSTRAINT fk_appointment_vehicle FOREIGN KEY (vehicle_id) REFERENCES vehicles(id),
+  CONSTRAINT fk_appointment_reserved_type FOREIGN KEY (reserved_vehicle_type_id) REFERENCES vehicle_types(id),
+  CONSTRAINT chk_appointment_vehicle_or_type CHECK (vehicle_id IS NOT NULL OR reserved_vehicle_type_id IS NOT NULL),
   CONSTRAINT fk_appointment_employee FOREIGN KEY (employee_id) REFERENCES users(id),
   CONSTRAINT fk_appointment_status FOREIGN KEY (status_id) REFERENCES appointment_statuses(id),
   CONSTRAINT fk_appointment_creator FOREIGN KEY (created_by_id) REFERENCES users(id),

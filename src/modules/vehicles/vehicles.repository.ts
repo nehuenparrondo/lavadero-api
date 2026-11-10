@@ -54,15 +54,20 @@ export async function listVehicles(
 }
 /** Guarda vehículo validado usando parámetros.
  * @param v - Datos tipados del elemento o formulario que se transforma.
+ * @param executor - Conexión de la reserva cuando se vincula en la misma transacción.
  * @returns `Promise<string>`.
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
-export async function insertVehicle(v: Omit<Vehicle, 'id' | 'typeName' | 'deletedAt'>) {
+export async function insertVehicle(
+  v: Pick<Vehicle, 'ownerId' | 'vehicleTypeId' | 'plate' | 'brand' | 'model' | 'color'>,
+  executor?: Executor,
+) {
   return String(
     (
       await execute(
         'INSERT INTO vehicles(owner_id,vehicle_type_id,plate,brand,model,color) VALUES(?,?,?,?,?,?)',
         [v.ownerId, v.vehicleTypeId, v.plate, v.brand, v.model, v.color],
+        executor,
       )
     ).insertId,
   );

@@ -1,5 +1,8 @@
 import type { z } from 'zod';
+import { AppError } from '../../errors/AppError.js';
 import { NotFoundError } from '../../errors/NotFoundError.js';
+import { findType } from '../vehicleTypes/vehicleTypes.repository.js';
+import { supportsService } from './catalogRules.js';
 import * as repo from './services.repository.js';
 import type { servicePatchSchema } from './services.schema.js';
 import { serviceSchema } from './services.schema.js';
@@ -31,6 +34,18 @@ export async function createService(input: z.infer<typeof serviceSchema>) {
 export async function editService(id: string, input: z.infer<typeof servicePatchSchema>) {
   const current = await repo.findService(id);
   if (!current) throw new NotFoundError();
+  if (
+    input.code &&
+    input.code !== current.code &&
+    ['interior', 'exterior', 'complete', 'wax', 'upholstery', 'motorcycle_wash'].includes(
+      current.code,
+    )
+  )
+    throw new AppError(
+      400,
+      'SERVICE_CODE_FIXED',
+      'El código de un servicio base o extra es fijo.',
+    );
   const data = serviceSchema.parse({
     code: current.code,
     name: current.name,
@@ -60,7 +75,14 @@ export async function deleteService(id: string) {
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */
 export async function setPrice(id: string, typeId: string, cents: number) {
-  if (!(await repo.findService(id))) throw new NotFoundError();
+  const [service, type] = await Promise.all([repo.findService(id), findType(typeId)]);
+  if (!service || !type) throw new NotFoundError();
+  if (!supportsService(type.code, service.code))
+    throw new AppError(
+      400,
+      'INVALID_SERVICE_TYPE',
+      'Ese servicio no corresponde al tipo de vehículo.',
+    );
   await repo.savePrice(id, typeId, cents);
   return { updated: true };
 }

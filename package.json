@@ -22,7 +22,7 @@
     "check": "npm run typecheck && npm run lint && npm test && npm run build && npm run audit:source",
     "test:database": "tsx --test tests/database.integration.ts",
     "docs:schemas": "tsx scripts/exportSchemas.ts",
-    "test:acceptance": "tsx --test --test-concurrency=1 tests/security.integration.ts tests/booking.integration.ts tests/team-agenda.integration.ts tests/management.integration.ts tests/oauth.integration.ts tests/oauth-link.integration.ts tests/operations.integration.ts",
+    "test:acceptance": "tsx --test --test-concurrency=1 tests/security.integration.ts tests/booking.integration.ts tests/team-agenda.integration.ts tests/management.integration.ts tests/oauth.integration.ts tests/oauth-link.integration.ts tests/operations.integration.ts tests/vehicle-later.integration.ts",
     "audit:source": "tsx scripts/auditSource.ts",
     "docs:source": "node scripts/document-source.mjs"
   },

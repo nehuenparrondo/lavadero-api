@@ -9,6 +9,6 @@ export function bookingIntervals(bookings: BookingIntervalRow[]): Interval[] {
     start: utcMillis(v.startsAt),
     end: utcMillis(v.endsAt),
     employeeId: v.employeeId as string | null,
-    vehicleId: String(v.vehicleId),
+    vehicleId: v.vehicleId,
   }));
 }

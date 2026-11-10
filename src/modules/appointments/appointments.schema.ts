@@ -2,6 +2,11 @@ import { z } from 'zod';
 import { APPOINTMENT_STATUS } from '../../constants/business.js';
 import { paginationSchema } from '../../utils/pagination.js';
 const id = z.string().regex(/^[1-9]\d{0,18}$/u);
+const target = { vehicleId: id.optional(), vehicleTypeId: id.optional() };
+const oneTarget = (value: {
+  vehicleId?: string | undefined;
+  vehicleTypeId?: string | undefined;
+}) => Boolean(value.vehicleId) !== Boolean(value.vehicleTypeId);
 /** Valores únicos y acotados evitan consultas y totales ambiguos. */
 export const serviceIdsSchema = z
   .array(id)
@@ -11,12 +16,13 @@ export const serviceIdsSchema = z
 /** Alta de reserva: fechas ISO con offset, convertidas a UTC. */
 export const appointmentSchema = z
   .object({
-    vehicleId: id,
+    ...target,
     serviceIds: serviceIdsSchema,
     startsAt: z.string().datetime({ offset: true }),
     clientId: id.optional(),
   })
-  .strict();
+  .strict()
+  .refine(oneTarget, 'Elegí un vehículo o un tipo de vehículo.');
 /** Búsqueda y filtros; servicio limita visibilidad según rol. */
 export const appointmentQuerySchema = paginationSchema.extend({
   date: z
@@ -34,14 +40,16 @@ export const appointmentQuerySchema = paginationSchema.extend({
   history: z.enum(['true', 'false']).optional(),
 });
 /** Selección de disponibilidad sin crear reservas. */
-export const availabilitySchema = z.object({
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/u),
-  vehicleId: id,
-  serviceIds: z.preprocess(
-    (v) => (typeof v === 'string' ? v.split(',') : v),
-    serviceIdsSchema,
-  ),
-});
+export const availabilitySchema = z
+  .object({
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/u),
+    ...target,
+    serviceIds: z.preprocess(
+      (v) => (typeof v === 'string' ? v.split(',') : v),
+      serviceIdsSchema,
+    ),
+  })
+  .refine(oneTarget, 'Elegí un vehículo o un tipo de vehículo.');
 /** Estados admitidos; la transición se decide exclusivamente en service. */
 export const statusSchema = z
   .object({

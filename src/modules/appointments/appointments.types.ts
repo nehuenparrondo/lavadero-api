@@ -7,15 +7,16 @@ export interface Appointment extends RowDataPacket {
   id: string;
   clientId: string;
   employeeId: string | null;
-  vehicleId: string;
+  vehicleId: string | null;
+  vehicleTypeId: string;
   status: AppointmentStatus;
   startsAt: string;
   endsAt: string;
   currencyCode: string;
-  plate: string;
-  brand: string;
-  model: string;
-  color: string;
+  plate: string | null;
+  brand: string | null;
+  model: string | null;
+  color: string | null;
   vehicleType: string;
   vehicleDescription: string | null;
   serviceSummary: string;
@@ -44,7 +45,7 @@ export interface Interval {
   start: number;
   end: number;
   employeeId: string | null;
-  vehicleId: string;
+  vehicleId: string | null;
 }
 
 /** Fila mínima usada para calcular ocupación sin cargar datos personales. */
@@ -52,5 +53,5 @@ export interface BookingIntervalRow extends RowDataPacket {
   startsAt: string;
   endsAt: string;
   employeeId: string | null;
-  vehicleId: string;
+  vehicleId: string | null;
 }

@@ -453,6 +453,10 @@
         "type": "string",
         "pattern": "^[1-9]\\d{0,18}$"
       },
+      "vehicleTypeId": {
+        "type": "string",
+        "pattern": "^[1-9]\\d{0,18}$"
+      },
       "serviceIds": {
         "minItems": 1,
         "maxItems": 10,
@@ -472,7 +476,7 @@
         "pattern": "^[1-9]\\d{0,18}$"
       }
     },
-    "required": ["vehicleId", "serviceIds", "startsAt"],
+    "required": ["serviceIds", "startsAt"],
     "additionalProperties": false
   },
   "assignmentSchema": {
@@ -499,6 +503,10 @@
         "type": "string",
         "pattern": "^[1-9]\\d{0,18}$"
       },
+      "vehicleTypeId": {
+        "type": "string",
+        "pattern": "^[1-9]\\d{0,18}$"
+      },
       "serviceIds": {
         "minItems": 1,
         "maxItems": 10,
@@ -509,7 +517,7 @@
         }
       }
     },
-    "required": ["date", "vehicleId", "serviceIds"]
+    "required": ["date", "serviceIds"]
   },
   "cancelSchema": {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -564,6 +572,57 @@
     },
     "required": ["status"],
     "additionalProperties": false
+  },
+  "attachVehicleSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [
+      {
+        "type": "object",
+        "properties": {
+          "vehicleId": {
+            "type": "string",
+            "pattern": "^[1-9]\\d{0,18}$"
+          }
+        },
+        "required": ["vehicleId"],
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "properties": {
+          "vehicle": {
+            "type": "object",
+            "properties": {
+              "plate": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 16,
+                "pattern": "^[a-zA-Z0-9 -]+$"
+              },
+              "brand": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              },
+              "model": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              },
+              "color": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 50
+              }
+            },
+            "required": ["plate", "brand", "model", "color"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["vehicle"],
+        "additionalProperties": false
+      }
+    ]
   },
   "reviewSchema": {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -731,6 +790,26 @@
       "isActive": {
         "default": true,
         "type": "boolean"
+      },
+      "prices": {
+        "maxItems": 100,
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "priceCents": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100000000
+            },
+            "serviceId": {
+              "type": "string",
+              "pattern": "^[1-9]\\d{0,18}$"
+            }
+          },
+          "required": ["priceCents", "serviceId"],
+          "additionalProperties": false
+        }
       }
     },
     "required": ["code", "name"],

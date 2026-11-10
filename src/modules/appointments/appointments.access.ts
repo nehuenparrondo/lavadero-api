@@ -26,7 +26,8 @@ export function presentAppointment(v: Appointment, actor: Actor) {
     ? {
         ...common,
         canWork:
-          v.employeeId === actor.id || (v.employeeId === null && v.status !== 'in_progress'),
+          Boolean(v.vehicleId) &&
+          (v.employeeId === actor.id || (v.employeeId === null && v.status !== 'in_progress')),
         ...(actor.canRecordPayments
           ? {
               totalCents: Number(v.totalCents),
@@ -39,6 +40,7 @@ export function presentAppointment(v: Appointment, actor: Actor) {
         ...common,
         clientId: v.clientId,
         vehicleId: v.vehicleId,
+        vehicleTypeId: v.vehicleTypeId,
         ...(actor.role === 'admin'
           ? { employeeId: v.employeeId, canReassign: canReassign(v) }
           : {}),
@@ -71,6 +73,7 @@ function operationalAppointment(v: Appointment) {
     model: v.model,
     color: v.color,
     vehicleType: v.vehicleType,
+    vehiclePending: v.vehicleId === null,
     employeeName: v.employeeName,
     serviceSummary: v.serviceSummary,
     clientName: v.clientName,

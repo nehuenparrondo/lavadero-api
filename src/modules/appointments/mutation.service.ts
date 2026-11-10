@@ -89,6 +89,12 @@ export async function changeStatus(
 
 /** Permite tomar turnos anteriores o sin responsable sin desplazar una asignación vigente. */
 async function claimAppointment(actor: Actor, appointment: Appointment, executor: Executor) {
+  if (!appointment.vehicleId)
+    throw new AppError(
+      409,
+      'VEHICLE_REQUIRED',
+      'Agregá el vehículo al turno antes de empezar el lavado.',
+    );
   if (appointment.employeeId && appointment.employeeId !== actor.id)
     throw new ForbiddenError('Este turno ya tiene un empleado responsable.');
   if (!appointment.employeeId) {

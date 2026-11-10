@@ -2532,6 +2532,14 @@
               "type": "string"
             },
             "example": "AB123"
+          },
+          {
+            "in": "query",
+            "name": "ownerId",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Titular a filtrar. Solo Administración."
           }
         ]
       },
@@ -3209,7 +3217,7 @@
       "post": {
         "tags": ["vehicle-types"],
         "summary": "Crear tipo de vehículo",
-        "description": "Roles: admin. ",
+        "description": "Administración puede guardar la categoría y sus tarifas por servicio en una transacción. prices es opcional; los importes que se omiten se conservan.",
         "operationId": "post24",
         "security": [
           {
@@ -3344,7 +3352,7 @@
       "put": {
         "tags": ["vehicle-types"],
         "summary": "Editar tipo de vehículo",
-        "description": "Roles: admin. ",
+        "description": "Administración puede guardar la categoría y sus tarifas por servicio en una transacción. prices es opcional; los importes que se omiten se conservan.",
         "operationId": "put25",
         "security": [
           {
@@ -4966,7 +4974,7 @@
       "get": {
         "tags": ["availability"],
         "summary": "Cotizar y consultar horarios",
-        "description": "Roles: client, admin. Cliente solo vehículo propio. Cotiza servicios y ofrece horarios de inicio libres donde cabe el lavado completo. Grilla de cinco minutos por defecto. El encerado requiere exterior o completo. La respuesta no se almacena en caché.",
+        "description": "Cliente y Administración. Enviar vehicleTypeId o vehicleId, uno solo. Ofrece inicios únicos donde cabe el lavado completo. Moto solo admite Lavado; para los demás se admite un solo lavado base con adicionales compatibles. La respuesta no se almacena en caché.",
         "operationId": "get36",
         "security": [
           {
@@ -5093,11 +5101,19 @@
           {
             "name": "vehicleId",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": {
               "type": "string"
             },
             "example": "1"
+          },
+          {
+            "in": "query",
+            "name": "vehicleTypeId",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Categoría para cotizar antes de registrar un vehículo."
           },
           {
             "name": "serviceIds",
@@ -5304,7 +5320,7 @@
       "post": {
         "tags": ["appointments"],
         "summary": "Reservar turno",
-        "description": "Reserva confirmada automáticamente; asigna empleado activo y libre si hay uno disponible. Verifica en una transacción que el inicio sea único y que el lavado completo quepa en la capacidad física. Un inicio ocupado devuelve 409 SLOT_UNAVAILABLE.",
+        "description": "Confirma y ocupa el horario. Si recibe vehicleTypeId, el vehículo se vincula después. El inicio es único y se comprueba la duración y la capacidad física bajo el bloqueo de agenda. Un inicio ocupado devuelve 409 SLOT_UNAVAILABLE.",
         "operationId": "post38",
         "security": [
           {
@@ -5438,9 +5454,9 @@
                 "$ref": "#/components/schemas/appointmentSchema"
               },
               "example": {
-                "vehicleId": "1",
                 "serviceIds": ["1"],
-                "startsAt": "2026-12-01T09:30:00-03:00"
+                "startsAt": "2026-12-01T09:30:00-03:00",
+                "vehicleTypeId": "1"
               }
             }
           }
@@ -5451,7 +5467,7 @@
       "get": {
         "tags": ["appointments"],
         "summary": "Consultar detalle del turno",
-        "description": "Turno autorizado con descripción del auto y parte de trabajo cuando corresponde. El cliente ve el parte aprobado y su devolución. El equipo también ve revisiones pendientes y correcciones.",
+        "description": "Turno autorizado con descripción del auto y parte de trabajo cuando corresponde. El cliente ve el parte aprobado y su devolución. El equipo también ve revisiones pendientes y correcciones. Si el vehículo todavía no se vinculó, incluye vehiclePending y la categoría reservada.",
         "operationId": "get39",
         "security": [
           {
@@ -8211,6 +8227,154 @@
           }
         }
       }
+    },
+    "/api/v1/appointments/{id}/vehicle": {
+      "put": {
+        "tags": ["appointments"],
+        "summary": "Vincular vehículo a un turno confirmado",
+        "description": "Titular o Administración. Vincula un vehículo existente del mismo tipo o lo registra junto con el vínculo. Mantiene el horario y precio del turno.",
+        "operationId": "putAppointmentVehicle",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": ["client", "admin"],
+        "responses": {
+          "200": {
+            "description": "Operación exitosa.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "vehicleId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["vehicleId"]
+                    }
+                  },
+                  "required": ["data"]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos. Revisar error.fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sesión ausente, vencida, revocada o credenciales inválidas.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol/permiso insuficiente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el actor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto, duplicado, estado, capacidad o pago inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Demasiados intentos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno sin datos sensibles.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio o proveedor todavía sin configurar/no disponible.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$",
+              "example": "1"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/attachVehicleSchema"
+              },
+              "example": {
+                "vehicle": {
+                  "plate": "AB123CD",
+                  "brand": "Toyota",
+                  "model": "Corolla",
+                  "color": "Gris"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -8468,7 +8632,6 @@
         }
       },
       "vehiclePatchSchema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
           "plate": {
@@ -8504,7 +8667,6 @@
         "additionalProperties": false
       },
       "vehicleSchema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
           "plate": {
@@ -8668,10 +8830,13 @@
         }
       },
       "appointmentSchema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
           "vehicleId": {
+            "type": "string",
+            "pattern": "^[1-9]\\d{0,18}$"
+          },
+          "vehicleTypeId": {
             "type": "string",
             "pattern": "^[1-9]\\d{0,18}$"
           },
@@ -8694,8 +8859,16 @@
             "pattern": "^[1-9]\\d{0,18}$"
           }
         },
-        "required": ["vehicleId", "serviceIds", "startsAt"],
-        "additionalProperties": false
+        "required": ["serviceIds", "startsAt"],
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "required": ["vehicleId"]
+          },
+          {
+            "required": ["vehicleTypeId"]
+          }
+        ]
       },
       "assignmentSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -8710,7 +8883,6 @@
         "additionalProperties": false
       },
       "availabilitySchema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
           "date": {
@@ -8718,6 +8890,10 @@
             "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
           },
           "vehicleId": {
+            "type": "string",
+            "pattern": "^[1-9]\\d{0,18}$"
+          },
+          "vehicleTypeId": {
             "type": "string",
             "pattern": "^[1-9]\\d{0,18}$"
           },
@@ -8731,7 +8907,15 @@
             }
           }
         },
-        "required": ["date", "vehicleId", "serviceIds"]
+        "required": ["date", "serviceIds"],
+        "oneOf": [
+          {
+            "required": ["vehicleId"]
+          },
+          {
+            "required": ["vehicleTypeId"]
+          }
+        ]
       },
       "cancelSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -8787,7 +8971,6 @@
         "additionalProperties": false
       },
       "vehicleTypeSchema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
           "code": {
@@ -8802,6 +8985,26 @@
           "isActive": {
             "default": true,
             "type": "boolean"
+          },
+          "prices": {
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "priceCents": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100000000
+                },
+                "serviceId": {
+                  "type": "string",
+                  "pattern": "^[1-9]\\d{0,18}$"
+                }
+              },
+              "required": ["priceCents", "serviceId"],
+              "additionalProperties": false
+            }
           }
         },
         "required": ["code", "name"],
@@ -9100,16 +9303,16 @@
             "format": "date-time"
           },
           "plate": {
-            "type": "string"
+            "type": ["string", "null"]
           },
           "brand": {
-            "type": "string"
+            "type": ["string", "null"]
           },
           "model": {
-            "type": "string"
+            "type": ["string", "null"]
           },
           "color": {
-            "type": "string"
+            "type": ["string", "null"]
           },
           "clientName": {
             "type": "string"
@@ -9131,9 +9334,8 @@
             "description": "Identificador del responsable, exclusivo de Administración."
           },
           "vehicleId": {
-            "type": "string",
-            "pattern": "^[1-9][0-9]*$",
-            "example": "1"
+            "type": ["string", "null"],
+            "description": "Nulo cuando falta vincular el vehículo."
           },
           "currencyCode": {
             "type": "string",
@@ -9225,6 +9427,14 @@
                 "type": "null"
               }
             ]
+          },
+          "vehicleTypeId": {
+            "type": "string",
+            "description": "Categoría cotizada; cliente y Administración."
+          },
+          "vehiclePending": {
+            "type": "boolean",
+            "description": "El turno ocupa el horario y necesita un vehículo antes de empezar."
           }
         },
         "required": [
@@ -9927,6 +10137,56 @@
         },
         "required": ["date"],
         "additionalProperties": false
+      },
+      "attachVehicleSchema": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "vehicleId": {
+                "type": "string",
+                "pattern": "^[1-9]\\d{0,18}$"
+              }
+            },
+            "required": ["vehicleId"],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "vehicle": {
+                "type": "object",
+                "properties": {
+                  "plate": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 16,
+                    "pattern": "^[a-zA-Z0-9 -]+$"
+                  },
+                  "brand": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "model": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "color": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 50
+                  }
+                },
+                "required": ["plate", "brand", "model", "color"],
+                "additionalProperties": false
+              }
+            },
+            "required": ["vehicle"],
+            "additionalProperties": false
+          }
+        ]
       }
     }
   }

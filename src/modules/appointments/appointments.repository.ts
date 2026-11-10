@@ -3,17 +3,17 @@ import type { Executor } from '../../utils/db.js';
 import { rows } from '../../utils/db.js';
 import type { Appointment, BookingIntervalRow, QuoteItem } from './appointments.types.js';
 const agendaFrom = ` FROM appointments a JOIN appointment_statuses s ON s.id=a.status_id
- JOIN vehicles v ON v.id=a.vehicle_id`;
+ LEFT JOIN vehicles v ON v.id=a.vehicle_id`;
 const select = `SELECT CAST(a.id AS CHAR) id,CAST(a.client_id AS CHAR) clientId,CAST(a.employee_id AS CHAR) employeeId,
  CAST(a.vehicle_id AS CHAR) vehicleId,s.code status,a.starts_at startsAt,a.ends_at endsAt,a.currency_code currencyCode,a.version,
- v.plate,v.brand,v.model,v.color,t.name vehicleType,d.description vehicleDescription,
+ v.plate,v.brand,v.model,v.color,t.name vehicleType,CAST(t.id AS CHAR) vehicleTypeId,d.description vehicleDescription,
  CONCAT(c.first_name,' ',c.last_name) clientName,c.phone clientPhone,
  CONCAT(e.first_name,' ',e.last_name) employeeName,
  COALESCE(e.is_active AND e.deleted_at IS NULL AND er.code='employee',FALSE) employeeAvailable,
  COALESCE((SELECT GROUP_CONCAT(applied_service_name ORDER BY service_id SEPARATOR ' · ') FROM appointment_services WHERE appointment_id=a.id),'') serviceSummary,
  COALESCE((SELECT SUM(applied_price_cents) FROM appointment_services WHERE appointment_id=a.id),0) totalCents,
  COALESCE((SELECT SUM(amount_cents) FROM payments WHERE appointment_id=a.id),0) paidCents
- ${agendaFrom} JOIN vehicle_types t ON t.id=v.vehicle_type_id
+ ${agendaFrom} JOIN vehicle_types t ON t.id=COALESCE(a.reserved_vehicle_type_id,v.vehicle_type_id)
  JOIN users c ON c.id=a.client_id LEFT JOIN users e ON e.id=a.employee_id
  LEFT JOIN roles er ON er.id=e.role_id
  LEFT JOIN appointment_vehicle_details d ON d.appointment_id=a.id`;

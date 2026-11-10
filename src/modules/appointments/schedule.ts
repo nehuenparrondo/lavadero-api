@@ -76,7 +76,7 @@ export function canFit(
   capacity: number,
   intervals: Interval[],
   employeeId?: string | null,
-  vehicleId?: string,
+  vehicleId?: string | null,
 ) {
   const overlapping = intervals.filter((v) => v.start < end && v.end > start);
   if (

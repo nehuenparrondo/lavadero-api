@@ -8,7 +8,8 @@ export const vehicleSchema = z
       .min(3)
       .max(16)
       .regex(/^[a-zA-Z0-9 -]+$/u)
-      .transform((v) => v.replace(/[ -]/gu, '').toUpperCase()),
+      .transform((v) => v.replace(/[ -]/gu, '').toUpperCase())
+      .refine((v) => v.length >= 3, 'Ingresá una patente válida.'),
     brand: z.string().trim().min(1).max(80),
     model: z.string().trim().min(1).max(80),
     color: z.string().trim().min(1).max(50),
