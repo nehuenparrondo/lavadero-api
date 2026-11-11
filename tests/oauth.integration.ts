@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { randomInt } from 'node:crypto';
 import { api, client } from './support/context.js';
 import { pkceChallenge } from '../src/modules/auth/oauth.service.js';
 import { database } from '../src/config/database.js';
@@ -12,6 +13,7 @@ test('PKCE coincide con el vector de referencia RFC 7636', () => {
 });
 for (const provider of ['google', 'github', 'discord'])
   test(`OAuth ${provider}: vinculación verificada, PKCE, grant de un uso y state`, async (t) => {
+    const subject = String(randomInt(100_000_000_000, 999_999_999_999));
     const existing = await client();
     await database!.execute('UPDATE usuarios SET password_hash=NULL WHERE id=?', [
       existing.user.id,
@@ -22,21 +24,21 @@ for (const provider of ['google', 'github', 'discord'])
       if (url.includes('token')) payload = { access_token: 'mock-provider-token' };
       else if (url.includes('userinfo'))
         payload = {
-          sub: 'google-fixture',
+          sub: subject,
           email: existing.user.email,
           email_verified: true,
           given_name: 'Social',
         };
       else if (url.includes('discord.com'))
         payload = {
-          id: 'discord-fixture',
+          id: subject,
           email: existing.user.email,
           verified: true,
           username: 'Social',
         };
       else if (url.endsWith('/user/emails'))
         payload = [{ email: existing.user.email, primary: true, verified: true }];
-      else payload = { id: 222, name: 'Social' };
+      else payload = { id: Number(subject), name: 'Social' };
       return new Response(JSON.stringify(payload), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },

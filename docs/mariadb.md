@@ -49,6 +49,8 @@ Las columnas y el contrato JSON conservan sus nombres para no romper clientes ex
 
 Las migraciones 013 y 014 renombran las tablas existentes sin copiar ni borrar filas; InnoDB conserva las relaciones. Durante la transición crean vistas compatibles con nombres antiguos para que el proceso anterior de Render pueda terminar sus solicitudes. Esas vistas no son tablas de negocio. La copia final a MariaDB importa únicamente las tablas españolas.
 
+El acceso de Aiven está limitado y no permite renombrar tablas. Para esta transición se despliega temporalmente la rama `mariadb-transition`, que conserva sus nombres anteriores e incorpora las bandejas nuevas y la pausa de migración. La copia traduce nombres de tabla y referencias del DDL al español; cada fila conserva sus valores y checksum. La base de Aiven permanece intacta. Render vuelve a `main` al conectar MariaDB.
+
 Para cambiar de servidor: respaldar, desplegar código compatible, activar `MAINTENANCE_MODE=true`, esperar que drenen las solicitudes anteriores, obtener una instantánea consistente, importar en una base vacía separada y comprobar hashes de todas las filas y ausencia de referencias huérfanas. Solo entonces cambiar `DATABASE_URL` y volver a `MAINTENANCE_MODE=false`. No ejecutar semillas sobre una copia de producción.
 
 La base anterior de Aiven queda como respaldo. Después del cambio, los datos nuevos se escriben únicamente en MariaDB. Volver a Aiven exige copiar también los cambios posteriores; no basta con cambiar la conexión.
@@ -66,3 +68,5 @@ ORDER BY t.starts_at DESC;
 ```
 
 Las reglas de reservar, verificar trabajos y cobrar están en los servicios de la API. Las modificaciones manuales por SQL pueden omitir esa auditoría; usar la aplicación para operaciones del negocio.
+
+Después de verificar el despliegue y retirar los procesos anteriores, `npm run db:retire-legacy-views` elimina únicamente los alias temporales en inglés. Comprueba las migraciones 013/014, toma el mismo bloqueo de migraciones y nunca elimina tablas ni filas. Es idempotente; los arranques posteriores no recrean esos alias.
