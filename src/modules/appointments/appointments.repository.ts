@@ -42,10 +42,11 @@ export async function listAppointments(
   values: unknown[],
   page: number,
   limit: number,
-  order: 'ASC' | 'DESC' = 'DESC',
+  order: 'ASC' | 'DESC' | 'NEWEST' = 'DESC',
 ) {
+  const sorting = order === 'NEWEST' ? 'a.created_at DESC,a.id DESC' : `a.starts_at ${order},a.id ${order}`;
   const items = await rows<Appointment>(
-    select + filter + ` ORDER BY a.starts_at ${order},a.id ${order} LIMIT ? OFFSET ?`,
+    select + filter + ` ORDER BY ${sorting} LIMIT ? OFFSET ?`,
     [...values, limit, (page - 1) * limit],
   );
   const count = await rows<RowDataPacket>(

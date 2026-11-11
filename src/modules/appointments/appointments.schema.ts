@@ -38,6 +38,7 @@ export const appointmentQuerySchema = paginationSchema.extend({
     .regex(/^[a-z0-9 -]{1,24}$/iu)
     .optional(),
   history: z.enum(['true', 'false']).optional(),
+  queue: z.enum(['requested']).optional(),
 });
 /** Selección de disponibilidad sin crear reservas. */
 export const availabilitySchema = z

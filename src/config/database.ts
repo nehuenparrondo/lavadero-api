@@ -7,7 +7,9 @@ function databaseOptions(): PoolOptions {
   const ssl =
     env.DATABASE_TLS === 'true'
       ? {
-          ca: Buffer.from(env.DATABASE_CA_BASE64 ?? '', 'base64').toString('utf8'),
+          ...(env.DATABASE_CA_BASE64
+            ? { ca: Buffer.from(env.DATABASE_CA_BASE64, 'base64').toString('utf8') }
+            : {}),
           rejectUnauthorized: true,
           verifyIdentity: true,
         }

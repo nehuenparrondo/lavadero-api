@@ -1,3 +1,7 @@
+# Despliegue temporal de transición a MariaDB
+
+Esta rama mantiene las tablas antiguas de Aiven, incorpora las bandejas nuevas y permite pausar la API durante la copia final. Después de verificar MariaDB, Render debe volver a la rama main. No se aplican aquí los renombrados.
+
 # Lavadero API 1.0
 
 Backend independiente de gestión de lavadero: autenticación local y social, permisos de
