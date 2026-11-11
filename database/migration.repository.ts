@@ -1,6 +1,7 @@
 import type { PoolConnection, RowDataPacket } from 'mysql2/promise';
 import { createHash } from 'node:crypto';
 import { splitSqlStatements } from './splitSqlStatements.js';
+import { isMariaDb, migrationSql } from './sqlDialect.js';
 import {
   canonicalSql,
   migrationChecksum,
@@ -22,17 +23,26 @@ export async function lockMigrations(connection: PoolConnection): Promise<string
 
 /** Crea el registro de migraciones, independiente de las tablas de negocio. */
 export async function ensureMigrationTable(connection: PoolConnection): Promise<void> {
-  await connection.query(`CREATE TABLE IF NOT EXISTS schema_migrations (
+  const [legacy] = await connection.query<RowDataPacket[]>(
+    "SELECT TABLE_TYPE type FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='schema_migrations'",
+  );
+  if (legacy[0]?.type === 'BASE TABLE')
+    await connection.query('RENAME TABLE schema_migrations TO migraciones_esquema');
+  await connection.query(`CREATE TABLE IF NOT EXISTS migraciones_esquema (
     name VARCHAR(150) PRIMARY KEY, checksum CHAR(64) NOT NULL,
     applied_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)
   ) ENGINE=InnoDB`);
+  if (legacy[0]?.type === 'BASE TABLE')
+    await connection.query(
+      'CREATE OR REPLACE VIEW schema_migrations AS SELECT * FROM migraciones_esquema',
+    );
 }
 
 /** Ejecuta una migración nueva o comprueba que su contenido no cambió tras aplicarla. */
 export async function applyMigration(connection: PoolConnection, name: string, sql: string) {
   const checksum = migrationChecksum(sql);
   const [existing] = await connection.execute<RowDataPacket[]>(
-    'SELECT checksum FROM schema_migrations WHERE name = ?',
+    'SELECT checksum FROM migraciones_esquema WHERE name = ?',
     [name],
   );
   if (existing[0]) {
@@ -41,10 +51,11 @@ export async function applyMigration(connection: PoolConnection, name: string, s
     return;
   }
   // El separador explícito evita interpretar puntos y coma dentro de datos o comentarios.
+  const mariaDb = await isMariaDb(connection);
   for (const statement of splitSqlStatements(canonicalSql(sql))) {
-    await connection.query(statement);
+    await connection.query(migrationSql(statement, mariaDb));
   }
-  await connection.execute('INSERT INTO schema_migrations (name, checksum) VALUES (?, ?)', [
+  await connection.execute('INSERT INTO migraciones_esquema (name, checksum) VALUES (?, ?)', [
     name,
     checksum,
   ]);

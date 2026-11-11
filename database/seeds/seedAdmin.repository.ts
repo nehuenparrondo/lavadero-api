@@ -4,7 +4,7 @@ import type { PoolConnection, RowDataPacket } from 'mysql2/promise';
 /** Crea solo el administrador inicial. Nunca promueve cuentas existentes ni resetea claves. */
 export async function seedAdmin(connection: PoolConnection, email: string, password: string) {
   const [existing] = await connection.execute<RowDataPacket[]>(
-    'SELECT u.id, u.is_active, u.deleted_at, r.code FROM users u JOIN roles r ON r.id=u.role_id WHERE u.email=?',
+    'SELECT u.id, u.is_active, u.deleted_at, r.code FROM usuarios u JOIN roles r ON r.id=u.role_id WHERE u.email=?',
     [email],
   );
   if (existing[0]) {
@@ -15,7 +15,7 @@ export async function seedAdmin(connection: PoolConnection, email: string, passw
   }
   const hash = await bcrypt.hash(password, 12);
   await connection.execute(
-    `INSERT INTO users (role_id, email, password_hash, first_name, last_name)
+    `INSERT INTO usuarios (role_id, email, password_hash, first_name, last_name)
      SELECT id, ?, ?, 'Administrador', 'Inicial' FROM roles WHERE code = 'admin'`,
     [email, hash],
   );

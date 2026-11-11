@@ -25,7 +25,7 @@ export async function insertSession(
   executor?: Executor,
 ) {
   const result = await execute(
-    `INSERT INTO refresh_tokens(user_id,token_hash,family_id,expires_at)
+    `INSERT INTO sesiones_renovacion(user_id,token_hash,family_id,expires_at)
     VALUES(?,?,?,DATE_ADD(UTC_TIMESTAMP(3),INTERVAL 30 DAY))`,
     [userId, hash, familyId],
     executor,
@@ -42,7 +42,7 @@ export async function lockSession(hash: Buffer, executor: Executor) {
   return (
     await rows<SessionRow>(
       `SELECT CAST(id AS CHAR) id,CAST(user_id AS CHAR) userId,
-    family_id familyId,revoked_at revokedAt,expires_at expiresAt FROM refresh_tokens WHERE token_hash=? FOR UPDATE`,
+    family_id familyId,revoked_at revokedAt,expires_at expiresAt FROM sesiones_renovacion WHERE token_hash=? FOR UPDATE`,
       [hash],
       executor,
     )
@@ -56,7 +56,7 @@ export async function lockSession(hash: Buffer, executor: Executor) {
  */
 export async function revokeFamily(familyId: string, executor: Executor) {
   await execute(
-    'UPDATE refresh_tokens SET revoked_at=COALESCE(revoked_at,UTC_TIMESTAMP(3)) WHERE family_id=?',
+    'UPDATE sesiones_renovacion SET revoked_at=COALESCE(revoked_at,UTC_TIMESTAMP(3)) WHERE family_id=?',
     [familyId],
     executor,
   );
@@ -70,7 +70,7 @@ export async function revokeFamily(familyId: string, executor: Executor) {
  */
 export async function rotateSession(id: string, nextId: string, executor: Executor) {
   await execute(
-    'UPDATE refresh_tokens SET revoked_at=UTC_TIMESTAMP(3),replaced_by_id=? WHERE id=?',
+    'UPDATE sesiones_renovacion SET revoked_at=UTC_TIMESTAMP(3),replaced_by_id=? WHERE id=?',
     [nextId, id],
     executor,
   );
@@ -85,7 +85,7 @@ export async function isFamilyActive(userId: string, familyId: string) {
   return Boolean(
     (
       await rows(
-        'SELECT id FROM refresh_tokens WHERE user_id=? AND family_id=? AND revoked_at IS NULL AND expires_at>UTC_TIMESTAMP(3) LIMIT 1',
+        'SELECT id FROM sesiones_renovacion WHERE user_id=? AND family_id=? AND revoked_at IS NULL AND expires_at>UTC_TIMESTAMP(3) LIMIT 1',
         [userId, familyId],
       )
     )[0],

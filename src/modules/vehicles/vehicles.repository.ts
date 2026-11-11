@@ -14,7 +14,7 @@ export interface Vehicle extends RowDataPacket {
   deletedAt: string | null;
 }
 const select = `SELECT CAST(v.id AS CHAR) id,CAST(v.owner_id AS CHAR) ownerId,CAST(v.vehicle_type_id AS CHAR) vehicleTypeId,
- v.plate,v.brand,v.model,v.color,t.name typeName,v.deleted_at deletedAt FROM vehicles v JOIN vehicle_types t ON t.id=v.vehicle_type_id`;
+ v.plate,v.brand,v.model,v.color,t.name typeName,v.deleted_at deletedAt FROM vehiculos v JOIN tipos_vehiculo t ON t.id=v.vehicle_type_id`;
 /** Busca vehículo; autorización corresponde al servicio o requireOwnership.
  * @param id - Identificador del recurso dentro del proyecto actual.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
@@ -47,7 +47,7 @@ export async function listVehicles(
     (page - 1) * limit,
   ]);
   const count = await rows<RowDataPacket>(
-    'SELECT COUNT(*) total FROM vehicles v' + filter,
+    'SELECT COUNT(*) total FROM vehiculos v' + filter,
     args,
   );
   return { items, page, limit, total: Number(count[0]?.total ?? 0) };
@@ -65,7 +65,7 @@ export async function insertVehicle(
   return String(
     (
       await execute(
-        'INSERT INTO vehicles(owner_id,vehicle_type_id,plate,brand,model,color) VALUES(?,?,?,?,?,?)',
+        'INSERT INTO vehiculos(owner_id,vehicle_type_id,plate,brand,model,color) VALUES(?,?,?,?,?,?)',
         [v.ownerId, v.vehicleTypeId, v.plate, v.brand, v.model, v.color],
         executor,
       )
@@ -81,7 +81,7 @@ export async function insertVehicle(
  */
 export async function updateVehicle(id: string, v: Vehicle, executor?: Executor) {
   await execute(
-    'UPDATE vehicles SET owner_id=?,vehicle_type_id=?,plate=?,brand=?,model=?,color=? WHERE id=?',
+    'UPDATE vehiculos SET owner_id=?,vehicle_type_id=?,plate=?,brand=?,model=?,color=? WHERE id=?',
     [v.ownerId, v.vehicleTypeId, v.plate, v.brand, v.model, v.color, id],
     executor,
   );
@@ -94,13 +94,13 @@ export async function updateVehicle(id: string, v: Vehicle, executor?: Executor)
  */
 export async function removeVehicle(id: string, executor?: Executor) {
   const active = await rows<RowDataPacket>(
-    `SELECT a.id FROM appointments a JOIN appointment_statuses s ON s.id=a.status_id
+    `SELECT a.id FROM turnos a JOIN estados_turno s ON s.id=a.status_id
  WHERE a.vehicle_id=? AND s.code IN ('pending','confirmed','in_progress','awaiting_review') LIMIT 1`,
     [id],
     executor,
   );
   if (active.length) return false;
-  await execute('UPDATE vehicles SET deleted_at=UTC_TIMESTAMP(3) WHERE id=?', [id], executor);
+  await execute('UPDATE vehiculos SET deleted_at=UTC_TIMESTAMP(3) WHERE id=?', [id], executor);
   return true;
 }
 /** Indica si el tipo está habilitado para nuevos vehículos.
@@ -110,6 +110,6 @@ export async function removeVehicle(id: string, executor?: Executor) {
  */
 export async function isVehicleTypeActive(id: string) {
   return Boolean(
-    (await rows('SELECT id FROM vehicle_types WHERE id=? AND is_active=TRUE', [id]))[0],
+    (await rows('SELECT id FROM tipos_vehiculo WHERE id=? AND is_active=TRUE', [id]))[0],
   );
 }

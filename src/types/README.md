@@ -4,10 +4,10 @@ DTOs del contrato y vocabulario visual. Son propios del frontend y no importan c
 
 ## Archivos y responsabilidades
 
-| Archivo                      | Responsabilidad                                                               |
-| ---------------------------- | ----------------------------------------------------------------------------- |
-| [domain.ts](domain.ts)       | Roles persistidos y emitidos en JWT; el backend verifica siempre su vigencia. |
-| [express.d.ts](express.d.ts) | Composición interna del módulo; consultar sus contratos de tipos.             |
+| Archivo | Responsabilidad |
+| --- | --- |
+| [domain.ts](domain.ts) | Roles persistidos y emitidos en JWT; el backend verifica siempre su vigencia. |
+| [express.d.ts](express.d.ts) | Composición interna del módulo; consultar sus contratos de tipos. |
 
 ## Mantenimiento
 

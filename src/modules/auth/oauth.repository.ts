@@ -18,9 +18,9 @@ export async function saveState(
     providerVerifier: string;
   },
 ) {
-  await execute('DELETE FROM oauth_states WHERE expires_at<UTC_TIMESTAMP(3)');
+  await execute('DELETE FROM estados_oauth WHERE expires_at<UTC_TIMESTAMP(3)');
   await execute(
-    `INSERT INTO oauth_states(state_hash,provider,client_state,redirect_uri,client_challenge,provider_verifier,expires_at)
+    `INSERT INTO estados_oauth(state_hash,provider,client_state,redirect_uri,client_challenge,provider_verifier,expires_at)
  VALUES(?,?,?,?,?,?,DATE_ADD(UTC_TIMESTAMP(3),INTERVAL 10 MINUTE))`,
     [hash, v.provider, v.clientState, v.redirectUri, v.clientChallenge, v.providerVerifier],
   );
@@ -35,12 +35,12 @@ export async function takeState(hash: Buffer, executor: Executor) {
   const state = (
     await rows<OAuthState>(
       `SELECT provider,client_state clientState,redirect_uri redirectUri,client_challenge clientChallenge,
- provider_verifier providerVerifier FROM oauth_states WHERE state_hash=? AND expires_at>UTC_TIMESTAMP(3) FOR UPDATE`,
+ provider_verifier providerVerifier FROM estados_oauth WHERE state_hash=? AND expires_at>UTC_TIMESTAMP(3) FOR UPDATE`,
       [hash],
       executor,
     )
   )[0];
-  if (state) await execute('DELETE FROM oauth_states WHERE state_hash=?', [hash], executor);
+  if (state) await execute('DELETE FROM estados_oauth WHERE state_hash=?', [hash], executor);
   return state;
 }
 /** Busca identidad externa por sujeto estable del proveedor.
@@ -53,7 +53,7 @@ export async function takeState(hash: Buffer, executor: Executor) {
 export async function findSocial(provider: Provider, subject: string, executor: Executor) {
   return (
     await rows<RowDataPacket>(
-      'SELECT CAST(user_id AS CHAR) userId FROM social_accounts WHERE provider=? AND provider_subject=?',
+      'SELECT CAST(user_id AS CHAR) userId FROM cuentas_sociales WHERE provider=? AND provider_subject=?',
       [provider, subject],
       executor,
     )
@@ -74,7 +74,7 @@ export function linkSocial(
   executor: Executor,
 ) {
   return execute(
-    'INSERT INTO social_accounts(user_id,provider,provider_subject) VALUES(?,?,?)',
+    'INSERT INTO cuentas_sociales(user_id,provider,provider_subject) VALUES(?,?,?)',
     [id, provider, subject],
     executor,
   );

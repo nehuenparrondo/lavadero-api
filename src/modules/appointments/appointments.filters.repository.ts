@@ -20,6 +20,7 @@ export function appointmentFilter(actor: Actor, input: Filters, timeZone: string
   };
   if (actor.role === 'client') add('a.client_id=?', actor.id);
   if (input.status) add('s.code=?', input.status);
+  if (input.queue) conditions.push("s.code IN ('pending','confirmed')");
   if (input.clientId) add('a.client_id=?', input.clientId);
   if (actor.role === 'admin' && input.employeeId) add('a.employee_id=?', input.employeeId);
   if (actor.role !== 'client' && input.plate)

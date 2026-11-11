@@ -2,9 +2,9 @@ import type { RowDataPacket } from 'mysql2/promise';
 import type { Executor } from '../../utils/db.js';
 import { execute, rows } from '../../utils/db.js';
 
-const messageFrom = ` FROM customer_messages m JOIN users c ON c.id=m.client_id
- LEFT JOIN wash_submissions w ON w.id=m.submission_id LEFT JOIN appointments a ON a.id=w.appointment_id
- LEFT JOIN vehicles v ON v.id=a.vehicle_id`;
+const messageFrom = ` FROM mensajes_cliente m JOIN usuarios c ON c.id=m.client_id
+ LEFT JOIN partes_lavado w ON w.id=m.submission_id LEFT JOIN turnos a ON a.id=w.appointment_id
+ LEFT JOIN vehiculos v ON v.id=a.vehicle_id`;
 
 /** Bandeja paginada. clientId nulo corresponde únicamente a Administración.
  * @param clientId - Titular opcional; state, page y limit delimitan la consulta.
@@ -34,7 +34,7 @@ export async function listMessages(
     [...params, limit, (page - 1) * limit],
   );
   const [result] = await rows<RowDataPacket & { total: number }>(
-    'SELECT COUNT(*) total FROM customer_messages m' + where,
+    'SELECT COUNT(*) total FROM mensajes_cliente m' + where,
     params,
   );
   return { items, total: Number(result?.total ?? 0), page, limit };
@@ -52,7 +52,7 @@ export function insertMessage(
   executor?: Executor,
 ) {
   return execute(
-    'INSERT INTO customer_messages (client_id,kind,body,submission_id) VALUES (?,?,?,?)',
+    'INSERT INTO mensajes_cliente (client_id,kind,body,submission_id) VALUES (?,?,?,?)',
     [clientId, kind, body, submissionId],
     executor,
   );
@@ -64,7 +64,7 @@ export function insertMessage(
  */
 export function resolveMessage(id: string, adminId: string, reply: string) {
   return execute(
-    'UPDATE customer_messages SET resolved_at=UTC_TIMESTAMP(3),resolved_by_id=?,reply=? WHERE id=? AND resolved_at IS NULL',
+    'UPDATE mensajes_cliente SET resolved_at=UTC_TIMESTAMP(3),resolved_by_id=?,reply=? WHERE id=? AND resolved_at IS NULL',
     [adminId, reply, id],
   );
 }

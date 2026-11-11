@@ -34,7 +34,7 @@ export function attachVehicle(actor: Actor, id: string, input: Attachment) {
       );
     const vehicleId = await resolveAttachment(appointment, input, connection);
     await execute(
-      'UPDATE appointments SET vehicle_id=?,version=version+1 WHERE id=?',
+      'UPDATE turnos SET vehicle_id=?,version=version+1 WHERE id=?',
       [vehicleId, id],
       connection,
     );

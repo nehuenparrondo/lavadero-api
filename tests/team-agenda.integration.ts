@@ -85,7 +85,7 @@ test('turnos pendientes anteriores siguen visibles y se pueden comenzar desde cu
     }).expect(201)
   ).body.data;
   await database!.execute(
-    "UPDATE appointments SET status_id=(SELECT id FROM appointment_statuses WHERE code='pending'),employee_id=NULL WHERE id=?",
+    "UPDATE turnos SET status_id=(SELECT id FROM estados_turno WHERE code='pending'),employee_id=NULL WHERE id=?",
     [created.id],
   );
   await api('get', `/appointments/${created.id}`, staff.accessToken).expect(200);

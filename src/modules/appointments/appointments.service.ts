@@ -18,6 +18,8 @@ export async function listAppointments(
   actor: Actor,
   input: z.infer<typeof appointmentQuerySchema>,
 ) {
+  if (input.queue && actor.role !== 'admin')
+    throw new AppError(403, 'FORBIDDEN', 'Esta bandeja es de administración.');
   const settings = await readSettings();
   const { where, values } = appointmentFilter(actor, input, settings?.timeZone ?? 'UTC');
   const result = await repo.listAppointments(
@@ -25,7 +27,7 @@ export async function listAppointments(
     values,
     input.page,
     input.limit,
-    input.history === 'false' || input.date ? 'ASC' : 'DESC',
+    input.queue ? 'NEWEST' : input.history === 'false' || input.date ? 'ASC' : 'DESC',
   );
   return { ...result, items: result.items.map((v) => presentAppointment(v, actor)) };
 }

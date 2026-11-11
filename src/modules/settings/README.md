@@ -4,13 +4,13 @@ Configuración operativa compartida. Los cambios se serializan con reservas y no
 
 ## Archivos y responsabilidades
 
-| Archivo                                          | Responsabilidad                                             |
-| ------------------------------------------------ | ----------------------------------------------------------- |
-| [settings.controller.ts](settings.controller.ts) | Consulta configuración del negocio.                         |
-| [settings.repository.ts](settings.repository.ts) | Configuración interna de una sucursal.                      |
-| [settings.routes.ts](settings.routes.ts)         | Todos pueden conocer horarios; solo admin puede editarlos.  |
-| [settings.schema.ts](settings.schema.ts)         | Configuración tipada de agenda de una única sucursal.       |
-| [settings.service.ts](settings.service.ts)       | Lee configuración pública de operación, sin datos privados. |
+| Archivo | Responsabilidad |
+| --- | --- |
+| [settings.controller.ts](settings.controller.ts) | Consulta configuración del negocio. |
+| [settings.repository.ts](settings.repository.ts) | Configuración interna de una sucursal. |
+| [settings.routes.ts](settings.routes.ts) | Todos pueden conocer horarios; solo admin puede editarlos. |
+| [settings.schema.ts](settings.schema.ts) | Configuración tipada de agenda de una única sucursal. |
+| [settings.service.ts](settings.service.ts) | Lee configuración pública de operación, sin datos privados. |
 
 ## Mantenimiento
 

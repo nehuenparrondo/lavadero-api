@@ -7,9 +7,9 @@ export async function seedSettings(
   config: ReturnType<typeof readSeedConfig>,
 ) {
   await connection.execute(
-    `INSERT INTO business_settings
+    `INSERT INTO configuracion_negocio
      (id, currency_code, time_zone, cancellation_notice_minutes, simultaneous_capacity)
-     VALUES (1, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE id = business_settings.id`,
+     VALUES (1, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE id = configuracion_negocio.id`,
     [
       config.BUSINESS_CURRENCY,
       config.BUSINESS_TIME_ZONE,
@@ -20,8 +20,8 @@ export async function seedSettings(
   const days = [...new Set(config.BUSINESS_OPEN_DAYS.split(',').map(Number))];
   for (const day of days)
     await connection.execute(
-      `INSERT INTO business_hours (weekday, opens_at, closes_at) VALUES (?, ?, ?)
-     ON DUPLICATE KEY UPDATE weekday = business_hours.weekday`,
+      `INSERT INTO horarios_atencion (weekday, opens_at, closes_at) VALUES (?, ?, ?)
+     ON DUPLICATE KEY UPDATE weekday = horarios_atencion.weekday`,
       [day, config.BUSINESS_OPEN_TIME, config.BUSINESS_CLOSE_TIME],
     );
 }

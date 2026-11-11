@@ -17,7 +17,7 @@ export interface BusinessHour extends RowDataPacket {
   closesAt: string;
 }
 const select = `SELECT currency_code currencyCode,time_zone timeZone,cancellation_notice_minutes cancellationNoticeMinutes,
- simultaneous_capacity simultaneousCapacity,slot_step_minutes slotStepMinutes FROM business_settings WHERE id=1`;
+ simultaneous_capacity simultaneousCapacity,slot_step_minutes slotStepMinutes FROM configuracion_negocio WHERE id=1`;
 /** Lee configuración o bloquea la fila común para serializar cambios de agenda y reservas.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
  * @param lock - Si es verdadero, bloquea la fila hasta el final de la transacción.
@@ -34,7 +34,7 @@ export async function readSettings(executor?: Executor, lock = false) {
  */
 export function readHours(executor?: Executor) {
   return rows<BusinessHour>(
-    'SELECT weekday,opens_at opensAt,closes_at closesAt FROM business_hours ORDER BY weekday',
+    'SELECT weekday,opens_at opensAt,closes_at closesAt FROM horarios_atencion ORDER BY weekday',
     [],
     executor,
   );
@@ -55,7 +55,7 @@ export async function updateSettings(
   executor: Executor,
 ) {
   await execute(
-    'UPDATE business_settings SET time_zone=?,cancellation_notice_minutes=?,simultaneous_capacity=?,slot_step_minutes=? WHERE id=1',
+    'UPDATE configuracion_negocio SET time_zone=?,cancellation_notice_minutes=?,simultaneous_capacity=?,slot_step_minutes=? WHERE id=1',
     [
       input.timeZone,
       input.cancellationNoticeMinutes,
@@ -75,10 +75,10 @@ export async function updateHours(
   hours: { weekday: number; opensAt: string; closesAt: string }[],
   executor: Executor,
 ) {
-  await execute('DELETE FROM business_hours', [], executor);
+  await execute('DELETE FROM horarios_atencion', [], executor);
   for (const h of hours)
     await execute(
-      'INSERT INTO business_hours(weekday,opens_at,closes_at) VALUES(?,?,?)',
+      'INSERT INTO horarios_atencion(weekday,opens_at,closes_at) VALUES(?,?,?)',
       [h.weekday, h.opensAt, h.closesAt],
       executor,
     );

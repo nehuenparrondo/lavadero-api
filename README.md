@@ -8,12 +8,12 @@ Repositorio privado: https://github.com/nehuenparrondo/lavadero-api.
 
 ## Ejecutar
 
-Requiere Node 24 LTS y MySQL 8.4. No necesita el repositorio móvil.
+Requiere Node 24 LTS y MariaDB 11.8. Conserva compatibilidad con MySQL 8.4 para migrar instalaciones anteriores. No necesita el repositorio móvil.
 
 ```powershell
 npm ci
 Copy-Item .env.example .env
-# Completar la conexión, CA TLS, JWT y administrador inicial.
+# Completar conexión, TLS, JWT y administrador inicial. La CA propia es opcional.
 npm run db:migrate
 npm run db:seed
 npm run check
@@ -65,3 +65,5 @@ simulados y no acreditan por sí solas una autorización externa real.
 Ver [comportamiento, módulos y pruebas de la versión 1.1.1](docs/reliability.md).
 
 El flujo vigente de agenda, asignación, verificación, reclamos y fichajes está documentado en [docs/work-operations.md](docs/work-operations.md).
+
+La base usa nombres de tablas en español. Ver [MariaDB y diccionario de tablas](docs/mariadb.md).

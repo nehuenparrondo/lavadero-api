@@ -34,7 +34,7 @@ export function saveGrant(
   link?: PendingLink,
 ) {
   return execute(
-    `INSERT INTO oauth_grants(code_hash,user_id,code_challenge,link_provider,link_subject,expires_at)
+    `INSERT INTO autorizaciones_oauth(code_hash,user_id,code_challenge,link_provider,link_subject,expires_at)
  VALUES(?,?,?,?,?,DATE_ADD(UTC_TIMESTAMP(3),INTERVAL ? SECOND))`,
     [hash, id, challenge, link?.provider ?? null, link?.subject ?? null, link ? 300 : 60],
     executor,
@@ -51,7 +51,7 @@ export async function lockGrant(hash: Buffer, executor: Executor) {
     await rows<OAuthGrant>(
       `SELECT CAST(user_id AS CHAR) userId,code_challenge codeChallenge,
  link_provider linkProvider,link_subject linkSubject,link_attempts linkAttempts
- FROM oauth_grants WHERE code_hash=? AND consumed_at IS NULL AND expires_at>UTC_TIMESTAMP(3) FOR UPDATE`,
+ FROM autorizaciones_oauth WHERE code_hash=? AND consumed_at IS NULL AND expires_at>UTC_TIMESTAMP(3) FOR UPDATE`,
       [hash],
       executor,
     )
@@ -65,7 +65,7 @@ export async function lockGrant(hash: Buffer, executor: Executor) {
  */
 export function failedLink(hash: Buffer, executor: Executor) {
   return execute(
-    'UPDATE oauth_grants SET link_attempts=link_attempts+1 WHERE code_hash=?',
+    'UPDATE autorizaciones_oauth SET link_attempts=link_attempts+1 WHERE code_hash=?',
     [hash],
     executor,
   );
@@ -78,7 +78,7 @@ export function failedLink(hash: Buffer, executor: Executor) {
  */
 export function consumeGrant(hash: Buffer, executor: Executor) {
   return execute(
-    'UPDATE oauth_grants SET consumed_at=UTC_TIMESTAMP(3) WHERE code_hash=?',
+    'UPDATE autorizaciones_oauth SET consumed_at=UTC_TIMESTAMP(3) WHERE code_hash=?',
     [hash],
     executor,
   );

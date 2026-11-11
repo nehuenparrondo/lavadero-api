@@ -9,7 +9,7 @@ import { execute, rows } from '../../utils/db.js';
 export function listPayments(id: string, executor?: Executor) {
   return rows(
     `SELECT CAST(id AS CHAR) id,CAST(appointment_id AS CHAR) appointmentId,
- amount_cents amountCents,method,reference,paid_at paidAt,idempotency_key idempotencyKey FROM payments WHERE appointment_id=? ORDER BY id`,
+ amount_cents amountCents,method,reference,paid_at paidAt,idempotency_key idempotencyKey FROM pagos WHERE appointment_id=? ORDER BY id`,
     [id],
     executor,
   );
@@ -24,7 +24,7 @@ export async function findPayment(key: string, executor: Executor) {
   return (
     await rows(
       `SELECT CAST(appointment_id AS CHAR) appointmentId,amount_cents amountCents,
- method,reference FROM payments WHERE idempotency_key=?`,
+ method,reference FROM pagos WHERE idempotency_key=?`,
       [key],
       executor,
     )
@@ -52,7 +52,7 @@ export async function insertPayment(
   return String(
     (
       await execute(
-        'INSERT INTO payments(appointment_id,recorded_by_id,amount_cents,method,reference,idempotency_key) VALUES(?,?,?,?,?,?)',
+        'INSERT INTO pagos(appointment_id,recorded_by_id,amount_cents,method,reference,idempotency_key) VALUES(?,?,?,?,?,?)',
         [id, actorId, v.amountCents, v.method, v.reference ?? null, v.idempotencyKey],
         executor,
       )

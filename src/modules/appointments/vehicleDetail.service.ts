@@ -20,7 +20,7 @@ export async function saveVehicleDetail(actor: Actor, id: string, description: s
         'Podés editar la descripción antes de que empiece el lavado.',
       );
     await execute(
-      `INSERT INTO appointment_vehicle_details (appointment_id,description) VALUES (?,?)
+      `INSERT INTO detalles_vehiculo_turno (appointment_id,description) VALUES (?,?)
        ON DUPLICATE KEY UPDATE description=?`,
       [id, description, description],
       connection,

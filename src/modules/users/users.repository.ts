@@ -6,7 +6,7 @@ import type { Identity } from './users.types.js';
 const fields = `SELECT CAST(u.id AS CHAR) id,u.email,u.password_hash passwordHash,r.code role,
  u.first_name firstName,u.last_name lastName,u.phone,u.avatar_url avatarUrl,
  u.auth_version authVersion,u.can_record_payments canRecordPayments,u.is_active isActive,u.deleted_at deletedAt
- FROM users u JOIN roles r ON r.id=u.role_id`;
+ FROM usuarios u JOIN roles r ON r.id=u.role_id`;
 /** Obtiene identidad interna por ID, incluyendo estado lógico.
  * @param id - Identificador del recurso dentro del proyecto actual.
  * @param executor - Ejecutor SQL; permite participar en la transacción del llamador.
@@ -54,7 +54,7 @@ export async function insertUser(
   executor?: Executor,
 ) {
   const result = await execute(
-    `INSERT INTO users (role_id,email,password_hash,first_name,last_name,phone)
+    `INSERT INTO usuarios (role_id,email,password_hash,first_name,last_name,phone)
     SELECT id,?,?,?,?,? FROM roles WHERE code=?`,
     [
       input.email.toLowerCase(),
@@ -91,7 +91,7 @@ export async function listUsers(
     [...values, limit, (page - 1) * limit],
   );
   const all = await rows<Identity>(
-    'SELECT COUNT(*) total FROM users u JOIN roles r ON r.id=u.role_id' + filter,
+    'SELECT COUNT(*) total FROM usuarios u JOIN roles r ON r.id=u.role_id' + filter,
     values,
   );
   return { items, total: Number(all[0]?.total ?? 0), page, limit };
@@ -114,7 +114,7 @@ export async function updateProfile(
   executor?: Executor,
 ) {
   await execute(
-    'UPDATE users SET first_name=?,last_name=?,phone=?,avatar_url=? WHERE id=?',
+    'UPDATE usuarios SET first_name=?,last_name=?,phone=?,avatar_url=? WHERE id=?',
     [input.firstName, input.lastName, input.phone, input.avatarUrl, id],
     executor,
   );
@@ -126,9 +126,9 @@ export async function updateProfile(
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function revokeUserSessions(id: string, executor: Executor) {
-  await execute('UPDATE users SET auth_version=auth_version+1 WHERE id=?', [id], executor);
+  await execute('UPDATE usuarios SET auth_version=auth_version+1 WHERE id=?', [id], executor);
   await execute(
-    'UPDATE refresh_tokens SET revoked_at=COALESCE(revoked_at,UTC_TIMESTAMP(3)) WHERE user_id=?',
+    'UPDATE sesiones_renovacion SET revoked_at=COALESCE(revoked_at,UTC_TIMESTAMP(3)) WHERE user_id=?',
     [id],
     executor,
   );

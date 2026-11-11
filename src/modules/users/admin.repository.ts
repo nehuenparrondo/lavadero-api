@@ -18,7 +18,7 @@ export async function lockAdminGuard(executor: Executor) {
  */
 export async function countActiveAdmins(executor: Executor) {
   const result = await rows<RowDataPacket>(
-    `SELECT COUNT(*) total FROM users u JOIN roles r ON r.id=u.role_id
+    `SELECT COUNT(*) total FROM usuarios u JOIN roles r ON r.id=u.role_id
     WHERE r.code='admin' AND u.is_active=TRUE AND u.deleted_at IS NULL`,
     [],
     executor,
@@ -34,7 +34,7 @@ export async function countActiveAdmins(executor: Executor) {
  */
 export async function setRole(id: string, role: Role, executor: Executor) {
   await execute(
-    'UPDATE users SET role_id=(SELECT id FROM roles WHERE code=?) WHERE id=?',
+    'UPDATE usuarios SET role_id=(SELECT id FROM roles WHERE code=?) WHERE id=?',
     [role, id],
     executor,
   );
@@ -58,7 +58,7 @@ export async function setAccount(
   executor: Executor,
 ) {
   await execute(
-    `UPDATE users SET email=?,is_active=?,can_record_payments=?,deleted_at=? WHERE id=?`,
+    `UPDATE usuarios SET email=?,is_active=?,can_record_payments=?,deleted_at=? WHERE id=?`,
     [email, active, canPay, deleted ? new Date() : null, id],
     executor,
   );
@@ -71,5 +71,5 @@ export async function setAccount(
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export async function setPassword(id: string, hash: string, executor: Executor) {
-  await execute('UPDATE users SET password_hash=? WHERE id=?', [hash, id], executor);
+  await execute('UPDATE usuarios SET password_hash=? WHERE id=?', [hash, id], executor);
 }

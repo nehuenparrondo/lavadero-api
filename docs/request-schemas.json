@@ -442,6 +442,10 @@
       "history": {
         "type": "string",
         "enum": ["true", "false"]
+      },
+      "queue": {
+        "type": "string",
+        "enum": ["requested"]
       }
     }
   },

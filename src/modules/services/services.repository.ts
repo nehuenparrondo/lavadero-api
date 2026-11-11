@@ -11,7 +11,7 @@ export interface Service extends RowDataPacket {
   isActive: number;
 }
 const select =
-  'SELECT CAST(id AS CHAR) id,code,name,description,duration_minutes durationMinutes,is_active isActive FROM services';
+  'SELECT CAST(id AS CHAR) id,code,name,description,duration_minutes durationMinutes,is_active isActive FROM servicios';
 /** Lee catálogo sin borrar historia; admin puede incluir inactivos.
  * @param includeInactive - Incluye inactivos únicamente en la consulta que lo permite.
  * @returns `Promise<Service[]>`.
@@ -41,7 +41,7 @@ export async function findService(id: string, executor?: Executor) {
 export function listPrices() {
   return rows<RowDataPacket>(
     `SELECT CAST(p.service_id AS CHAR) serviceId,CAST(p.vehicle_type_id AS CHAR) vehicleTypeId,p.price_cents priceCents
-     FROM service_prices p JOIN vehicle_types t ON t.id=p.vehicle_type_id JOIN services s ON s.id=p.service_id
+     FROM tarifas_servicio p JOIN tipos_vehiculo t ON t.id=p.vehicle_type_id JOIN servicios s ON s.id=p.service_id
      WHERE (t.code='motorcycle') = (s.code='motorcycle_wash')`,
   );
 }
@@ -60,7 +60,7 @@ export async function insertService(v: {
   return String(
     (
       await execute(
-        'INSERT INTO services(code,name,description,duration_minutes,is_active) VALUES(?,?,?,?,?)',
+        'INSERT INTO servicios(code,name,description,duration_minutes,is_active) VALUES(?,?,?,?,?)',
         [v.code, v.name, v.description, v.durationMinutes, v.isActive],
       )
     ).insertId,
@@ -83,7 +83,7 @@ export async function updateService(
   },
 ) {
   await execute(
-    'UPDATE services SET code=?,name=?,description=?,duration_minutes=?,is_active=? WHERE id=?',
+    'UPDATE servicios SET code=?,name=?,description=?,duration_minutes=?,is_active=? WHERE id=?',
     [v.code, v.name, v.description, v.durationMinutes, v.isActive, id],
   );
 }
@@ -94,7 +94,7 @@ export async function updateService(
  */
 export function removeService(id: string) {
   return execute(
-    'UPDATE services SET is_active=FALSE,deleted_at=UTC_TIMESTAMP(3) WHERE id=?',
+    'UPDATE servicios SET is_active=FALSE,deleted_at=UTC_TIMESTAMP(3) WHERE id=?',
     [id],
   );
 }
@@ -108,7 +108,7 @@ export function removeService(id: string) {
  */
 export function savePrice(id: string, typeId: string, cents: number, executor?: Executor) {
   return execute(
-    `INSERT INTO service_prices(service_id,vehicle_type_id,price_cents)
+    `INSERT INTO tarifas_servicio(service_id,vehicle_type_id,price_cents)
  VALUES(?,?,?) ON DUPLICATE KEY UPDATE price_cents=?`,
     [id, typeId, cents, cents],
     executor,

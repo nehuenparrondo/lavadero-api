@@ -5314,6 +5314,15 @@
               "type": "string"
             },
             "description": "Filtra responsable para Administración."
+          },
+          {
+            "name": "queue",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["requested"]
+            },
+            "description": "Solo administrador. Solicitudes pendientes o confirmadas, más recientes primero."
           }
         ]
       },

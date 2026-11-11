@@ -13,7 +13,7 @@ test('PKCE coincide con el vector de referencia RFC 7636', () => {
 for (const provider of ['google', 'github', 'discord'])
   test(`OAuth ${provider}: vinculación verificada, PKCE, grant de un uso y state`, async (t) => {
     const existing = await client();
-    await database!.execute('UPDATE users SET password_hash=NULL WHERE id=?', [
+    await database!.execute('UPDATE usuarios SET password_hash=NULL WHERE id=?', [
       existing.user.id,
     ]);
     t.mock.method(globalThis, 'fetch', async (input: RequestInfo | URL) => {

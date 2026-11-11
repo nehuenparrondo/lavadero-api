@@ -22,8 +22,8 @@ export async function insertAppointment(
   return String(
     (
       await execute(
-        `INSERT INTO appointments(client_id,vehicle_id,reserved_vehicle_type_id,status_id,starts_at,ends_at,created_by_id,currency_code)
- SELECT ?,?,?,id,?,?,?,? FROM appointment_statuses WHERE code='pending'`,
+        `INSERT INTO turnos(client_id,vehicle_id,reserved_vehicle_type_id,status_id,starts_at,ends_at,created_by_id,currency_code)
+ SELECT ?,?,?,id,?,?,?,? FROM estados_turno WHERE code='pending'`,
         [
           v.clientId,
           v.vehicleId,
@@ -48,7 +48,7 @@ export async function insertAppointment(
 export async function insertItems(id: string, items: QuoteItem[], executor: Executor) {
   for (const item of items)
     await execute(
-      `INSERT INTO appointment_services
+      `INSERT INTO servicios_turno
  (appointment_id,service_id,applied_price_cents,applied_duration_minutes,applied_service_name) VALUES(?,?,?,?,?)`,
       [id, item.serviceId, item.priceCents, item.durationMinutes, item.name],
       executor,
@@ -69,12 +69,12 @@ export async function setStatus(
   executor: Executor,
 ) {
   await execute(
-    'UPDATE appointments SET status_id=(SELECT id FROM appointment_statuses WHERE code=?),version=version+1 WHERE id=?',
+    'UPDATE turnos SET status_id=(SELECT id FROM estados_turno WHERE code=?),version=version+1 WHERE id=?',
     [status, id],
     executor,
   );
   await execute(
-    'INSERT INTO appointment_status_history(appointment_id,status_id,changed_by_id) SELECT ?,id,? FROM appointment_statuses WHERE code=?',
+    'INSERT INTO historial_estados_turno(appointment_id,status_id,changed_by_id) SELECT ?,id,? FROM estados_turno WHERE code=?',
     [id, actorId, status],
     executor,
   );
@@ -88,7 +88,7 @@ export async function setStatus(
  */
 export function setEmployee(id: string, employeeId: string, executor: Executor) {
   return execute(
-    'UPDATE appointments SET employee_id=?,version=version+1 WHERE id=?',
+    'UPDATE turnos SET employee_id=?,version=version+1 WHERE id=?',
     [employeeId, id],
     executor,
   );
@@ -108,7 +108,7 @@ export function recordCancellation(
   executor: Executor,
 ) {
   return execute(
-    'UPDATE appointments SET cancelled_by_id=?,cancellation_reason=? WHERE id=?',
+    'UPDATE turnos SET cancelled_by_id=?,cancellation_reason=? WHERE id=?',
     [actorId, reason, id],
     executor,
   );

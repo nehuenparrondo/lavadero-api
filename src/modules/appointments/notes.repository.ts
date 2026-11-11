@@ -8,7 +8,7 @@ import { execute, rows } from '../../utils/db.js';
 export function readNotes(id: string) {
   return rows(
     `SELECT CAST(n.id AS CHAR) id,n.body,n.created_at createdAt,CONCAT(u.first_name,' ',u.last_name) authorName
- FROM appointment_notes n JOIN users u ON u.id=n.author_id WHERE n.appointment_id=? ORDER BY n.id`,
+ FROM notas_turno n JOIN usuarios u ON u.id=n.author_id WHERE n.appointment_id=? ORDER BY n.id`,
     [id],
   );
 }
@@ -22,7 +22,7 @@ export function readNotes(id: string) {
  */
 export function insertNote(id: string, authorId: string, body: string) {
   return execute(
-    'INSERT INTO appointment_notes(appointment_id,author_id,body) VALUES(?,?,?)',
+    'INSERT INTO notas_turno(appointment_id,author_id,body) VALUES(?,?,?)',
     [id, authorId, body],
   );
 }

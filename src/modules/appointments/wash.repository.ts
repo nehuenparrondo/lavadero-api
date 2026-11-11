@@ -25,8 +25,8 @@ export async function latestWash(id: string, executor?: Executor) {
       `SELECT CAST(w.id AS CHAR) id,w.employee_name employeeName,w.description,w.submitted_at submittedAt,
       w.decision,w.review_note reviewNote,w.reviewed_at reviewedAt,
       CONCAT(u.first_name,' ',u.last_name) reviewerName,CAST(m.id AS CHAR) feedbackId
-    FROM wash_submissions w LEFT JOIN users u ON u.id=w.reviewed_by_id
-    LEFT JOIN customer_messages m ON m.submission_id=w.id
+    FROM partes_lavado w LEFT JOIN usuarios u ON u.id=w.reviewed_by_id
+    LEFT JOIN mensajes_cliente m ON m.submission_id=w.id
     WHERE w.appointment_id=? ORDER BY w.id DESC LIMIT 1`,
       [id],
       executor,
@@ -45,8 +45,8 @@ export function submitWash(
   executor: Executor,
 ) {
   return execute(
-    `INSERT INTO wash_submissions (appointment_id,employee_id,employee_name,description,submitted_at)
-    SELECT ?,id,CONCAT(first_name,' ',last_name),?,UTC_TIMESTAMP(3) FROM users WHERE id=?`,
+    `INSERT INTO partes_lavado (appointment_id,employee_id,employee_name,description,submitted_at)
+    SELECT ?,id,CONCAT(first_name,' ',last_name),?,UTC_TIMESTAMP(3) FROM usuarios WHERE id=?`,
     [id, description, employeeId],
     executor,
   );
@@ -64,7 +64,7 @@ export function recordReview(
   executor: Executor,
 ) {
   return execute(
-    `UPDATE wash_submissions SET decision=?,review_note=?,reviewed_by_id=?,reviewed_at=UTC_TIMESTAMP(3)
+    `UPDATE partes_lavado SET decision=?,review_note=?,reviewed_by_id=?,reviewed_at=UTC_TIMESTAMP(3)
      WHERE id=? AND decision IS NULL`,
     [decision, note ?? null, reviewerId, submissionId],
     executor,

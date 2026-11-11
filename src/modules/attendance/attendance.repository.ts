@@ -9,9 +9,9 @@ export function readAttendance(date: string, currentDay: boolean) {
   return rows(
     `SELECT CAST(u.id AS CHAR) employeeId,COALESCE(f.employee_name,CONCAT(u.first_name,' ',u.last_name)) employeeName,
        f.arrived_at arrivedAt,CONCAT(a.first_name,' ',a.last_name) recordedByName
-     FROM users u JOIN roles r ON r.id=u.role_id
-     LEFT JOIN employee_attendance f ON f.employee_id=u.id AND f.work_date=?
-     LEFT JOIN users a ON a.id=f.recorded_by_id
+     FROM usuarios u JOIN roles r ON r.id=u.role_id
+     LEFT JOIN asistencia_empleados f ON f.employee_id=u.id AND f.work_date=?
+     LEFT JOIN usuarios a ON a.id=f.recorded_by_id
      WHERE f.employee_id IS NOT NULL OR (? AND r.code='employee' AND u.is_active AND u.deleted_at IS NULL)
      ORDER BY employeeName,u.id`,
     [date, currentDay],
@@ -29,9 +29,9 @@ export function insertArrival(
   executor: Executor,
 ) {
   return execute(
-    `INSERT INTO employee_attendance (employee_id,work_date,employee_name,arrived_at,recorded_by_id)
-     SELECT id,?,CONCAT(first_name,' ',last_name),UTC_TIMESTAMP(3),? FROM users WHERE id=?
-     ON DUPLICATE KEY UPDATE arrived_at=employee_attendance.arrived_at`,
+    `INSERT INTO asistencia_empleados (employee_id,work_date,employee_name,arrived_at,recorded_by_id)
+     SELECT id,?,CONCAT(first_name,' ',last_name),UTC_TIMESTAMP(3),? FROM usuarios WHERE id=?
+     ON DUPLICATE KEY UPDATE arrived_at=asistencia_empleados.arrived_at`,
     [date, adminId, employeeId],
     executor,
   );

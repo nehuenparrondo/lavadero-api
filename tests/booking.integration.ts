@@ -156,7 +156,7 @@ test('dos reservas simultáneas no superan capacidad; cancelar libera horario', 
   }).expect(201);
 });
 test('una hora de inicio se reserva una sola vez aun con capacidad para dos lavados', async () => {
-  await database!.execute('UPDATE business_settings SET simultaneous_capacity=2 WHERE id=1');
+  await database!.execute('UPDATE configuracion_negocio SET simultaneous_capacity=2 WHERE id=1');
   try {
     const a = await client();
     const b = await client();
@@ -188,7 +188,7 @@ test('una hora de inicio se reserva una sola vez aun con capacidad para dos lava
     assert.ok(refreshed.quote.slots.includes(adjacent));
     await book(token, vehicleId, adjacent).expect(201);
   } finally {
-    await database!.execute('UPDATE business_settings SET simultaneous_capacity=1 WHERE id=1');
+    await database!.execute('UPDATE configuracion_negocio SET simultaneous_capacity=1 WHERE id=1');
   }
 });
 test('catálogo actualizado conserva precio histórico y todos los empleados ven el turno', async () => {

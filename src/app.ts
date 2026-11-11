@@ -6,6 +6,7 @@ import './config/validation.js';
 import { NotFoundError } from './errors/NotFoundError.js';
 import { createCors } from './middlewares/createCors.js';
 import { errorHandler } from './middlewares/errorHandler.js';
+import { createMaintenanceGuard } from './middlewares/maintenanceGuard.js';
 import { createHealthRoutes } from './modules/health/health.routes.js';
 import { createInformationRoutes } from './modules/health/information.routes.js';
 import { createApiRoutes } from './routes.js';
@@ -14,6 +15,7 @@ import { createApiRoutes } from './routes.js';
 interface AppOptions {
   origins: readonly string[];
   checkDatabase: () => Promise<void>;
+  maintenance?: boolean;
 }
 
 /** Compone Express. No abre puertos ni conecta MySQL al importarse.
@@ -32,7 +34,11 @@ export function createApp(options: AppOptions) {
   app.use(createHealthRoutes(options.checkDatabase));
   app.use(createInformationRoutes());
   app.get('/api/v1', (_request, response) => response.json({ version: 'v1', stage: 10 }));
-  app.use('/api/v1', createApiRoutes());
+  app.use(
+    '/api/v1',
+    createMaintenanceGuard(options.maintenance ?? process.env.MAINTENANCE_MODE === 'true'),
+    createApiRoutes(),
+  );
   app.get('/api/openapi.json', (_request, response) => response.json(contract));
   app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(contract));
   app.use((_request, _response, next) => next(new NotFoundError()));

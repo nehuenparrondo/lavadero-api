@@ -10,7 +10,7 @@ import { execute, rows } from '../../utils/db.js';
 export async function findType(id: string, executor?: Executor) {
   return (
     await rows<RowDataPacket & { code: string; isActive: number }>(
-      'SELECT code,is_active isActive FROM vehicle_types WHERE id=?',
+      'SELECT code,is_active isActive FROM tipos_vehiculo WHERE id=?',
       [id],
       executor,
     )
@@ -23,7 +23,7 @@ export async function findType(id: string, executor?: Executor) {
  */
 export function listTypes(admin: boolean) {
   return rows(
-    'SELECT CAST(id AS CHAR) id,code,name,is_active isActive FROM vehicle_types WHERE (? OR is_active=TRUE) ORDER BY id',
+    'SELECT CAST(id AS CHAR) id,code,name,is_active isActive FROM tipos_vehiculo WHERE (? OR is_active=TRUE) ORDER BY id',
     [admin],
   );
 }
@@ -40,7 +40,7 @@ export async function insertType(
   return String(
     (
       await execute(
-        'INSERT INTO vehicle_types(code,name,is_active) VALUES(?,?,?)',
+        'INSERT INTO tipos_vehiculo(code,name,is_active) VALUES(?,?,?)',
         [v.code, v.name, v.isActive],
         executor,
       )
@@ -60,7 +60,7 @@ export function updateType(
   executor?: Executor,
 ) {
   return execute(
-    'UPDATE vehicle_types SET code=?,name=?,is_active=? WHERE id=?',
+    'UPDATE tipos_vehiculo SET code=?,name=?,is_active=? WHERE id=?',
     [v.code, v.name, v.isActive, id],
     executor,
   );
@@ -71,5 +71,5 @@ export function updateType(
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export function deactivateType(id: string) {
-  return execute('UPDATE vehicle_types SET is_active=FALSE WHERE id=?', [id]);
+  return execute('UPDATE tipos_vehiculo SET is_active=FALSE WHERE id=?', [id]);
 }
