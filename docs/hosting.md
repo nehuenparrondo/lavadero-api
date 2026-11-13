@@ -13,6 +13,10 @@ La instalación publicada utiliza **Render Free para la API y la web, y MariaDB 
 
 Ambas webs usan la misma API y base publicada. Su actualización es independiente: un despliegue de Render no copia automáticamente archivos a alwaysdata. La copia tiene fallback de rutas a `index.html`.
 
+## Estado de la copia secundaria
+
+En la comprobación del 12/11/2026, la web principal de Render y MariaDB respondieron correctamente, pero la dirección secundaria de alwaysdata cerró la conexión HTTPS y no respondió por HTTP. Los archivos y la configuración del sitio permanecen en la cuenta; usar la URL principal mientras se resuelve esa conectividad. No se desactivó TLS ni se cambiaron los datos para eludir el fallo.
+
 ## Publicar cambios
 
 1. Ejecutar `npm ci` y `npm run check` en el repositorio modificado. Las pruebas de integración utilizan únicamente una base QA desechable.
