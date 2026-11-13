@@ -21,8 +21,9 @@ export function readNotes(id: string) {
  * @throws Error - Si falla la persistencia o el servicio remoto; se conserva el manejo central de errores.
  */
 export function insertNote(id: string, authorId: string, body: string) {
-  return execute(
-    'INSERT INTO notas_turno(appointment_id,author_id,body) VALUES(?,?,?)',
-    [id, authorId, body],
-  );
+  return execute('INSERT INTO notas_turno(appointment_id,author_id,body) VALUES(?,?,?)', [
+    id,
+    authorId,
+    body,
+  ]);
 }

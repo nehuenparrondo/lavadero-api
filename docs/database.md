@@ -334,7 +334,7 @@ expires_at DATETIME(3) indexado, consumed_at DATETIME(3) nullable. El código le
 viaja por el retorno y se canjea con PKCE. Los estados vencidos se limpian al generar nuevos. Los grants vencidos dejan de ser
 válidos por consulta; su purga periódica queda como tarea de mantenimiento, sin cron configurado.
 
-La instalación actual contiene 24 tablas y 14 migraciones aplicadas. Desarrollo escolar y producción usan usuarios limitados a su propia base; ver [MariaDB](mariadb.md).
+La instalación actual contiene 24 tablas y 15 migraciones aplicadas. Desarrollo escolar y producción usan usuarios limitados a su propia base; ver [MariaDB](mariadb.md).
 
 ## Migración 006 — vinculación social protegida
 
@@ -364,3 +364,7 @@ La migración 009 incorpora detalles del vehículo reservado, partes del emplead
 | `asistencia_empleados`    | Empleado, día de negocio, llegada, administrador que ficha y nota; evita duplicar llegada del mismo día.  |
 
 `turnos.reserved_vehicle_type_id` conserva la categoría cotizada aun cuando `vehicle_id` sea nulo. La vinculación posterior exige propietario y categoría compatibles. `estados_turno` incluye `awaiting_review`; finalizar requiere aprobación administrativa del parte y horario abierto.
+
+## Avisos de cancelación
+
+La migración 015 agrega `turnos.cancellation_read_at` y su índice. El motivo permanece en `cancellation_reason` y las observaciones en `notas_turno.body`, con autor y fecha. [Flujo, campos, permisos y pruebas](cancellation-notices.md).

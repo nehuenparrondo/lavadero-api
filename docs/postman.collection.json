@@ -1068,7 +1068,7 @@
           }
         ],
         "url": "{{baseUrl}}/api/v1/appointments/{{id}}/cancel",
-        "description": "Roles: client, admin. Cliente propietario: pending/confirmed y más de la anticipación configurada. Admin sin restricción horaria. Registra motivo/actor.",
+        "description": "Roles: client, admin. Motivo obligatorio; se guarda con autor e historial. El titular recibe el aviso en Inicio cuando cancela Administración.",
         "auth": {
           "type": "bearer",
           "bearer": [
@@ -1087,6 +1087,44 @@
               "language": "json"
             }
           }
+        }
+      }
+    },
+    {
+      "name": "Avisos de cancelación propios",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/appointments/cancellation-notices",
+        "description": "Roles: client. Hasta diez avisos propios sin leer; consultar no confirma lectura.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Confirmar lectura de cancelación",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/appointments/{{id}}/cancellation-read",
+        "description": "Roles: client. Solo el titular; confirma lectura sin borrar motivo ni historial. Repetir es seguro.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
         }
       }
     },

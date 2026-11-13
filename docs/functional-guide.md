@@ -91,3 +91,7 @@ En el panel de alwaysdata se administra el servicio. Para consultar filas, usá 
 El cliente puede reclamar desde Inicio y enviar una devolución desde un turno verificado. Administración consulta y responde esos mensajes en su bandeja. La devolución se liga al parte que registró el responsable, con su nombre y descripción del trabajo. En Asistencia, un administrador ficha la primera llegada de cada empleado y puede consultar otros días. [Flujo y archivos](https://github.com/nehuenparrondo/lavadero-api/blob/main/docs/work-operations.md)
 
 La base operativa es MariaDB en alwaysdata. Para abrir desarrollo con DBeaver, seguí la [guía del gestor SQL](mariadb.md). Ver [ubicación, migraciones y las 24 tablas](https://github.com/nehuenparrondo/lavadero-api/blob/main/docs/mariadb.md).
+
+## Cancelaciones visibles en Inicio
+
+El cliente recibe avisos persistentes con fecha, vehículo y motivo. Entendido guarda la lectura en MariaDB sin borrar la cancelación. Las observaciones conservan texto completo, autor y fecha; consultar cambios no descarta borradores. Ver [campos, rutas y pruebas](cancellation-notices.md).

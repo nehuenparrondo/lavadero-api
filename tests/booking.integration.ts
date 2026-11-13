@@ -147,7 +147,9 @@ test('dos reservas simultáneas no superan capacidad; cancelar libera horario', 
   await api('post', `/appointments/${id}/cancel`, winner.accessToken, {
     reason: 'Cambio de planes',
   }).expect(200);
-  await api('post', `/appointments/${id}/cancel`, winner.accessToken, {}).expect(409);
+  await api('post', `/appointments/${id}/cancel`, winner.accessToken, {
+    reason: 'Cambio de planes.',
+  }).expect(409);
   assert.ok((await availability()).body.data.slots.includes(startsAt));
   await api('post', '/appointments', a.accessToken, {
     vehicleId: va.id,
@@ -156,7 +158,9 @@ test('dos reservas simultáneas no superan capacidad; cancelar libera horario', 
   }).expect(201);
 });
 test('una hora de inicio se reserva una sola vez aun con capacidad para dos lavados', async () => {
-  await database!.execute('UPDATE configuracion_negocio SET simultaneous_capacity=2 WHERE id=1');
+  await database!.execute(
+    'UPDATE configuracion_negocio SET simultaneous_capacity=2 WHERE id=1',
+  );
   try {
     const a = await client();
     const b = await client();
@@ -188,7 +192,9 @@ test('una hora de inicio se reserva una sola vez aun con capacidad para dos lava
     assert.ok(refreshed.quote.slots.includes(adjacent));
     await book(token, vehicleId, adjacent).expect(201);
   } finally {
-    await database!.execute('UPDATE configuracion_negocio SET simultaneous_capacity=1 WHERE id=1');
+    await database!.execute(
+      'UPDATE configuracion_negocio SET simultaneous_capacity=1 WHERE id=1',
+    );
   }
 });
 test('catálogo actualizado conserva precio histórico y todos los empleados ven el turno', async () => {

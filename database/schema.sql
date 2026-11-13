@@ -136,6 +136,7 @@ CREATE TABLE IF NOT EXISTS turnos (
   created_by_id BIGINT UNSIGNED NOT NULL,
   cancelled_by_id BIGINT UNSIGNED NULL,
   cancellation_reason VARCHAR(500) NULL,
+  cancellation_read_at DATETIME(3) NULL COMMENT 'Lectura confirmada del aviso de cancelación',
   version INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Control de edición concurrente',
   created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
@@ -350,7 +351,7 @@ SET @wash_status_ddl = IF(EXISTS(
   SELECT 1 FROM information_schema.TABLE_CONSTRAINTS
   WHERE CONSTRAINT_SCHEMA=DATABASE() AND TABLE_NAME='estados_turno'
     AND CONSTRAINT_NAME='chk_status_code'
-), 'ALTER TABLE estados_turno DROP CHECK chk_status_code,
+), 'ALTER TABLE estados_turno DROP CONSTRAINT chk_status_code,
  ADD CONSTRAINT chk_appointment_status_code
  CHECK (code IN (''pending'',''confirmed'',''in_progress'',''awaiting_review'',''completed'',''cancelled''))',
  'DO 0');
@@ -366,3 +367,6 @@ DEALLOCATE PREPARE wash_status_update;
 
 -- statement-breakpoint
 INSERT IGNORE INTO estados_turno (code,label) VALUES ('awaiting_review','En verificación');
+
+-- statement-breakpoint
+CREATE INDEX idx_turnos_cancel_notice ON turnos(client_id,cancellation_read_at,status_id);

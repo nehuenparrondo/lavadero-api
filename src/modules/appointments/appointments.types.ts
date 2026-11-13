@@ -19,6 +19,9 @@ export interface Appointment extends RowDataPacket {
   color: string | null;
   vehicleType: string;
   vehicleDescription: string | null;
+  cancellationReason: string | null;
+  cancelledById: string | null;
+  cancelledByName: string | null;
   serviceSummary: string;
   clientName: string;
   clientPhone: string | null;

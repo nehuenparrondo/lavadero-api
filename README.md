@@ -67,3 +67,5 @@ Ver [comportamiento, módulos y pruebas de la versión 1.1.1](docs/reliability.m
 El flujo vigente de agenda, asignación, verificación, reclamos y fichajes está documentado en [docs/work-operations.md](docs/work-operations.md).
 
 La base usa nombres de tablas en español. Ver [MariaDB y diccionario de tablas](docs/mariadb.md).
+
+Ver [cancelaciones, observaciones y mejora de interfaz](docs/cancellation-notices.md).

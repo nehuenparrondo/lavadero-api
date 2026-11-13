@@ -78,3 +78,7 @@ La API volvió a `main` y trabaja con MariaDB **11.8.9**, fuera de mantenimiento
 Se aprobaron 70 pruebas: 17 de backend, 17 de frontend, 4 de integración de base y 32 de aceptación. Las 32 de aceptación también pasaron después de retirar todos los alias ingleses. Los recorridos de navegador comprobaron los tres roles, la desaparición automática de un horario ocupado, la liberación al cancelar y la llegada automática de nuevas solicitudes a Administración. La web publicada pasó ingreso, catálogo y cotización después del cambio de base. No se afirma una prueba física en iPhone.
 
 El DDL exportado de Aiven requirió modo `ANSI_QUOTES` para identificadores y la conversión equivalente de `regexp_like` a `REGEXP` de MariaDB. Esas adaptaciones preservan las restricciones; no modifican las migraciones históricas ni los valores copiados.
+
+## Avisos y observaciones
+
+Después del corte inicial se agregó la migración 015 para conservar la lectura del aviso de cancelación. La instalación vigente tiene 15 migraciones y mantiene 24 tablas. Los motivos y observaciones se guardan en las tablas existentes; ver [campos y funcionamiento](cancellation-notices.md).

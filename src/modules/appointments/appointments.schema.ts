@@ -59,9 +59,11 @@ export const statusSchema = z
   .strict();
 /** Solo un administrador puede elegir empleado. */
 export const assignmentSchema = z.object({ employeeId: id }).strict();
-/** Cancelación con motivo opcional. */
+/** Cancelación con un motivo obligatorio que el titular puede consultar. */
 export const cancelSchema = z
-  .object({ reason: z.string().trim().max(500).default('') })
+  .object({
+    reason: z.string().trim().min(1, 'Escribí el motivo de la cancelación.').max(500),
+  })
   .strict();
 /** Observación atribuida al actor, no a un autor elegido en el body. */
 export const noteSchema = z.object({ body: z.string().trim().min(1).max(2000) }).strict();

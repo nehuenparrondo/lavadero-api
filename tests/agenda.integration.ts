@@ -43,7 +43,9 @@ test('las nuevas solicitudes aparecen primero en pendientes aunque su fecha sea 
   await api('get', '/appointments', staff.accessToken)
     .query({ queue: 'requested' })
     .expect(403);
-  await api('post', `/appointments/${last.id}/cancel`, customer.accessToken, {}).expect(200);
+  await api('post', `/appointments/${last.id}/cancel`, customer.accessToken, {
+    reason: 'Cambio de planes.',
+  }).expect(200);
   assert.ok(
     !(await query()).body.data.items.some((item: { id: string }) => item.id === last.id),
   );

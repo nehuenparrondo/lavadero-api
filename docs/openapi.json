@@ -5905,7 +5905,7 @@
       "post": {
         "tags": ["appointments"],
         "summary": "Cancelar turno",
-        "description": "Roles: client, admin. Cliente propietario: pending/confirmed y más de la anticipación configurada. Admin sin restricción horaria. Registra motivo/actor.",
+        "description": "Cliente propietario o administrador. El motivo es obligatorio, se normaliza y guarda con autor e historial en la misma transacción. Cancelar desde administración genera un aviso persistente en Inicio del titular.",
         "operationId": "post42",
         "security": [
           {
@@ -8384,6 +8384,251 @@
           }
         }
       }
+    },
+    "/api/v1/appointments/cancellation-notices": {
+      "get": {
+        "tags": ["appointments"],
+        "summary": "Avisos propios de cancelación pendientes",
+        "description": "Solo client. Cancelaciones efectuadas por otra persona; no se marcan como leídas al consultarlas. Respuesta no-store.",
+        "operationId": "getCancellationNotices",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": ["client"],
+        "responses": {
+          "200": {
+            "description": "Avisos propios pendientes de lectura, hasta diez más recientes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/CancellationNotice"
+                      }
+                    }
+                  },
+                  "required": ["data"]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos. Revisar error.fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sesión ausente, vencida, revocada o credenciales inválidas.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol/permiso insuficiente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el actor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto, duplicado, estado, capacidad o pago inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Demasiados intentos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno sin datos sensibles.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio o proveedor todavía sin configurar/no disponible.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/appointments/{id}/cancellation-read": {
+      "post": {
+        "tags": ["appointments"],
+        "summary": "Marcar un aviso propio como leído",
+        "description": "Solo client propietario. Un turno ajeno, no cancelado o cancelado por el propio titular responde 404. La lectura se guarda en MariaDB y es idempotente.",
+        "operationId": "acknowledgeCancellation",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": ["client"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$",
+              "example": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lectura guardada; repetir no borra ni cambia el motivo.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "read": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": ["read"]
+                    }
+                  },
+                  "required": ["data"]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos. Revisar error.fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sesión ausente, vencida, revocada o credenciales inválidas.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol/permiso insuficiente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el actor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto, duplicado, estado, capacidad o pago inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Demasiados intentos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno sin datos sensibles.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio o proveedor todavía sin configurar/no disponible.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -8931,11 +9176,12 @@
         "type": "object",
         "properties": {
           "reason": {
-            "default": "",
             "type": "string",
+            "minLength": 1,
             "maxLength": 500
           }
         },
+        "required": ["reason"],
         "additionalProperties": false
       },
       "noteSchema": {
@@ -9404,7 +9650,8 @@
                   "type": "string"
                 },
                 "createdAt": {
-                  "type": "string"
+                  "type": "string",
+                  "format": "date-time"
                 }
               },
               "required": ["id", "body", "authorName", "createdAt"]
@@ -9444,6 +9691,15 @@
           "vehiclePending": {
             "type": "boolean",
             "description": "El turno ocupa el horario y necesita un vehículo antes de empezar."
+          },
+          "cancellationReason": {
+            "type": ["string", "null"],
+            "maxLength": 500,
+            "description": "Motivo conservado con la cancelación; null en turnos no cancelados o históricos sin motivo."
+          },
+          "cancelledByName": {
+            "type": ["string", "null"],
+            "description": "Nombre del usuario que registró la cancelación."
           }
         },
         "required": [
@@ -10196,6 +10452,34 @@
             "additionalProperties": false
           }
         ]
+      },
+      "CancellationNotice": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]*$"
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "cancelledAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reason": {
+            "type": ["string", "null"],
+            "maxLength": 500
+          },
+          "plate": {
+            "type": ["string", "null"]
+          },
+          "vehicleType": {
+            "type": "string"
+          }
+        },
+        "required": ["id", "startsAt", "cancelledAt", "reason", "plate", "vehicleType"]
       }
     }
   }

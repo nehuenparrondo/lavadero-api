@@ -13,6 +13,7 @@ import { assignAvailableEmployee } from './responsibility.repository.js';
 import { canFit, utcMillis } from './schedule.js';
 import { assertTransition } from './transitions.js';
 import { assertTeamCapacity } from './teamCapacity.js';
+import { saveCancellation } from './cancellation.service.js';
 
 /** Valida empleado activo y evita doble asignación al reactivar/asignar un turno. */
 async function assertEmployee(
@@ -81,8 +82,7 @@ export async function changeStatus(
         );
     }
     await repo.setStatus(id, status, actor.id, connection);
-    if (status === 'cancelled')
-      await repo.recordCancellation(id, actor.id, reason, connection);
+    if (status === 'cancelled') await saveCancellation(id, actor.id, reason, connection);
     return { updated: true, status };
   });
 }

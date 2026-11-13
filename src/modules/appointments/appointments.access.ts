@@ -76,6 +76,8 @@ function operationalAppointment(v: Appointment) {
     vehiclePending: v.vehicleId === null,
     employeeName: v.employeeName,
     serviceSummary: v.serviceSummary,
+    cancellationReason: v.cancellationReason,
+    cancelledByName: v.cancelledByName,
     clientName: v.clientName,
     clientPhone: v.clientPhone,
 

@@ -21,6 +21,9 @@ Agenda y contratos históricos. Compartir el lock de settings para reservar/asig
 | [booking.service.ts](booking.service.ts) | Reserva y guarda el contrato histórico bajo el bloqueo compartido de agenda. |
 | [bookingQuote.service.ts](bookingQuote.service.ts) | Cotiza desde el tipo seleccionado o desde un vehículo ya registrado. |
 | [bookingSlot.service.ts](bookingSlot.service.ts) | Comparte la regla de agenda entre las opciones visibles y la reserva efectiva. |
+| [cancellation.repository.ts](cancellation.repository.ts) | Aviso propio pendiente de lectura; el motivo proviene del turno cancelado. |
+| [cancellation.routes.ts](cancellation.routes.ts) | Registra antes de /:id los avisos del cliente y su confirmación de lectura. |
+| [cancellation.service.ts](cancellation.service.ts) | Guarda el motivo validado dentro de la misma transacción del cambio de estado. |
 | [intervals.ts](intervals.ts) | Convierte filas SQL UTC al formato único del cálculo de capacidad. |
 | [mutation.service.ts](mutation.service.ts) | Cambia estado con permisos, horario de finalización, plazo de cancelación y bloqueo de agenda. |
 | [notes.repository.ts](notes.repository.ts) | Lee notas atribuidas a su autor, después de autorizar el turno en service. |

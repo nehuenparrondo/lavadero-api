@@ -60,10 +60,14 @@ test('reserva sin vehículo, ocupa el horario y vincula los datos bajo el mismo 
     employeeId: staff.user.id,
   }).expect(200);
   const agenda = await api('get', '/appointments', staff.accessToken)
-    .query({ date })
+    .query({ date, limit: 100 })
     .expect(200);
-  assert.equal(agenda.body.data.items[0].vehiclePending, true);
-  assert.equal(agenda.body.data.items[0].canWork, false);
+  const reserved = agenda.body.data.items.find(
+    (item: { id: string }) => item.id === appointment.id,
+  );
+  assert.ok(reserved);
+  assert.equal(reserved.vehiclePending, true);
+  assert.equal(reserved.canWork, false);
   const blocked = await api('patch', base + '/status', staff.accessToken, {
     status: 'in_progress',
   }).expect(409);
@@ -132,7 +136,9 @@ test('vincula vehículo existente y la cancelación de un turno incompleto liber
       startsAt,
     }).expect(201);
   const first = (await create()).body.data;
-  await api('post', `/appointments/${first.id}/cancel`, customer.accessToken, {}).expect(200);
+  await api('post', `/appointments/${first.id}/cancel`, customer.accessToken, {
+    reason: 'Cambio de planes.',
+  }).expect(200);
   assert.ok((await list()).body.data.slots.includes(startsAt));
   const second = (await create()).body.data;
   await api('put', `/appointments/${second.id}/vehicle`, customer.accessToken, {
