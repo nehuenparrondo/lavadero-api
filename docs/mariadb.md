@@ -70,3 +70,11 @@ ORDER BY t.starts_at DESC;
 Las reglas de reservar, verificar trabajos y cobrar están en los servicios de la API. Las modificaciones manuales por SQL pueden omitir esa auditoría; usar la aplicación para operaciones del negocio.
 
 Después de verificar el despliegue y retirar los procesos anteriores, `npm run db:retire-legacy-views` elimina únicamente los alias temporales en inglés. Comprueba las migraciones 013/014, toma el mismo bloqueo de migraciones y nunca elimina tablas ni filas. Es idempotente; los arranques posteriores no recrean esos alias.
+
+## Resultado de la transición publicada
+
+La API volvió a `main` y trabaja con MariaDB **11.8.9**, fuera de mantenimiento. Se verificaron las 24 tablas españolas, las 34 claves foráneas, las 14 migraciones y los checksums de todas las filas copiadas. El corte conservó 7 usuarios, 12 turnos y 5 vehículos. Las sesiones nuevas se escriben en MariaDB. Producción y desarrollo ya no contienen vistas con nombres antiguos.
+
+Se aprobaron 70 pruebas: 17 de backend, 17 de frontend, 4 de integración de base y 32 de aceptación. Las 32 de aceptación también pasaron después de retirar todos los alias ingleses. Los recorridos de navegador comprobaron los tres roles, la desaparición automática de un horario ocupado, la liberación al cancelar y la llegada automática de nuevas solicitudes a Administración. La web publicada pasó ingreso, catálogo y cotización después del cambio de base. No se afirma una prueba física en iPhone.
+
+El DDL exportado de Aiven requirió modo `ANSI_QUOTES` para identificadores y la conversión equivalente de `regexp_like` a `REGEXP` de MariaDB. Esas adaptaciones preservan las restricciones; no modifican las migraciones históricas ni los valores copiados.

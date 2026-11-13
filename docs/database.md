@@ -1,6 +1,6 @@
-# MySQL — modelo, diccionario y normalización
+# MariaDB — modelo, diccionario y normalización
 
-Versión objetivo: **8.4 LTS**, motor InnoDB, utf8mb4. Nombres en inglés, textos UI en español.
+Versión objetivo: **MariaDB 11.8**, motor InnoDB, utf8mb4. Tablas y textos UI en español; columnas y códigos conservan su contrato estable.
 `BIGINT` se serializará como string en JSON para no superar el entero seguro de JavaScript.
 Fechas en UTC, importes en centavos ARS. No se guardan access/refresh tokens legibles.
 
@@ -8,34 +8,43 @@ Fechas en UTC, importes en centavos ARS. No se guardan access/refresh tokens leg
 
 ```mermaid
 erDiagram
-  roles ||--o{ users : authorizes
-  users ||--o{ social_accounts : links
-  users ||--o{ refresh_tokens : authenticates
-  users ||--o{ oauth_grants : grants
-  oauth_states { binary state_hash PK }
-  users ||--o{ vehicles : owns
-  vehicle_types ||--o{ vehicles : classifies
-  services ||--o{ service_prices : prices
-  vehicle_types ||--o{ service_prices : prices_for
-  users ||--o{ appointments : client_employee_creator
-  vehicles ||--o{ appointments : receives
-  appointment_statuses ||--o{ appointments : current_status
-  appointments ||--|{ appointment_services : contains
-  services ||--o{ appointment_services : contracted
-  appointments ||--o{ payments : receives
-  users ||--o{ payments : records
-  appointments ||--o{ appointment_notes : documents
-  users ||--o{ appointment_notes : authors
-  appointments ||--o{ appointment_status_history : audits
-  appointment_statuses ||--o{ appointment_status_history : records
-  users ||--o{ appointment_status_history : changes
-  business_settings { tinyint id PK }
-  business_hours { tinyint weekday PK }
-  booking_day_locks { date business_date PK }
+  roles ||--o{ usuarios : authorizes
+  usuarios ||--o{ cuentas_sociales : links
+  usuarios ||--o{ sesiones_renovacion : authenticates
+  usuarios ||--o{ autorizaciones_oauth : grants
+  estados_oauth { binary state_hash PK }
+  usuarios ||--o{ vehiculos : owns
+  tipos_vehiculo ||--o{ vehiculos : classifies
+  servicios ||--o{ tarifas_servicio : prices
+  tipos_vehiculo ||--o{ tarifas_servicio : prices_for
+  usuarios ||--o{ turnos : client_employee_creator
+  vehiculos ||--o{ turnos : receives
+  estados_turno ||--o{ turnos : current_status
+  turnos ||--|{ servicios_turno : contains
+  servicios ||--o{ servicios_turno : contracted
+  turnos ||--o{ pagos : receives
+  usuarios ||--o{ pagos : records
+  turnos ||--o{ notas_turno : documents
+  usuarios ||--o{ notas_turno : authors
+  turnos ||--o{ historial_estados_turno : audits
+  estados_turno ||--o{ historial_estados_turno : records
+  usuarios ||--o{ historial_estados_turno : changes
+  turnos ||--o| detalles_vehiculo_turno : describe
+  turnos ||--o{ partes_lavado : registra
+  usuarios ||--o{ partes_lavado : realiza_verifica
+  partes_lavado |o--o{ mensajes_cliente : recibe_devolucion
+  usuarios ||--o{ mensajes_cliente : reclama_responde
+  usuarios ||--o{ asistencia_empleados : registra_llegada
+  tipos_vehiculo ||--o{ turnos : categoria_reservada
+  configuracion_negocio { tinyint id PK }
+  horarios_atencion { tinyint weekday PK }
+  bloqueos_agenda { date business_date PK }
 ```
 
 La relación "turno contiene al menos un servicio" se valida en la transacción de creación,
-no con una FK inversa. Un turno pendiente puede no tener empleado.
+no con una FK inversa. Un turno pendiente puede no tener empleado. Se puede confirmar por categoría antes de cargar un vehículo; la vinculación posterior conserva precio, servicios y horario.
+
+Ver [ubicación de MariaDB, diccionario de las 24 tablas y migración](mariadb.md).
 
 ## Formas normales
 
@@ -61,8 +70,8 @@ Email y patente permanecen reservados tras el borrado lógico para conservar tra
 
 Rol del cliente/equipo, propiedad, último admin, transiciones, duración, total cobrado,
 solapamientos y capacidad se garantizan en los servicios transaccionales implementados.
-Esta versión usa la fila común de `business_settings` como mutex de agenda.
-`booking_day_locks` queda reservada para una futura optimización por fecha; no es el lock activo.
+Esta versión usa la fila común de `configuracion_negocio` como mutex de agenda.
+`bloqueos_agenda` queda reservada para una futura optimización por fecha; no es el lock activo.
 `auth_version` permite invalidar sesiones por cambio de rol/desactivación.
 
 ## Scripts
@@ -75,14 +84,14 @@ Esta versión usa la fila común de `business_settings` como mutex de agenda.
 - `database/seeds/catalog.sql`: catálogos y ejemplos; administrador creado con bcrypt por `seed.ts`.
 
 Usar **npm run db:migrate** en el despliegue: registra checksum y obtiene lock. Un import SQL
-manual no registra versiones; no mezclar ambas vías. MySQL DDL tiene commit implícito:
+manual no registra versiones; no mezclar ambas vías. El DDL de MariaDB/MySQL tiene commit implícito:
 si una migración falla se inspecciona el estado parcial y se corrige con una versión nueva,
 nunca se afirma que hubo rollback automático del esquema. El seed DML sí es transaccional.
 
 ## Diccionario de columnas
 
 Cada tabla siguiente indica todos sus campos. El SQL es la autoridad sobre longitudes,
-índices, nulos, defaults y constraints. `schema_migrations` es infraestructura del migrador:
+índices, nulos, defaults y constraints. `migraciones_esquema` es infraestructura del migrador:
 `name` (PK, archivo), `checksum` (SHA-256 inmutable), `applied_at` (UTC de aplicación).
 
 ### roles
@@ -95,7 +104,7 @@ Catálogo de permisos base.
 | `code`  | `VARCHAR(20)`      | Código estable en inglés. |
 | `label` | `VARCHAR(40)`      | Etiqueta en español.      |
 
-### users
+### usuarios
 
 Identidad, perfil y estado lógico de la cuenta.
 
@@ -116,7 +125,7 @@ Identidad, perfil y estado lógico de la cuenta.
 | `updated_at`          | `DATETIME(3)`      | Última modificación UTC.                              |
 | `deleted_at`          | `DATETIME(3)`      | Fecha UTC de borrado lógico, NULL si no eliminado.    |
 
-### social_accounts
+### cuentas_sociales
 
 Identidad externa validada por proveedor, sin tokens persistidos.
 
@@ -128,7 +137,7 @@ Identidad externa validada por proveedor, sin tokens persistidos.
 | `provider_subject` | `VARCHAR(255)`    | ID estable y sensible a mayúsculas del proveedor. |
 | `created_at`       | `DATETIME(3)`     | Instante de creación UTC.                         |
 
-### refresh_tokens
+### sesiones_renovacion
 
 Sesiones revocables y familias de rotación.
 
@@ -143,7 +152,7 @@ Sesiones revocables y familias de rotación.
 | `replaced_by_id` | `BIGINT UNSIGNED` | Token sucesor de rotación.           |
 | `created_at`     | `DATETIME(3)`     | Instante de creación UTC.            |
 
-### vehicle_types
+### tipos_vehiculo
 
 Tipos usados para precios y vehículos.
 
@@ -154,7 +163,7 @@ Tipos usados para precios y vehículos.
 | `name`      | `VARCHAR(80)`       | Nombre descriptivo.                   |
 | `is_active` | `BOOLEAN`           | Disponible/activo sin borrado físico. |
 
-### vehicles
+### vehiculos
 
 Vehículos con propietario actual y patente única.
 
@@ -171,7 +180,7 @@ Vehículos con propietario actual y patente única.
 | `updated_at`      | `DATETIME(3)`       | Última modificación UTC.                           |
 | `deleted_at`      | `DATETIME(3)`       | Fecha UTC de borrado lógico, NULL si no eliminado. |
 
-### services
+### servicios
 
 Catálogo editable de trabajos.
 
@@ -187,7 +196,7 @@ Catálogo editable de trabajos.
 | `updated_at`       | `DATETIME(3)`       | Última modificación UTC.                           |
 | `deleted_at`       | `DATETIME(3)`       | Fecha UTC de borrado lógico, NULL si no eliminado. |
 
-### service_prices
+### tarifas_servicio
 
 Precio vigente para cada servicio y tipo.
 
@@ -198,7 +207,7 @@ Precio vigente para cada servicio y tipo.
 | `price_cents`     | `INT UNSIGNED`      | Precio vigente en centavos ARS. |
 | `updated_at`      | `DATETIME(3)`       | Última modificación UTC.        |
 
-### appointment_statuses
+### estados_turno
 
 Estados admitidos del flujo.
 
@@ -208,28 +217,29 @@ Estados admitidos del flujo.
 | `code`  | `VARCHAR(20)`      | Código estable en inglés. |
 | `label` | `VARCHAR(40)`      | Etiqueta en español.      |
 
-### appointments
+### turnos
 
 Reserva con fechas, participantes y estado actual.
 
-| Columna               | Tipo SQL           | Significado                                            |
-| --------------------- | ------------------ | ------------------------------------------------------ |
-| `id`                  | `BIGINT UNSIGNED`  | Identificador primario.                                |
-| `client_id`           | `BIGINT UNSIGNED`  | Cliente titular al reservar.                           |
-| `vehicle_id`          | `BIGINT UNSIGNED`  | Vehículo atendido.                                     |
-| `employee_id`         | `BIGINT UNSIGNED`  | Responsable interno al iniciar; no limita visibilidad. |
-| `status_id`           | `TINYINT UNSIGNED` | Estado actual o auditado.                              |
-| `starts_at`           | `DATETIME(3)`      | Inicio UTC del intervalo.                              |
-| `ends_at`             | `DATETIME(3)`      | Fin UTC exclusivo del intervalo.                       |
-| `currency_code`       | `CHAR(3)`          | Código ISO de moneda, ARS en este proyecto.            |
-| `created_by_id`       | `BIGINT UNSIGNED`  | Usuario que creó la reserva.                           |
-| `cancelled_by_id`     | `BIGINT UNSIGNED`  | Usuario que canceló.                                   |
-| `cancellation_reason` | `VARCHAR(500)`     | Motivo de cancelación.                                 |
-| `version`             | `INT UNSIGNED`     | Versión para concurrencia optimista.                   |
-| `created_at`          | `DATETIME(3)`      | Instante de creación UTC.                              |
-| `updated_at`          | `DATETIME(3)`      | Última modificación UTC.                               |
+| Columna                    | Tipo SQL                 | Significado                                                  |
+| -------------------------- | ------------------------ | ------------------------------------------------------------ |
+| `id`                       | `BIGINT UNSIGNED`        | Identificador primario.                                      |
+| `client_id`                | `BIGINT UNSIGNED`        | Cliente titular al reservar.                                 |
+| `vehicle_id`               | `BIGINT UNSIGNED NULL`   | Vehículo vinculado; puede agregarse después de confirmar.    |
+| `reserved_vehicle_type_id` | `SMALLINT UNSIGNED NULL` | Categoría reservada que conserva la cotización sin vehículo. |
+| `employee_id`              | `BIGINT UNSIGNED`        | Responsable interno al iniciar; no limita visibilidad.       |
+| `status_id`                | `TINYINT UNSIGNED`       | Estado actual o auditado.                                    |
+| `starts_at`                | `DATETIME(3)`            | Inicio UTC del intervalo.                                    |
+| `ends_at`                  | `DATETIME(3)`            | Fin UTC exclusivo del intervalo.                             |
+| `currency_code`            | `CHAR(3)`                | Código ISO de moneda, ARS en este proyecto.                  |
+| `created_by_id`            | `BIGINT UNSIGNED`        | Usuario que creó la reserva.                                 |
+| `cancelled_by_id`          | `BIGINT UNSIGNED`        | Usuario que canceló.                                         |
+| `cancellation_reason`      | `VARCHAR(500)`           | Motivo de cancelación.                                       |
+| `version`                  | `INT UNSIGNED`           | Versión para concurrencia optimista.                         |
+| `created_at`               | `DATETIME(3)`            | Instante de creación UTC.                                    |
+| `updated_at`               | `DATETIME(3)`            | Última modificación UTC.                                     |
 
-### appointment_services
+### servicios_turno
 
 Contrato histórico de los servicios seleccionados.
 
@@ -241,7 +251,7 @@ Contrato histórico de los servicios seleccionados.
 | `applied_duration_minutes` | `SMALLINT UNSIGNED` | Duración acordada al reservar. |
 | `applied_service_name`     | `VARCHAR(100)`      | Nombre histórico del servicio. |
 
-### appointment_notes
+### notas_turno
 
 Observaciones trazables por autor.
 
@@ -253,7 +263,7 @@ Observaciones trazables por autor.
 | `body`           | `VARCHAR(2000)`   | Contenido de observación. |
 | `created_at`     | `DATETIME(3)`     | Instante de creación UTC. |
 
-### appointment_status_history
+### historial_estados_turno
 
 Auditoría de cambios de estado.
 
@@ -265,7 +275,7 @@ Auditoría de cambios de estado.
 | `changed_by_id`  | `BIGINT UNSIGNED`  | Actor del cambio.         |
 | `created_at`     | `DATETIME(3)`      | Instante de creación UTC. |
 
-### payments
+### pagos
 
 Cobros con método y clave de reintento idempotente.
 
@@ -280,7 +290,7 @@ Cobros con método y clave de reintento idempotente.
 | `idempotency_key` | `CHAR(36)`        | UUID único del intento lógico de pago. |
 | `paid_at`         | `DATETIME(3)`     | Instante UTC del cobro.                |
 
-### business_settings
+### configuracion_negocio
 
 Parámetros de la única sucursal.
 
@@ -294,7 +304,7 @@ Parámetros de la única sucursal.
 | `slot_step_minutes`           | `SMALLINT UNSIGNED` | Resolución de horarios candidatos.               |
 | `updated_at`                  | `DATETIME(3)`       | Última modificación UTC.                         |
 
-### business_hours
+### horarios_atencion
 
 Rango local por día abierto, ausencia de fila significa cerrado.
 
@@ -304,9 +314,9 @@ Rango local por día abierto, ausencia de fila significa cerrado.
 | `opens_at`  | `TIME`             | Apertura local.               |
 | `closes_at` | `TIME`             | Cierre local.                 |
 
-### booking_day_locks
+### bloqueos_agenda
 
-Reserva para particionar bloqueos por fecha en una futura versión. En 1.0 se bloquea business_settings.
+Reserva para particionar bloqueos por fecha en una futura versión. En 1.0 se bloquea configuracion_negocio.
 
 | Columna         | Tipo SQL      | Significado                                                   |
 | --------------- | ------------- | ------------------------------------------------------------- |
@@ -315,21 +325,20 @@ Reserva para particionar bloqueos por fecha en una futura versión. En 1.0 se bl
 
 ## Migración 005: OAuth efímero
 
-`oauth_states`: state_hash BINARY(32) PK, provider VARCHAR(16), client_state VARCHAR(256),
+`estados_oauth`: state_hash BINARY(32) PK, provider VARCHAR(16), client_state VARCHAR(256),
 redirect_uri VARCHAR(2048), client_challenge/provider_verifier VARCHAR(128), expires_at
 DATETIME(3) indexado. Se consume al volver del proveedor; no contiene token OAuth.
 
-`oauth_grants`: code_hash BINARY(32) PK, user_id BIGINT FK users, code_challenge VARCHAR(128),
+`autorizaciones_oauth`: code_hash BINARY(32) PK, user_id BIGINT FK usuarios, code_challenge VARCHAR(128),
 expires_at DATETIME(3) indexado, consumed_at DATETIME(3) nullable. El código legible solo
 viaja por el retorno y se canjea con PKCE. Los estados vencidos se limpian al generar nuevos. Los grants vencidos dejan de ser
 válidos por consulta; su purga periódica queda como tarea de mantenimiento, sin cron configurado.
 
-Hay 19 tablas de negocio más schema_migrations. Las siete migraciones fueron aplicadas
-en lavadero_dev y lavadero_prod; el usuario de cada base solo tiene acceso a ella.
+La instalación actual contiene 24 tablas y 14 migraciones aplicadas. Desarrollo escolar y producción usan usuarios limitados a su propia base; ver [MariaDB](mariadb.md).
 
 ## Migración 006 — vinculación social protegida
 
-`006_social_link.sql` agrega a `oauth_grants` las columnas `link_provider` (proveedor
+`006_social_link.sql` agrega a `autorizaciones_oauth` las columnas `link_provider` (proveedor
 pendiente), `link_subject` (identidad verificada que se vinculará) y `link_attempts`
 (contador de intentos de contraseña). CHECK exige proveedor/sujeto juntos. No se
 persiste la contraseña ingresada. El grant se bloquea con FOR UPDATE, conserva PKCE
@@ -342,3 +351,16 @@ La migración 007 agrega un CHECK más estricto con nombre nuevo. Conserva el an
 Los checksums nuevos se calculan sobre SQL con saltos LF. También se reconoce el checksum histórico CRLF del mismo contenido, para migraciones aplicadas desde Windows. Cambiar columnas, datos, comentarios u otros caracteres sigue produciendo error. `.gitattributes` fija LF para SQL y una prueba unitaria cubre ambos sistemas y el rechazo de una modificación real.
 
 > Actualización: la decisión posterior del usuario establece agenda compartida. Consultar [shared-agenda.md](shared-agenda.md) para la regla vigente; capturas anteriores documentan su versión original.
+
+## Ampliaciones operativas vigentes
+
+La migración 009 incorpora detalles del vehículo reservado, partes del empleado, mensajes y asistencia; 010 añade los servicios de detalle, 011 permite reservar por categoría antes de cargar el vehículo, 012 incorpora el lavado de moto y 013/014 traducen tablas al español. El [esquema completo](../database/schema.sql) es la referencia exacta de tipos, índices y restricciones; [operación del negocio](work-operations.md) explica permisos y estados.
+
+| Tabla                     | Responsabilidad y referencias                                                                             |
+| ------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `detalles_vehiculo_turno` | Descripción del vehículo aportada después de reservar; un registro por turno y autor cliente.             |
+| `partes_lavado`           | Descripción del trabajo, responsable, fecha de envío, revisor, decisión y motivo; conserva cada revisión. |
+| `mensajes_cliente`        | Reclamo o devolución, titular, turno/parte opcional, respuesta y administrador que respondió.             |
+| `asistencia_empleados`    | Empleado, día de negocio, llegada, administrador que ficha y nota; evita duplicar llegada del mismo día.  |
+
+`turnos.reserved_vehicle_type_id` conserva la categoría cotizada aun cuando `vehicle_id` sea nulo. La vinculación posterior exige propietario y categoría compatibles. `estados_turno` incluye `awaiting_review`; finalizar requiere aprobación administrativa del parte y horario abierto.

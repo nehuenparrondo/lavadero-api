@@ -1,6 +1,6 @@
 # Arquitectura y decisiones
 
-Express 5 → router → autenticación/rol/validación → controller → service → repository → MySQL.
+Express 5 → router → autenticación/rol/validación → controller → service → repository → MariaDB.
 Los controllers adaptan HTTP; las reglas viven en services; únicamente repositories
 e infraestructura usan SQL parametrizado. Zod rechaza propiedades desconocidas.
 `errorHandler` traduce fallos a un contrato uniforme sin exponer consultas ni secretos.
@@ -19,16 +19,16 @@ desactivarse ni eliminarse. Cambios administrativos serializan el conteo de admi
 
 ## Reservas y cobros
 
-Una transacción bloquea la única fila de `business_settings` antes de comprobar la agenda.
+Una transacción bloquea la única fila de `configuracion_negocio` antes de comprobar la agenda.
 También la usan cambios de estado/asignación y baja/edición de vehículos. Es una exclusión
 simple apropiada para un lavadero de capacidad inicial 1; evita carreras entre conexiones.
 Para mayor escala puede particionarse por fecha con orden de bloqueos estable; la tabla
-`booking_day_locks` queda reservada, no interviene en esta versión.
+`bloqueos_agenda` queda reservada, no interviene en esta versión.
 
 Los intervalos son [inicio, fin): dos turnos consecutivos son válidos. Un barrido de eventos
 comprueba el máximo simultáneo, además de impedir solapamientos de empleado y vehículo.
 La cotización es informativa: la reserva vuelve a validar horario, capacidad y catálogo.
-Precio, nombre y duración contratados se guardan en `appointment_services`.
+Precio, nombre y duración contratados se guardan en `servicios_turno`.
 
 El cobro bloquea el turno, verifica saldo y una clave UUID de idempotencia global.
 Reintentar la misma operación devuelve su resultado sin duplicar dinero. Los reportes
@@ -44,17 +44,17 @@ PKCE en el tramo proveedor; Discord usa el secreto backend. Ningún secreto viaj
 
 ## Persistencia y despliegue
 
-SQL MySQL 8.4, claves foráneas, borrado lógico y migraciones con checksum. Fechas UTC;
+SQL MariaDB 11.8, claves foráneas, borrado lógico y migraciones con checksum. Fechas UTC;
 Luxon traduce el calendario de Buenos Aires. Enteros centavos evitan errores monetarios.
-Render mantiene el backend y Aiven MySQL la persistencia con TLS y CA verificada.
-Usuarios distintos para lavadero_dev/lavadero_prod, limitados a su propia base.
+Render mantiene el backend y alwaysdata la persistencia MariaDB con TLS y certificado verificado.
+Usuarios distintos para nehuenlavadero_dev/nehuenlavadero_prod, limitados a su propia base.
 
 ## Mapa del sistema
 
 ```mermaid
 flowchart LR
   App[App Expo Android / Web] <-->|HTTPS REST v1 + JWT| API[Express en Render]
-  API <-->|SQL parametrizado + TLS| DB[(MySQL Aiven)]
+  API <-->|SQL parametrizado + TLS| DB[(MariaDB alwaysdata)]
   App -->|AuthSession + PKCE| Browser[Navegador del sistema]
   Browser <-->|Consentimiento| Providers[Google / Discord / GitHub]
   Providers -->|Callback HTTPS| API
