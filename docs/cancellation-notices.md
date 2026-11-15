@@ -39,5 +39,4 @@ En la app, `useCancellationNotices` coordina la API y `ClientCancellationNotices
 
 `tests/cancellation.integration.ts` comprueba el texto exacto en MariaDB, autor, historial atómico, permisos, límites, persistencia al reingresar y lectura idempotente. La revisión de navegador cubre notificación automática entre cliente/admin, notas del empleado, conservación del borrador y presentación de escritorio, teléfono y tema oscuro. Se prueba en la base escolar/QA; no se cancelan reservas reales para generar capturas.
 
-
 Ver [panel administrativo actualizado: ingreso presencial, cuentas, asistencia y semanas](admin-panel.md).

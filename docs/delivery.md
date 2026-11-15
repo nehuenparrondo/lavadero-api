@@ -51,5 +51,4 @@ Render Free puede suspender la API por inactividad. La app conserva el aviso y l
 
 Las cuentas iniciales están en ACCESO-PRIVADO.md, fuera de Git y de los ZIP. Los ZIP de código conservan sus propios historiales Git y excluyen dependencias, exportaciones generadas y .env privados. Los documentos de versiones anteriores se conservan como evidencia histórica. No se publicaron tiendas, EAS Update ni video.
 
-
 Se completó el ingreso rápido sin turno y sin garaje previo, alta de clientes/empleados sin cambiar roles al editar, fichaje solo laboral y gráficos semanales con barras de servicios. Se retiraron Apariencia del perfil administrativo, rendimiento del equipo y el filtro rápido Por verificar. La migración 016 conserva datos presenciales y observaciones; cancelaciones siguen exigiendo motivo persistido.

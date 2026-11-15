@@ -96,5 +96,4 @@ La base operativa es MariaDB en alwaysdata. Para abrir desarrollo con DBeaver, s
 
 El cliente recibe avisos persistentes con fecha, vehículo y motivo. Entendido guarda la lectura en MariaDB sin borrar la cancelación. Las observaciones conservan texto completo, autor y fecha; consultar cambios no descarta borradores. Ver [campos, rutas y pruebas](cancellation-notices.md).
 
-
 Ver [panel administrativo actualizado: ingreso presencial, cuentas, asistencia y semanas](admin-panel.md).
