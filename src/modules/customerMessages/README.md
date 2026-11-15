@@ -4,12 +4,12 @@ Casos de uso separados por dominio; routes → controller → service → reposi
 
 ## Archivos y responsabilidades
 
-| Archivo | Responsabilidad |
-| --- | --- |
-| [messages.repository.ts](messages.repository.ts) | Bandeja paginada. clientId nulo corresponde únicamente a Administración. |
-| [messages.routes.ts](messages.routes.ts) | La bandeja está disponible únicamente para clientes y Administración. |
-| [messages.schema.ts](messages.schema.ts) | Reclamo general o devolución del titular sobre un turno verificado. |
-| [messages.service.ts](messages.service.ts) | Administración ve la bandeja completa; el cliente solo ve sus propios mensajes. |
+| Archivo                                          | Responsabilidad                                                                 |
+| ------------------------------------------------ | ------------------------------------------------------------------------------- |
+| [messages.repository.ts](messages.repository.ts) | Bandeja paginada. clientId nulo corresponde únicamente a Administración.        |
+| [messages.routes.ts](messages.routes.ts)         | La bandeja está disponible únicamente para clientes y Administración.           |
+| [messages.schema.ts](messages.schema.ts)         | Reclamo general o devolución del titular sobre un turno verificado.             |
+| [messages.service.ts](messages.service.ts)       | Administración ve la bandeja completa; el cliente solo ve sus propios mensajes. |
 
 ## Mantenimiento
 

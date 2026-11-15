@@ -1688,7 +1688,7 @@
       "post": {
         "tags": ["users"],
         "summary": "Crear usuario",
-        "description": "Roles: admin. ",
+        "description": "Solo administrador. Permite crear clientes y empleados; rechaza el rol admin.",
         "operationId": "post13",
         "security": [
           {
@@ -8104,7 +8104,7 @@
       "post": {
         "tags": ["attendance"],
         "summary": "Fichar llegada",
-        "description": "El id corresponde al empleado. La fecha del body debe coincidir con el día actual del negocio.",
+        "description": "Solo administrador. Fecha actual del negocio, empleado activo, dia laboral y hora entre apertura incluida y cierre excluido. El primer fichaje prevalece ante reintentos.",
         "operationId": "post_api_v1_attendance_id_arrival",
         "security": [
           {
@@ -8629,6 +8629,153 @@
           }
         }
       }
+    },
+    "/api/v1/appointments/walk-in": {
+      "post": {
+        "tags": ["appointments"],
+        "summary": "Registrar auto sin turno",
+        "description": "Solo administrador. Busca el primer espacio libre de hoy durante la jornada laboral. Conserva precios, datos y observaciones sin exigir cuenta ni garaje. El UUID evita duplicados al reintentar.",
+        "operationId": "post_api_v1_appointments_walk_in",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": ["client", "admin"],
+        "responses": {
+          "201": {
+            "description": "Operación exitosa.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Appointment"
+                    }
+                  },
+                  "required": ["data"]
+                },
+                "example": {
+                  "data": {
+                    "id": "1",
+                    "status": "confirmed",
+                    "startsAt": "2026-12-01T12:30:00.000Z",
+                    "endsAt": "2026-12-01T13:05:00.000Z",
+                    "plate": "AB123CD",
+                    "brand": "Toyota",
+                    "model": "Etios",
+                    "color": "Gris",
+                    "clientName": "Ana Pérez",
+                    "clientPhone": "1100000000",
+                    "version": 1,
+                    "clientId": "1",
+                    "vehicleId": "1",
+                    "currencyCode": "ARS",
+                    "totalCents": 900000,
+                    "paidCents": 0
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos. Revisar error.fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sesión ausente, vencida, revocada o credenciales inválidas.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol/permiso insuficiente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el actor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto, duplicado, estado, capacidad o pago inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Demasiados intentos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno sin datos sensibles.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio o proveedor todavía sin configurar/no disponible.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/walkInSchema"
+              },
+              "example": {
+                "serviceIds": ["1"],
+                "startsAt": "2026-12-01T09:30:00-03:00",
+                "vehicleTypeId": "1"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -8783,7 +8930,7 @@
           "role": {
             "default": "client",
             "type": "string",
-            "enum": ["client", "employee", "admin"]
+            "enum": ["client", "employee"]
           }
         },
         "required": ["email", "password", "firstName", "lastName"],
@@ -8886,6 +9033,7 @@
         }
       },
       "vehiclePatchSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
           "plate": {
@@ -8921,6 +9069,7 @@
         "additionalProperties": false
       },
       "vehicleSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
           "plate": {
@@ -9031,6 +9180,7 @@
         "additionalProperties": false
       },
       "appointmentQuerySchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
           "page": {
@@ -9080,10 +9230,15 @@
           "history": {
             "type": "string",
             "enum": ["true", "false"]
+          },
+          "queue": {
+            "type": "string",
+            "enum": ["requested"]
           }
         }
       },
       "appointmentSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
           "vehicleId": {
@@ -9114,15 +9269,7 @@
           }
         },
         "required": ["serviceIds", "startsAt"],
-        "additionalProperties": false,
-        "oneOf": [
-          {
-            "required": ["vehicleId"]
-          },
-          {
-            "required": ["vehicleTypeId"]
-          }
-        ]
+        "additionalProperties": false
       },
       "assignmentSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -9137,6 +9284,7 @@
         "additionalProperties": false
       },
       "availabilitySchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
           "date": {
@@ -9161,15 +9309,7 @@
             }
           }
         },
-        "required": ["date", "serviceIds"],
-        "oneOf": [
-          {
-            "required": ["vehicleId"]
-          },
-          {
-            "required": ["vehicleTypeId"]
-          }
-        ]
+        "required": ["date", "serviceIds"]
       },
       "cancelSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -9208,6 +9348,7 @@
         }
       },
       "statusSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
           "status": {
@@ -9226,6 +9367,7 @@
         "additionalProperties": false
       },
       "vehicleTypeSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
           "code": {
@@ -9580,9 +9722,10 @@
             "description": "Nombre visible del responsable o null mientras está por asignar."
           },
           "clientId": {
-            "type": "string",
+            "type": ["string", "null"],
             "pattern": "^[1-9][0-9]*$",
-            "example": "1"
+            "example": "1",
+            "description": "Titular registrado; null en ingresos presenciales sin cuenta."
           },
           "employeeId": {
             "type": ["string", "null"],
@@ -9590,7 +9733,7 @@
           },
           "vehicleId": {
             "type": ["string", "null"],
-            "description": "Nulo cuando falta vincular el vehículo."
+            "description": "Puede ser null si el auto se documenta en un ingreso presencial sin garaje."
           },
           "currencyCode": {
             "type": "string",
@@ -9700,6 +9843,10 @@
           "cancelledByName": {
             "type": ["string", "null"],
             "description": "Nombre del usuario que registró la cancelación."
+          },
+          "isWalkIn": {
+            "type": "boolean",
+            "description": "Ingreso presencial con patente y datos guardados, sin alta previa en garaje."
           }
         },
         "required": [
@@ -10027,6 +10174,31 @@
               },
               "required": ["id", "name", "completed"]
             }
+          },
+          "weeks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "from": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "to": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "washes": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "revenueCents": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": ["from", "to", "washes", "revenueCents"]
+            }
           }
         },
         "required": [
@@ -10038,7 +10210,8 @@
           "revenueCents",
           "days",
           "services",
-          "employees"
+          "employees",
+          "weeks"
         ]
       },
       "Error": {
@@ -10147,6 +10320,7 @@
         "required": ["items", "page", "limit", "total"]
       },
       "messageSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
         "oneOf": [
           {
             "type": "object",
@@ -10187,6 +10361,7 @@
         ]
       },
       "replySchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
           "reply": {
@@ -10199,6 +10374,7 @@
         "additionalProperties": false
       },
       "vehicleDetailSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
           "description": {
@@ -10210,6 +10386,7 @@
         "additionalProperties": false
       },
       "washSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
           "description": {
@@ -10222,6 +10399,7 @@
         "additionalProperties": false
       },
       "reviewSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
         "oneOf": [
           {
             "type": "object",
@@ -10389,6 +10567,12 @@
                 }
               }
             }
+          },
+          "canRecord": {
+            "type": "boolean"
+          },
+          "recordReason": {
+            "type": ["string", "null"]
           }
         }
       },
@@ -10404,6 +10588,7 @@
         "additionalProperties": false
       },
       "attachVehicleSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
         "anyOf": [
           {
             "type": "object",
@@ -10480,6 +10665,95 @@
           }
         },
         "required": ["id", "startsAt", "cancelledAt", "reason", "plate", "vehicleType"]
+      },
+      "messageQuery": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "page": {
+            "default": 1,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "limit": {
+            "default": 50,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "search": {
+            "default": "",
+            "type": "string",
+            "maxLength": 100
+          },
+          "state": {
+            "type": "string",
+            "enum": ["open", "resolved"]
+          }
+        }
+      },
+      "walkInSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "plate": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 16,
+            "pattern": "^[a-zA-Z0-9 -]+$"
+          },
+          "vehicleTypeId": {
+            "type": "string",
+            "pattern": "^[1-9]\\d*$"
+          },
+          "serviceIds": {
+            "minItems": 1,
+            "maxItems": 10,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[1-9]\\d*$"
+            }
+          },
+          "customerName": {
+            "default": "",
+            "type": "string",
+            "maxLength": 160
+          },
+          "customerPhone": {
+            "default": "",
+            "type": "string",
+            "maxLength": 30
+          },
+          "brand": {
+            "default": "",
+            "type": "string",
+            "maxLength": 80
+          },
+          "model": {
+            "default": "",
+            "type": "string",
+            "maxLength": 80
+          },
+          "color": {
+            "default": "",
+            "type": "string",
+            "maxLength": 50
+          },
+          "notes": {
+            "default": "",
+            "type": "string",
+            "maxLength": 2000
+          }
+        },
+        "required": ["requestId", "plate", "vehicleTypeId", "serviceIds"],
+        "additionalProperties": false
       }
     }
   }

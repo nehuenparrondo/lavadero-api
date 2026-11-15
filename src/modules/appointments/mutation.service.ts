@@ -89,7 +89,7 @@ export async function changeStatus(
 
 /** Permite tomar turnos anteriores o sin responsable sin desplazar una asignación vigente. */
 async function claimAppointment(actor: Actor, appointment: Appointment, executor: Executor) {
-  if (!appointment.vehicleId)
+  if (!appointment.vehicleId && !appointment.isWalkIn)
     throw new AppError(
       409,
       'VEHICLE_REQUIRED',

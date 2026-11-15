@@ -523,6 +523,59 @@ El titular agrega observaciones al turno confirmado, sin cambiar lo contratado.
 | ----------------- | ------------------------------------------------------------------------------- |
 | saveVehicleDetail | El titular agrega observaciones al turno confirmado, sin cambiar lo contratado. |
 
+## src/modules/appointments/walkIn.repository.ts
+
+Busca un reintento para no duplicar un ingreso al reenviar la solicitud.
+
+[Abrir fuente](../src/modules/appointments/walkIn.repository.ts)
+
+| Exportación       | Responsabilidad                                                                  |
+| ----------------- | -------------------------------------------------------------------------------- |
+| previousArrival   | Busca un reintento para no duplicar un ingreso al reenviar la solicitud.         |
+| registeredArrival | Resuelve patente registrada sin crear ni modificar el garaje.                    |
+| hasActiveArrival  | Evita registrar dos veces un auto que ya espera atención o está siendo lavado.   |
+| saveArrival       | Persiste datos presenciales y observaciones junto al turno, conservando autoría. |
+
+## src/modules/appointments/walkIn.routes.ts
+
+Monta el alta presencial antes de las rutas con parámetro id.
+
+[Abrir fuente](../src/modules/appointments/walkIn.routes.ts)
+
+| Exportación       | Responsabilidad                                               |
+| ----------------- | ------------------------------------------------------------- |
+| mountWalkInRoutes | Monta el alta presencial antes de las rutas con parámetro id. |
+
+## src/modules/appointments/walkIn.schema.ts
+
+Alta presencial mínima; el servidor decide horario, importes y responsable.
+
+[Abrir fuente](../src/modules/appointments/walkIn.schema.ts)
+
+| Exportación  | Responsabilidad                                                             |
+| ------------ | --------------------------------------------------------------------------- |
+| walkInSchema | Alta presencial mínima; el servidor decide horario, importes y responsable. |
+
+## src/modules/appointments/walkIn.service.ts
+
+Registra llegada, contrato y observaciones atómicamente; nunca crea cuentas ficticias.
+
+[Abrir fuente](../src/modules/appointments/walkIn.service.ts)
+
+| Exportación  | Responsabilidad                                                                        |
+| ------------ | -------------------------------------------------------------------------------------- |
+| createWalkIn | Registra llegada, contrato y observaciones atómicamente; nunca crea cuentas ficticias. |
+
+## src/modules/appointments/walkIn.slot.ts
+
+Elige la primera ventana de hoy bajo el mismo lock que las reservas de clientes.
+
+[Abrir fuente](../src/modules/appointments/walkIn.slot.ts)
+
+| Exportación | Responsabilidad                                                                  |
+| ----------- | -------------------------------------------------------------------------------- |
+| walkInSlot  | Elige la primera ventana de hoy bajo el mismo lock que las reservas de clientes. |
+
 ## src/modules/appointments/wash.repository.ts
 
 El parte guarda el responsable real, su declaración y la decisión administrativa.
@@ -602,6 +655,16 @@ Consulta fichajes por fecha argentina, con un registro como máximo por persona 
 | ------------- | ---------------------------------------------------------------------------------------------- |
 | getAttendance | Consulta fichajes por fecha argentina, con un registro como máximo por persona y día.          |
 | recordArrival | Ficha una llegada observada por Administración con el reloj del servidor y el día del negocio. |
+
+## src/modules/attendance/attendance.window.ts
+
+Determina si el reloj oficial permite fichar hoy, sin aceptar horas del navegador.
+
+[Abrir fuente](../src/modules/attendance/attendance.window.ts)
+
+| Exportación      | Responsabilidad                                                                    |
+| ---------------- | ---------------------------------------------------------------------------------- |
+| attendanceWindow | Determina si el reloj oficial permite fichar hoy, sin aceptar horas del navegador. |
 
 ## src/modules/auth/auth.controller.ts
 
@@ -1010,6 +1073,16 @@ Completa días vacíos y acumula trabajo e ingresos según sus fechas respectiva
 | Exportación     | Responsabilidad                                                                 |
 | --------------- | ------------------------------------------------------------------------------- |
 | aggregateReport | Completa días vacíos y acumula trabajo e ingresos según sus fechas respectivas. |
+
+## src/modules/reports/reportWeeks.ts
+
+Agrupa los días locales en semanas ISO, incluyendo ceros y semanas parciales.
+
+[Abrir fuente](../src/modules/reports/reportWeeks.ts)
+
+| Exportación | Responsabilidad                                                               |
+| ----------- | ----------------------------------------------------------------------------- |
+| reportWeeks | Agrupa los días locales en semanas ISO, incluyendo ceros y semanas parciales. |
 
 ## src/modules/reports/reports.controller.ts
 

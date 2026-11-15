@@ -142,7 +142,7 @@
       "role": {
         "default": "client",
         "type": "string",
-        "enum": ["client", "employee", "admin"]
+        "enum": ["client", "employee"]
       }
     },
     "required": ["email", "password", "firstName", "lastName"],
@@ -929,6 +929,68 @@
       }
     },
     "required": ["code", "codeVerifier"],
+    "additionalProperties": false
+  },
+  "walkInSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "requestId": {
+        "type": "string",
+        "format": "uuid",
+        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+      },
+      "plate": {
+        "type": "string",
+        "minLength": 3,
+        "maxLength": 16,
+        "pattern": "^[a-zA-Z0-9 -]+$"
+      },
+      "vehicleTypeId": {
+        "type": "string",
+        "pattern": "^[1-9]\\d*$"
+      },
+      "serviceIds": {
+        "minItems": 1,
+        "maxItems": 10,
+        "type": "array",
+        "items": {
+          "type": "string",
+          "pattern": "^[1-9]\\d*$"
+        }
+      },
+      "customerName": {
+        "default": "",
+        "type": "string",
+        "maxLength": 160
+      },
+      "customerPhone": {
+        "default": "",
+        "type": "string",
+        "maxLength": 30
+      },
+      "brand": {
+        "default": "",
+        "type": "string",
+        "maxLength": 80
+      },
+      "model": {
+        "default": "",
+        "type": "string",
+        "maxLength": 80
+      },
+      "color": {
+        "default": "",
+        "type": "string",
+        "maxLength": 50
+      },
+      "notes": {
+        "default": "",
+        "type": "string",
+        "maxLength": 2000
+      }
+    },
+    "required": ["requestId", "plate", "vehicleTypeId", "serviceIds"],
     "additionalProperties": false
   }
 }

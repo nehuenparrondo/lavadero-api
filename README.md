@@ -69,3 +69,5 @@ El flujo vigente de agenda, asignación, verificación, reclamos y fichajes est�
 La base usa nombres de tablas en español. Ver [MariaDB y diccionario de tablas](docs/mariadb.md).
 
 Ver [cancelaciones, observaciones y mejora de interfaz](docs/cancellation-notices.md).
+
+Panel administrativo: [ingresos sin turno, asistencia laboral, usuarios y gráficos semanales](docs/admin-panel.md).

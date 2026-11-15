@@ -3,20 +3,23 @@ import type { Executor } from '../../utils/db.js';
 import { rows } from '../../utils/db.js';
 import type { Appointment, BookingIntervalRow, QuoteItem } from './appointments.types.js';
 const agendaFrom = ` FROM turnos a JOIN estados_turno s ON s.id=a.status_id
- LEFT JOIN vehiculos v ON v.id=a.vehicle_id`;
+ LEFT JOIN vehiculos v ON v.id=a.vehicle_id LEFT JOIN ingresos_sin_turno w ON w.appointment_id=a.id`;
 const select = `SELECT CAST(a.id AS CHAR) id,CAST(a.client_id AS CHAR) clientId,CAST(a.employee_id AS CHAR) employeeId,
  CAST(a.vehicle_id AS CHAR) vehicleId,s.code status,a.starts_at startsAt,a.ends_at endsAt,a.currency_code currencyCode,a.version,
- v.plate,v.brand,v.model,v.color,t.name vehicleType,CAST(t.id AS CHAR) vehicleTypeId,d.description vehicleDescription,
+ COALESCE(v.plate,w.plate) plate,COALESCE(v.brand,w.brand) brand,COALESCE(v.model,w.model) model,
+ COALESCE(v.color,w.color) color,(w.appointment_id IS NOT NULL) isWalkIn,
+ t.name vehicleType,CAST(t.id AS CHAR) vehicleTypeId,d.description vehicleDescription,
  a.cancellation_reason cancellationReason,CAST(a.cancelled_by_id AS CHAR) cancelledById,
  CONCAT(canceller.first_name,' ',canceller.last_name) cancelledByName,
- CONCAT(c.first_name,' ',c.last_name) clientName,c.phone clientPhone,
+ COALESCE(NULLIF(w.customer_name,''),CONCAT(c.first_name,' ',c.last_name),'Cliente presencial') clientName,
+ COALESCE(w.customer_phone,c.phone) clientPhone,
  CONCAT(e.first_name,' ',e.last_name) employeeName,
  COALESCE(e.is_active AND e.deleted_at IS NULL AND er.code='employee',FALSE) employeeAvailable,
  COALESCE((SELECT GROUP_CONCAT(applied_service_name ORDER BY service_id SEPARATOR ' · ') FROM servicios_turno WHERE appointment_id=a.id),'') serviceSummary,
  COALESCE((SELECT SUM(applied_price_cents) FROM servicios_turno WHERE appointment_id=a.id),0) totalCents,
  COALESCE((SELECT SUM(amount_cents) FROM pagos WHERE appointment_id=a.id),0) paidCents
  ${agendaFrom} JOIN tipos_vehiculo t ON t.id=COALESCE(a.reserved_vehicle_type_id,v.vehicle_type_id)
- JOIN usuarios c ON c.id=a.client_id LEFT JOIN usuarios e ON e.id=a.employee_id
+ LEFT JOIN usuarios c ON c.id=a.client_id LEFT JOIN usuarios e ON e.id=a.employee_id
  LEFT JOIN roles er ON er.id=e.role_id LEFT JOIN usuarios canceller ON canceller.id=a.cancelled_by_id
  LEFT JOIN detalles_vehiculo_turno d ON d.appointment_id=a.id`;
 /** Busca un turno sin revelar datos fuera del servicio autorizado.
@@ -90,8 +93,10 @@ export function overlapping(
 ) {
   return rows<BookingIntervalRow>(
     `SELECT CAST(a.id AS CHAR) id,
- a.starts_at startsAt,a.ends_at endsAt,CAST(a.employee_id AS CHAR) employeeId,CAST(a.vehicle_id AS CHAR) vehicleId
+ a.starts_at startsAt,a.ends_at endsAt,CAST(a.employee_id AS CHAR) employeeId,
+ CAST(COALESCE(a.vehicle_id,(SELECT v2.id FROM vehiculos v2 WHERE v2.plate=w.plate LIMIT 1)) AS CHAR) vehicleId
  FROM turnos a JOIN estados_turno s ON s.id=a.status_id
+ LEFT JOIN ingresos_sin_turno w ON w.appointment_id=a.id
  WHERE s.code IN ('pending','confirmed','in_progress','awaiting_review','completed')
  AND a.starts_at<? AND a.ends_at>? AND (? IS NULL OR a.id<>?)`,
     [end, start, excludeId ?? null, excludeId ?? null],

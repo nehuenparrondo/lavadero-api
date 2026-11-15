@@ -11,6 +11,7 @@ import { vehicleTypeSchema } from '../src/modules/vehicleTypes/vehicleTypes.sche
 import { settingsSchema } from '../src/modules/settings/settings.schema.js';
 import { paymentSchema } from '../src/modules/payments/payments.schema.js';
 import { oauthExchangeSchema } from '../src/modules/auth/oauth.schema.js';
+import { walkInSchema } from '../src/modules/appointments/walkIn.schema.js';
 
 /** Esquemas de entrada OpenAPI obtenidos de las mismas validaciones que ejecuta Express. */
 const schemas = {
@@ -25,6 +26,7 @@ const schemas = {
   settingsSchema,
   paymentSchema,
   oauthExchangeSchema,
+  walkInSchema,
 };
 const exported = Object.fromEntries(
   Object.entries(schemas).map(([name, schema]) => [

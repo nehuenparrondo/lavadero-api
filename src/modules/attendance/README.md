@@ -4,11 +4,12 @@ Casos de uso separados por dominio; routes → controller → service → reposi
 
 ## Archivos y responsabilidades
 
-| Archivo | Responsabilidad |
-| --- | --- |
+| Archivo                                              | Responsabilidad                                                                                      |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
 | [attendance.repository.ts](attendance.repository.ts) | Muestra el plantel activo para el día actual e incluye fichajes históricos aunque cambie el plantel. |
-| [attendance.routes.ts](attendance.routes.ts) | Solamente Administración puede leer y registrar la asistencia del equipo. |
-| [attendance.service.ts](attendance.service.ts) | Consulta fichajes por fecha argentina, con un registro como máximo por persona y día. |
+| [attendance.routes.ts](attendance.routes.ts)         | Solamente Administración puede leer y registrar la asistencia del equipo.                            |
+| [attendance.service.ts](attendance.service.ts)       | Consulta fichajes por fecha argentina, con un registro como máximo por persona y día.                |
+| [attendance.window.ts](attendance.window.ts)         | Determina si el reloj oficial permite fichar hoy, sin aceptar horas del navegador.                   |
 
 ## Mantenimiento
 

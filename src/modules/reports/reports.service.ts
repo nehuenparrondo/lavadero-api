@@ -3,6 +3,7 @@ import { aggregateReport } from './reportAggregation.js';
 import * as repo from './reports.repository.js';
 import type { reportSchema } from './reports.schema.js';
 import { reportWindow } from './reports.window.js';
+import { reportWeeks } from './reportWeeks.js';
 /** Reporte administrativo: lavados, ingresos, populares y rendimiento por empleado.
  * @param input - Entrada validada por el esquema del caso de uso.
  * @returns Promesa de un objeto con period, from, to, currencyCode, totalWashes, revenueCents, days, services, employees.
@@ -23,6 +24,7 @@ export async function businessReport(input: z.infer<typeof reportSchema>) {
     totalWashes: work.length,
     revenueCents: payments.reduce((sum, p) => sum + Number(p.amountCents), 0),
     days: [...days.values()],
+    weeks: reportWeeks([...days.values()]),
     services: services.map((service) => ({
       name: String(service.name),
       count: Number(service.count),

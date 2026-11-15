@@ -4,8 +4,8 @@ Catálogos de solo lectura y definiciones declarativas. No contienen secretos ni
 
 ## Archivos y responsabilidades
 
-| Archivo | Responsabilidad |
-| --- | --- |
+| Archivo                    | Responsabilidad                                           |
+| -------------------------- | --------------------------------------------------------- |
 | [business.ts](business.ts) | Roles que puede emitir y validar el contrato del sistema. |
 
 ## Mantenimiento

@@ -141,33 +141,36 @@ test('reclamos privados y respuesta; alta autónoma, rol y fichaje de llegada po
   const staff = await login(independent.user.email);
   await api('get', '/attendance', staff.accessToken).expect(403);
   await api('get', '/customer-messages', staff.accessToken).expect(403);
-  const roster = await api('get', '/attendance', owner.accessToken).expect(200);
-  const date = roster.body.data.today;
-  const path = '/attendance/' + staff.user.id + '/arrival';
-  await api('post', path, staff.accessToken, { date }).expect(403);
-  await api('post', path, owner.accessToken, { date: '2020-01-01' }).expect(409);
-  await Promise.all(
-    [1, 2].map(() => api('post', path, owner.accessToken, { date }).expect(200)),
-  );
-  const recorded = await api('get', '/attendance', owner.accessToken)
-    .query({ date })
-    .expect(200);
-  const arrivals = recorded.body.data.items.filter(
-    (item: { employeeId: string }) => item.employeeId === staff.user.id,
-  );
-  assert.equal(arrivals.length, 1);
-  assert.ok(arrivals[0].arrivedAt);
-  assert.ok(arrivals[0].recordedByName);
-  await api('post', path, owner.accessToken, { date }).expect(200);
-  const repeated = await api('get', '/attendance', owner.accessToken)
-    .query({ date })
-    .expect(200);
-  assert.equal(
-    repeated.body.data.items.find(
+  const date = future(150);
+  await atBusinessTime(date + 'T10:00:00-03:00', async () => {
+    const roster = await api('get', '/attendance', owner.accessToken).expect(200);
+    assert.equal(roster.body.data.today, date);
+    const path = '/attendance/' + staff.user.id + '/arrival';
+    await api('post', path, staff.accessToken, { date }).expect(403);
+    await api('post', path, owner.accessToken, { date: '2020-01-01' }).expect(409);
+    await Promise.all(
+      [1, 2].map(() => api('post', path, owner.accessToken, { date }).expect(200)),
+    );
+    const recorded = await api('get', '/attendance', owner.accessToken)
+      .query({ date })
+      .expect(200);
+    const arrivals = recorded.body.data.items.filter(
       (item: { employeeId: string }) => item.employeeId === staff.user.id,
-    ).arrivedAt,
-    arrivals[0].arrivedAt,
-  );
+    );
+    assert.equal(arrivals.length, 1);
+    assert.ok(arrivals[0].arrivedAt);
+    assert.ok(arrivals[0].recordedByName);
+    await api('post', path, owner.accessToken, { date }).expect(200);
+    const repeated = await api('get', '/attendance', owner.accessToken)
+      .query({ date })
+      .expect(200);
+    assert.equal(
+      repeated.body.data.items.find(
+        (item: { employeeId: string }) => item.employeeId === staff.user.id,
+      ).arrivedAt,
+      arrivals[0].arrivedAt,
+    );
+  });
 });
 
 test('encerado requiere exterior o completo; tapizado y totales usan el catálogo', async () => {

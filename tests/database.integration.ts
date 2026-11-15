@@ -138,6 +138,7 @@ test('todas las tablas de negocio usan los nombres españoles y conservan sus cl
     'asistencia_empleados',
     'migraciones_esquema',
     'bloqueos_agenda',
+    'ingresos_sin_turno',
   ];
   assert.deepEqual(tables.map((row) => row.name).sort(), expected.sort());
   const [keys] = await pool.query<RowDataPacket[]>(

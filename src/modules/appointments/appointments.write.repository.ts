@@ -9,7 +9,7 @@ import type { AppointmentStatus, QuoteItem } from './appointments.types.js';
  */
 export async function insertAppointment(
   v: {
-    clientId: string;
+    clientId: string | null;
     vehicleId: string | null;
     vehicleTypeId: string;
     startsAt: string;

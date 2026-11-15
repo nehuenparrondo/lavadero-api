@@ -5,7 +5,8 @@ export type AppointmentStatus = (typeof APPOINTMENT_STATUS)[number];
 /** Reserva proyectada según el contrato REST. */
 export interface Appointment extends RowDataPacket {
   id: string;
-  clientId: string;
+  clientId: string | null;
+  isWalkIn: number;
   employeeId: string | null;
   vehicleId: string | null;
   vehicleTypeId: string;

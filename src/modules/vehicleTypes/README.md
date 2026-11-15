@@ -4,13 +4,13 @@ Categorías activas de vehículo que determinan las tarifas; conservar referenci
 
 ## Archivos y responsabilidades
 
-| Archivo | Responsabilidad |
-| --- | --- |
-| [vehicleTypes.controller.ts](vehicleTypes.controller.ts) | Catálogo de tipos. |
-| [vehicleTypes.repository.ts](vehicleTypes.repository.ts) | Consulta la categoría de una cotización o una tarifa. |
-| [vehicleTypes.routes.ts](vehicleTypes.routes.ts) | Tipos visibles para todos, administrables solo por admin. |
-| [vehicleTypes.schema.ts](vehicleTypes.schema.ts) | Tipo de vehículo administrable con código estable. |
-| [vehicleTypes.service.ts](vehicleTypes.service.ts) | Catálogo con booleanos serializables. |
+| Archivo                                                  | Responsabilidad                                           |
+| -------------------------------------------------------- | --------------------------------------------------------- |
+| [vehicleTypes.controller.ts](vehicleTypes.controller.ts) | Catálogo de tipos.                                        |
+| [vehicleTypes.repository.ts](vehicleTypes.repository.ts) | Consulta la categoría de una cotización o una tarifa.     |
+| [vehicleTypes.routes.ts](vehicleTypes.routes.ts)         | Tipos visibles para todos, administrables solo por admin. |
+| [vehicleTypes.schema.ts](vehicleTypes.schema.ts)         | Tipo de vehículo administrable con código estable.        |
+| [vehicleTypes.service.ts](vehicleTypes.service.ts)       | Catálogo con booleanos serializables.                     |
 
 ## Mantenimiento
 

@@ -15,7 +15,7 @@ export const profileSchema = z
   .strict();
 /** Alta por administrador con rol explícito opcional. */
 export const createUserSchema = registerSchema.extend({
-  role: z.enum(ROLES).default('client'),
+  role: z.enum(['client', 'employee']).default('client'),
 });
 /** Edición administrativa, separada de promoción/degradación. */
 export const adminPatchSchema = profileSchema.extend({

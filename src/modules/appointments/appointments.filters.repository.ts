@@ -24,7 +24,10 @@ export function appointmentFilter(actor: Actor, input: Filters, timeZone: string
   if (input.clientId) add('a.client_id=?', input.clientId);
   if (actor.role === 'admin' && input.employeeId) add('a.employee_id=?', input.employeeId);
   if (actor.role !== 'client' && input.plate)
-    add('v.plate LIKE ?', `%${input.plate.replace(/[ -]/gu, '').toUpperCase()}%`);
+    add(
+      'COALESCE(v.plate,w.plate) LIKE ?',
+      `%${input.plate.replace(/[ -]/gu, '').toUpperCase()}%`,
+    );
   if (input.history)
     conditions.push(
       input.history === 'true'

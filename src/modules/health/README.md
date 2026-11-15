@@ -4,11 +4,11 @@ Liveness, readiness e información pública del sistema; no mostrar credenciales
 
 ## Archivos y responsabilidades
 
-| Archivo | Responsabilidad |
-| --- | --- |
-| [health.controller.ts](health.controller.ts) | Devuelve salud del proceso sin depender de MySQL. |
-| [health.repository.ts](health.repository.ts) | Verifica MySQL sin escribir. |
-| [health.routes.ts](health.routes.ts) | Expone sondas públicas sin incluir datos sensibles. |
+| Archivo                                        | Responsabilidad                                                                |
+| ---------------------------------------------- | ------------------------------------------------------------------------------ |
+| [health.controller.ts](health.controller.ts)   | Devuelve salud del proceso sin depender de MySQL.                              |
+| [health.repository.ts](health.repository.ts)   | Verifica MySQL sin escribir.                                                   |
+| [health.routes.ts](health.routes.ts)           | Expone sondas públicas sin incluir datos sensibles.                            |
 | [information.routes.ts](information.routes.ts) | Publica el aviso de uso de datos necesario para la configuración de identidad. |
 
 ## Mantenimiento

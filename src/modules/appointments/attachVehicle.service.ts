@@ -25,6 +25,12 @@ export function attachVehicle(actor: Actor, id: string, input: Attachment) {
     await readSettings(connection, true);
     const appointment = await findAppointment(id, connection, true);
     assertAppointmentAccess(actor, appointment);
+    if (appointment.isWalkIn || !appointment.clientId)
+      throw new AppError(
+        409,
+        'WALK_IN_VEHICLE_FIXED',
+        'Los datos del ingreso presencial ya están guardados en el turno.',
+      );
     if (appointment.vehicleId) return existingAttachment(appointment, input);
     if (appointment.status !== 'confirmed')
       throw new AppError(
@@ -49,7 +55,7 @@ function resolveAttachment(appointment: Appointment, input: Attachment, connecti
   return insertVehicle(
     {
       ...input.vehicle,
-      ownerId: appointment.clientId,
+      ownerId: appointment.clientId!,
       vehicleTypeId: appointment.vehicleTypeId,
     },
     connection,

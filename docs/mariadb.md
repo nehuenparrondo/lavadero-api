@@ -73,7 +73,7 @@ Después de verificar el despliegue y retirar los procesos anteriores, `npm run 
 
 ## Resultado de la transición publicada
 
-La API volvió a `main` y trabaja con MariaDB **11.8.9**, fuera de mantenimiento. Se verificaron las 24 tablas españolas, las 34 claves foráneas, las 14 migraciones y los checksums de todas las filas copiadas. El corte conservó 7 usuarios, 12 turnos y 5 vehículos. Las sesiones nuevas se escriben en MariaDB. Producción y desarrollo ya no contienen vistas con nombres antiguos.
+La API volvió a `main` y trabaja con MariaDB **11.8.9**, fuera de mantenimiento. Se verificaron las 25 tablas españolas, las 34 claves foráneas, las 14 migraciones y los checksums de todas las filas copiadas. El corte conservó 7 usuarios, 12 turnos y 5 vehículos. Las sesiones nuevas se escriben en MariaDB. Producción y desarrollo ya no contienen vistas con nombres antiguos.
 
 Se aprobaron 70 pruebas: 17 de backend, 17 de frontend, 4 de integración de base y 32 de aceptación. Las 32 de aceptación también pasaron después de retirar todos los alias ingleses. Los recorridos de navegador comprobaron los tres roles, la desaparición automática de un horario ocupado, la liberación al cancelar y la llegada automática de nuevas solicitudes a Administración. La web publicada pasó ingreso, catálogo y cotización después del cambio de base. No se afirma una prueba física en iPhone.
 
@@ -81,4 +81,6 @@ El DDL exportado de Aiven requirió modo `ANSI_QUOTES` para identificadores y la
 
 ## Avisos y observaciones
 
-Después del corte inicial se agregó la migración 015 para conservar la lectura del aviso de cancelación. La instalación vigente tiene 15 migraciones y mantiene 24 tablas. Los motivos y observaciones se guardan en las tablas existentes; ver [campos y funcionamiento](cancellation-notices.md).
+Después del corte inicial se agregó la migración 015 para conservar la lectura del aviso de cancelación. La instalación vigente tiene 16 migraciones y mantiene 25 tablas. Los motivos y observaciones se guardan en las tablas existentes; ver [campos y funcionamiento](cancellation-notices.md).
+
+`ingresos_sin_turno` conserva los autos presenciales y su UUID de reintento, con FK al turno. Se incorpora en la migración 016.

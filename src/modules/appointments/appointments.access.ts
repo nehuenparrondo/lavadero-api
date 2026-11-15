@@ -26,7 +26,7 @@ export function presentAppointment(v: Appointment, actor: Actor) {
     ? {
         ...common,
         canWork:
-          Boolean(v.vehicleId) &&
+          Boolean(v.vehicleId || v.isWalkIn) &&
           (v.employeeId === actor.id || (v.employeeId === null && v.status !== 'in_progress')),
         ...(actor.canRecordPayments
           ? {
@@ -73,7 +73,8 @@ function operationalAppointment(v: Appointment) {
     model: v.model,
     color: v.color,
     vehicleType: v.vehicleType,
-    vehiclePending: v.vehicleId === null,
+    vehiclePending: v.vehicleId === null && !v.isWalkIn,
+    isWalkIn: Boolean(v.isWalkIn),
     employeeName: v.employeeName,
     serviceSummary: v.serviceSummary,
     cancellationReason: v.cancellationReason,
