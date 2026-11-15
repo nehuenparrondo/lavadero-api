@@ -37,3 +37,7 @@ El cliente puede registrarse o ingresar con una cuenta social. Administración p
 - [Bandeja y privacidad](../src/modules/customerMessages/messages.service.ts) y [fichajes](../src/modules/attendance/attendance.service.ts).
 - [Esquema incremental](../database/migrations/009_work_operations.sql) y [catálogo de extras](../database/migrations/010_detailing_services.sql).
 - [Pruebas de integración](../tests/operations.integration.ts).
+
+## Cierre directo después de cobrar
+
+El responsable habilitado para cobros puede cerrar directamente cuando el total está registrado y la jornada está abierta. El campo `completed_by_employee` conserva el origen del cierre sin atribuir una revisión a un administrador. El circuito anterior de partes/verificación sigue para casos compatibles. [Reglas y pruebas actuales](client-employee-flow.md).

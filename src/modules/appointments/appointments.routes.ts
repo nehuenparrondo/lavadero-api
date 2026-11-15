@@ -8,6 +8,7 @@ import * as s from './appointments.schema.js';
 import { mountWorkRoutes } from './work.routes.js';
 import { mountCancellationRoutes } from './cancellation.routes.js';
 import { mountWalkInRoutes } from './walkIn.routes.js';
+import { mountClientEmployeeRoutes } from './clientEmployee.routes.js';
 /** Turnos con controles adicionales de propiedad/asignación dentro de cada servicio.
  * @returns `import("express-serve-static-core").Router`.
  */
@@ -17,6 +18,7 @@ export function createAppointmentsRoutes() {
   r.get('/', endpoint(c.list));
   mountCancellationRoutes(r);
   mountWalkInRoutes(r);
+  mountClientEmployeeRoutes(r);
   r.get('/:id', endpoint(c.get));
   mountAppointmentChanges(r);
   mountWorkRoutes(r);

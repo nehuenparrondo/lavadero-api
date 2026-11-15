@@ -5323,6 +5323,24 @@
               "enum": ["requested"]
             },
             "description": "Solo administrador. Solicitudes pendientes o confirmadas, más recientes primero."
+          },
+          {
+            "name": "scope",
+            "in": "query",
+            "description": "Empleado: jornada oficial de hoy o historial de todas las fechas.",
+            "schema": {
+              "type": "string",
+              "enum": ["today", "all"]
+            }
+          },
+          {
+            "name": "home",
+            "in": "query",
+            "description": "Cliente: junto con history=false, excluye las tarjetas ocultadas del Inicio.",
+            "schema": {
+              "type": "string",
+              "enum": ["true"]
+            }
           }
         ]
       },
@@ -8776,6 +8794,107 @@
           }
         }
       }
+    },
+    "/api/v1/appointments/{id}/finish": {
+      "post": {
+        "tags": ["appointments"],
+        "summary": "Finalizar lavado cobrado",
+        "description": "Empleado responsable con permiso de cobros. Requiere saldo completamente cobrado, descripción y horario laboral. Marca completed directamente y registra completedByEmployee sin inventar un revisor administrativo. Reintentar la misma descripción no duplica el cierre.",
+        "operationId": "post_api_v1_appointments_id_finish",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": ["employee"],
+        "responses": {
+          "200": {
+            "description": "Lavado finalizado o reintento reconocido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "const": "completed"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No es el responsable o no tiene permiso de cobros."
+          },
+          "409": {
+            "description": "Saldo pendiente, estado incompatible o fuera de horario laboral."
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$",
+              "example": "1"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/washSchema"
+              },
+              "example": {
+                "description": "Lavado exterior y encerado."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/appointments/home-clear": {
+      "post": {
+        "tags": ["appointments"],
+        "summary": "Limpiar las tarjetas del Inicio del cliente",
+        "operationId": "post_api_v1_appointments_home_clear",
+        "description": "Exclusivo del cliente autenticado. Oculta sus tarjetas actuales de Inicio y conserva reservas, capacidad, pagos, notas e historial. No acepta un titular elegido por el cuerpo.",
+        "responses": {
+          "200": {
+            "description": "Cantidad de tarjetas ocultadas.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "hidden": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Solo clientes."
+          }
+        }
+      }
     }
   },
   "components": {
@@ -9234,6 +9353,14 @@
           "queue": {
             "type": "string",
             "enum": ["requested"]
+          },
+          "scope": {
+            "type": "string",
+            "enum": ["today", "all"]
+          },
+          "home": {
+            "type": "string",
+            "enum": ["true"]
           }
         }
       },
@@ -10473,6 +10600,10 @@
           },
           "feedbackId": {
             "type": ["string", "null"]
+          },
+          "completedByEmployee": {
+            "type": "boolean",
+            "description": "Cierre directo del responsable tras cobrar el total, sin revisión administrativa ficticia."
           }
         }
       },

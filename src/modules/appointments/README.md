@@ -6,6 +6,7 @@ Agenda y contratos históricos. Compartir el lock de settings para reservar/asig
 
 | Archivo                                                                  | Responsabilidad                                                                                                            |
 | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| [agendaScope.repository.ts](agendaScope.repository.ts)                   | Define próximas visitas por día local y separa la jornada actual del historial.                                            |
 | [appointments.access.ts](appointments.access.ts)                         | Oculta turnos de otros clientes; el equipo comparte la agenda operativa.                                                   |
 | [appointments.controller.ts](appointments.controller.ts)                 | Lista por rol y filtros.                                                                                                   |
 | [appointments.filters.repository.ts](appointments.filters.repository.ts) | Construye únicamente predicados cerrados; los datos siempre viajan como parámetros.                                        |
@@ -24,9 +25,12 @@ Agenda y contratos históricos. Compartir el lock de settings para reservar/asig
 | [cancellation.repository.ts](cancellation.repository.ts)                 | Aviso propio pendiente de lectura; el motivo proviene del turno cancelado.                                                 |
 | [cancellation.routes.ts](cancellation.routes.ts)                         | Registra antes de /:id los avisos del cliente y su confirmación de lectura.                                                |
 | [cancellation.service.ts](cancellation.service.ts)                       | Guarda el motivo validado dentro de la misma transacción del cambio de estado.                                             |
+| [clientEmployee.routes.ts](clientEmployee.routes.ts)                     | Monta limpieza visual privada y cierre cobrado con permisos distintos.                                                     |
+| [homeClear.service.ts](homeClear.service.ts)                             | Oculta las visitas del inicio propio; no cancela ni elimina reservas o cobros.                                             |
 | [intervals.ts](intervals.ts)                                             | Convierte filas SQL UTC al formato único del cálculo de capacidad.                                                         |
 | [mutation.service.ts](mutation.service.ts)                               | Cambia estado con permisos, horario de finalización, plazo de cancelación y bloqueo de agenda.                             |
 | [notes.repository.ts](notes.repository.ts)                               | Lee notas atribuidas a su autor, después de autorizar el turno en service.                                                 |
+| [paidFinish.service.ts](paidFinish.service.ts)                           | Finaliza directamente un lavado cobrado por su responsable, con parte y hora verificables.                                 |
 | [responsibility.repository.ts](responsibility.repository.ts)             | Asigna un empleado activo y libre, dando prioridad a quien lleva más tiempo sin asignación.                                |
 | [schedule.ts](schedule.ts)                                               | Interpreta un DATETIME de MySQL como UTC sin depender de la zona del servidor.                                             |
 | [teamCapacity.ts](teamCapacity.ts)                                       | Revalida capacidad física y vehículo al activar un turno, sin exclusividad por empleado.                                   |

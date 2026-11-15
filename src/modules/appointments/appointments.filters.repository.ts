@@ -3,6 +3,7 @@ import type { z } from 'zod';
 import { AppError } from '../../errors/AppError.js';
 import type { Actor } from '../../types/domain.js';
 import type { appointmentQuerySchema } from './appointments.schema.js';
+import { agendaScope } from './agendaScope.repository.js';
 type Filters = z.infer<typeof appointmentQuerySchema>;
 /** Construye únicamente predicados cerrados; los datos siempre viajan como parámetros.
  * @param actor - Actor autenticado por el middleware; determina rol y propiedad.
@@ -28,13 +29,10 @@ export function appointmentFilter(actor: Actor, input: Filters, timeZone: string
       'COALESCE(v.plate,w.plate) LIKE ?',
       `%${input.plate.replace(/[ -]/gu, '').toUpperCase()}%`,
     );
-  if (input.history)
-    conditions.push(
-      input.history === 'true'
-        ? "s.code IN ('completed','cancelled')"
-        : "s.code IN ('pending','confirmed','in_progress','awaiting_review')",
-    );
-  if (input.date) {
+  const scope = agendaScope(actor, input, timeZone);
+  conditions.push(...scope.conditions);
+  values.push(...scope.values);
+  if (input.date && !(actor.role === 'employee' && input.scope === 'today')) {
     conditions.push('a.starts_at>=? AND a.starts_at<?');
     values.push(...dateBounds(input.date, timeZone));
   }

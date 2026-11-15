@@ -71,7 +71,12 @@ export function reviewWash(actor: Actor, id: string, input: z.infer<typeof revie
  */
 export async function presentWash(actor: Actor, id: string) {
   const submission = await latestWash(id);
-  if (!submission || (actor.role === 'client' && submission.decision !== 'approved'))
+  if (
+    !submission ||
+    (actor.role === 'client' &&
+      submission.decision !== 'approved' &&
+      !submission.completedByEmployee)
+  )
     return null;
   const publicFields = {
     id: submission.id,
@@ -80,6 +85,7 @@ export async function presentWash(actor: Actor, id: string) {
     submittedAt: isoTime(submission.submittedAt),
     decision: submission.decision,
     reviewedAt: submission.reviewedAt ? isoTime(submission.reviewedAt) : null,
+    completedByEmployee: Boolean(submission.completedByEmployee),
   };
   if (actor.role === 'client') return { ...publicFields, feedbackId: submission.feedbackId };
   return {

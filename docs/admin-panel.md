@@ -10,7 +10,7 @@ La patente se normaliza. Si ya tiene un turno activo hoy, o un lavado en proceso
 
 La migración **016** agrega `ingresos_sin_turno`, con patente, descripción básica, contacto opcional, UUID único, fecha y FK al turno. Precios y duración histórica siguen en `servicios_turno`; observaciones en `notas_turno`, con el administrador como autor. Todo se guarda en la misma transacción. Reenviar el mismo UUID devuelve el turno original; para otro auto se debe usar un UUID nuevo.
 
-El turno se confirma y aparece en la agenda compartida, con búsqueda por patente. Mantiene asignación automática y reasignación administrativa, parte del empleado, revisión del administrador, pagos idempotentes y comprobante. Los ingresos sin cuenta son visibles al equipo autorizado; ningún cliente puede acceder a ellos. Cuando la patente pertenece a un cliente registrado, ese cliente conserva acceso a su turno y a los avisos de cancelación.
+El turno se confirma y aparece en la agenda compartida, con búsqueda por patente. Mantiene asignación automática y reasignación administrativa, parte del empleado, cierre directo tras cobrar o revisión compatible de partes anteriores, pagos idempotentes y comprobante. Los ingresos sin cuenta son visibles al equipo autorizado; ningún cliente puede acceder a ellos. Cuando la patente pertenece a un cliente registrado, ese cliente conserva acceso a su turno y a los avisos de cancelación.
 
 Archivos: `walkIn.schema.ts`, `walkIn.routes.ts`, `walkIn.service.ts`, `walkIn.slot.ts` y `walkIn.repository.ts`, dentro de `src/modules/appointments/`. El módulo de consulta usa LEFT JOIN para conservar tanto reservas con titular como ingresos presenciales.
 

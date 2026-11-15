@@ -81,6 +81,8 @@ El DDL exportado de Aiven requirió modo `ANSI_QUOTES` para identificadores y la
 
 ## Avisos y observaciones
 
-Después del corte inicial se agregó la migración 015 para conservar la lectura del aviso de cancelación. La instalación vigente tiene 16 migraciones y mantiene 25 tablas. Los motivos y observaciones se guardan en las tablas existentes; ver [campos y funcionamiento](cancellation-notices.md).
+Después del corte inicial se agregó la migración 015 para conservar la lectura del aviso de cancelación. La instalación vigente tiene 17 migraciones y mantiene 25 tablas. Los motivos y observaciones se guardan en las tablas existentes; ver [campos y funcionamiento](cancellation-notices.md).
 
 `ingresos_sin_turno` conserva los autos presenciales y su UUID de reintento, con FK al turno. Se incorpora en la migración 016.
+
+La migración 017 agrega limpieza del Inicio y autoría del cierre del empleado. Ver [flujo de cliente y empleado](client-employee-flow.md).

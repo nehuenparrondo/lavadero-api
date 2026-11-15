@@ -13,6 +13,7 @@ export interface WashSubmission extends RowDataPacket {
   reviewedAt: string | null;
   reviewerName: string | null;
   feedbackId: string | null;
+  completedByEmployee: number;
 }
 
 /** Lee el último intento. Las devoluciones anteriores quedan en el historial SQL.
@@ -23,7 +24,7 @@ export async function latestWash(id: string, executor?: Executor) {
   return (
     await rows<WashSubmission>(
       `SELECT CAST(w.id AS CHAR) id,w.employee_name employeeName,w.description,w.submitted_at submittedAt,
-      w.decision,w.review_note reviewNote,w.reviewed_at reviewedAt,
+      w.decision,w.completed_by_employee completedByEmployee,w.review_note reviewNote,w.reviewed_at reviewedAt,
       CONCAT(u.first_name,' ',u.last_name) reviewerName,CAST(m.id AS CHAR) feedbackId
     FROM partes_lavado w LEFT JOIN usuarios u ON u.id=w.reviewed_by_id
     LEFT JOIN mensajes_cliente m ON m.submission_id=w.id

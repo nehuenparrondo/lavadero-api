@@ -58,11 +58,15 @@ export async function createMessage(actor: Actor, input: z.infer<typeof messageS
 /** Comprueba la revisión y evita devoluciones duplicadas bajo el bloqueo del turno. */
 async function feedbackTarget(id: string, status: string, connection: Executor) {
   const submission = await latestWash(id, connection);
-  if (status !== 'completed' || submission?.decision !== 'approved')
+  if (
+    status !== 'completed' ||
+    !submission ||
+    (submission.decision !== 'approved' && !submission.completedByEmployee)
+  )
     throw new AppError(
       409,
       'UNVERIFIED_WASH',
-      'La devolución se habilita cuando el administrador confirma el trabajo.',
+      'La devolución se habilita cuando el lavado está finalizado.',
     );
   if (submission.feedbackId)
     throw new AppError(409, 'FEEDBACK_EXISTS', 'Ya enviaste una devolución para este turno.');

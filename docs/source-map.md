@@ -212,6 +212,16 @@ Valida y elimina campos no admitidos antes de llegar al controller.
 | ----------- | ------------------------------------------------------------------- |
 | validate    | Valida y elimina campos no admitidos antes de llegar al controller. |
 
+## src/modules/appointments/agendaScope.repository.ts
+
+Define próximas visitas por día local y separa la jornada actual del historial.
+
+[Abrir fuente](../src/modules/appointments/agendaScope.repository.ts)
+
+| Exportación | Responsabilidad                                                                 |
+| ----------- | ------------------------------------------------------------------------------- |
+| agendaScope | Define próximas visitas por día local y separa la jornada actual del historial. |
+
 ## src/modules/appointments/appointments.access.ts
 
 Oculta turnos de otros clientes; el equipo comparte la agenda operativa.
@@ -435,6 +445,26 @@ Guarda el motivo validado dentro de la misma transacción del cambio de estado.
 | cancellationNotices     | Proyecta los avisos del cliente con fechas UTC del contrato REST.              |
 | acknowledgeCancellation | Confirma lectura sin permitir acceder a avisos de otro cliente.                |
 
+## src/modules/appointments/clientEmployee.routes.ts
+
+Monta limpieza visual privada y cierre cobrado con permisos distintos.
+
+[Abrir fuente](../src/modules/appointments/clientEmployee.routes.ts)
+
+| Exportación               | Responsabilidad                                                        |
+| ------------------------- | ---------------------------------------------------------------------- |
+| mountClientEmployeeRoutes | Monta limpieza visual privada y cierre cobrado con permisos distintos. |
+
+## src/modules/appointments/homeClear.service.ts
+
+Oculta las visitas del inicio propio; no cancela ni elimina reservas o cobros.
+
+[Abrir fuente](../src/modules/appointments/homeClear.service.ts)
+
+| Exportación     | Responsabilidad                                                                |
+| --------------- | ------------------------------------------------------------------------------ |
+| clearClientHome | Oculta las visitas del inicio propio; no cancela ni elimina reservas o cobros. |
+
 ## src/modules/appointments/intervals.ts
 
 Convierte filas SQL UTC al formato único del cálculo de capacidad.
@@ -466,6 +496,16 @@ Lee notas atribuidas a su autor, después de autorizar el turno en service.
 | ----------- | -------------------------------------------------------------------------- |
 | readNotes   | Lee notas atribuidas a su autor, después de autorizar el turno en service. |
 | insertNote  | Persiste una observación; el autor proviene de la sesión autenticada.      |
+
+## src/modules/appointments/paidFinish.service.ts
+
+Finaliza directamente un lavado cobrado por su responsable, con parte y hora verificables.
+
+[Abrir fuente](../src/modules/appointments/paidFinish.service.ts)
+
+| Exportación    | Responsabilidad                                                                            |
+| -------------- | ------------------------------------------------------------------------------------------ |
+| finishPaidWash | Finaliza directamente un lavado cobrado por su responsable, con parte y hora verificables. |
 
 ## src/modules/appointments/responsibility.repository.ts
 
@@ -947,13 +987,13 @@ La bandeja está disponible únicamente para clientes y Administración.
 
 ## src/modules/customerMessages/messages.schema.ts
 
-Reclamo general o devolución del titular sobre un turno verificado.
+Reclamo general o devolución del titular sobre un lavado finalizado.
 
 [Abrir fuente](../src/modules/customerMessages/messages.schema.ts)
 
 | Exportación   | Responsabilidad                                                         |
 | ------------- | ----------------------------------------------------------------------- |
-| messageSchema | Reclamo general o devolución del titular sobre un turno verificado.     |
+| messageSchema | Reclamo general o devolución del titular sobre un lavado finalizado.    |
 | messageQuery  | Filtra por estado y pagina la bandeja sin descargar datos innecesarios. |
 | replySchema   | El cliente recibe la respuesta al cerrar el caso.                       |
 

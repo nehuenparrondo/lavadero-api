@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { paginationSchema } from '../../utils/pagination.js';
 
 const body = z.string().trim().min(1).max(2000);
-/** Reclamo general o devolución del titular sobre un turno verificado. */
+/** Reclamo general o devolución del titular sobre un lavado finalizado. */
 export const messageSchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('complaint'), body }).strict(),
   z

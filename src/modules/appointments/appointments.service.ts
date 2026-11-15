@@ -28,7 +28,11 @@ export async function listAppointments(
     values,
     input.page,
     input.limit,
-    input.queue ? 'NEWEST' : input.history === 'false' || input.date ? 'ASC' : 'DESC',
+    input.queue
+      ? 'NEWEST'
+      : input.scope === 'today' || input.history === 'false' || input.date
+        ? 'ASC'
+        : 'DESC',
   );
   return { ...result, items: result.items.map((v) => presentAppointment(v, actor)) };
 }

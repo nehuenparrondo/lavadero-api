@@ -39,6 +39,8 @@ export const appointmentQuerySchema = paginationSchema.extend({
     .optional(),
   history: z.enum(['true', 'false']).optional(),
   queue: z.enum(['requested']).optional(),
+  scope: z.enum(['today', 'all']).optional(),
+  home: z.enum(['true']).optional(),
 });
 /** Selección de disponibilidad sin crear reservas. */
 export const availabilitySchema = z

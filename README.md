@@ -71,3 +71,5 @@ La base usa nombres de tablas en español. Ver [MariaDB y diccionario de tablas]
 Ver [cancelaciones, observaciones y mejora de interfaz](docs/cancellation-notices.md).
 
 Panel administrativo: [ingresos sin turno, asistencia laboral, usuarios y gráficos semanales](docs/admin-panel.md).
+
+[Cliente y empleado: calendario, agenda, limpieza, cobro y reclamos](docs/client-employee-flow.md).

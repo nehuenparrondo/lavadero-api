@@ -446,6 +446,14 @@
       "queue": {
         "type": "string",
         "enum": ["requested"]
+      },
+      "scope": {
+        "type": "string",
+        "enum": ["today", "all"]
+      },
+      "home": {
+        "type": "string",
+        "enum": ["true"]
       }
     }
   },
