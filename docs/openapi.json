@@ -794,6 +794,9 @@
                 }
               }
             }
+          },
+          "410": {
+            "description": "Discord y GitHub fueron retirados; usar Google o recuperación por correo."
           }
         },
         "parameters": [
@@ -953,6 +956,9 @@
                 }
               }
             }
+          },
+          "410": {
+            "description": "Discord y GitHub fueron retirados; usar Google o recuperación por correo."
           }
         },
         "parameters": [
@@ -7130,6 +7136,9 @@
                 }
               }
             }
+          },
+          "410": {
+            "description": "Discord y GitHub fueron retirados; usar Google o recuperación por correo."
           }
         },
         "parameters": [
@@ -8895,6 +8904,89 @@
           }
         }
       }
+    },
+    "/api/v1/auth/forgot-password": {
+      "post": {
+        "summary": "Encola una solicitud sin revelar si existe el correo. Mailtrap Sandbox, sin entrega real; límites por IP y correo.",
+        "tags": ["Auth"],
+        "security": [],
+        "responses": {
+          "202": {
+            "description": "Operación aceptada"
+          },
+          "400": {
+            "description": "Entrada o enlace inválido"
+          },
+          "429": {
+            "description": "Demasiados intentos"
+          },
+          "503": {
+            "description": "Canal no disponible"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/forgotPasswordSchema"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/reset-password": {
+      "post": {
+        "summary": "Consume el token de 15 minutos una sola vez, cambia la contraseña y revoca todas las sesiones anteriores.",
+        "tags": ["Auth"],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Operación aceptada"
+          },
+          "400": {
+            "description": "Entrada o enlace inválido"
+          },
+          "429": {
+            "description": "Demasiados intentos"
+          },
+          "503": {
+            "description": "Canal no disponible"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/resetPasswordSchema"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/password-recovery": {
+      "get": {
+        "summary": "Estado público de configuración, sin secretos.",
+        "tags": ["Auth"],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Operación aceptada"
+          },
+          "400": {
+            "description": "Entrada o enlace inválido"
+          },
+          "429": {
+            "description": "Demasiados intentos"
+          },
+          "503": {
+            "description": "Canal no disponible"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -8991,19 +9083,6 @@
               }
             ]
           },
-          "avatarUrl": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 2048,
-                "format": "starts_with",
-                "pattern": "^https:\\/\\/.*"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
           "email": {
             "type": "string",
             "maxLength": 254,
@@ -9090,19 +9169,6 @@
               {
                 "type": "string",
                 "maxLength": 30
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "avatarUrl": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 2048,
-                "format": "starts_with",
-                "pattern": "^https:\\/\\/.*"
               },
               {
                 "type": "null"
@@ -10884,6 +10950,36 @@
           }
         },
         "required": ["requestId", "plate", "vehicleTypeId", "serviceIds"],
+        "additionalProperties": false
+      },
+      "forgotPasswordSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "format": "email",
+            "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+          }
+        },
+        "required": ["email"],
+        "additionalProperties": false
+      },
+      "resetPasswordSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "newPassword": {
+            "type": "string",
+            "minLength": 12
+          }
+        },
+        "required": ["token", "newPassword"],
         "additionalProperties": false
       }
     }

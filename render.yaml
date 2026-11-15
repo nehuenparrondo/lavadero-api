@@ -23,3 +23,9 @@ services:
         value: '5'
       - key: CORS_ORIGINS
         value: ''
+      - key: MAILTRAP_API_TOKEN
+        sync: false
+      - key: MAILTRAP_INBOX_ID
+        sync: false
+      - key: PASSWORD_RESET_URL
+        value: https://lavadero-app-2558.onrender.com/reset-password

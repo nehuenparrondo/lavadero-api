@@ -11,7 +11,7 @@ test('PKCE coincide con el vector de referencia RFC 7636', () => {
     'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM',
   );
 });
-for (const provider of ['google', 'github', 'discord'])
+for (const provider of ['google'])
   test(`OAuth ${provider}: vinculación verificada, PKCE, grant de un uso y state`, async (t) => {
     const subject = String(randomInt(100_000_000_000, 999_999_999_999));
     const existing = await client();

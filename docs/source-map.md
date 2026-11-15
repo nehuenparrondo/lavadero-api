@@ -75,6 +75,17 @@ Lee variables sin efectos secundarios.
 | ----------- | -------------------------------------- |
 | readEnv     | Lee variables sin efectos secundarios. |
 
+## src/config/recovery.ts
+
+Sandbox únicamente: las credenciales nunca se exponen al cliente.
+
+[Abrir fuente](../src/config/recovery.ts)
+
+| Exportación        | Responsabilidad                                                   |
+| ------------------ | ----------------------------------------------------------------- |
+| recoveryEnv        | Sandbox únicamente: las credenciales nunca se exponen al cliente. |
+| recoveryConfigured | Indica si se puede capturar un correo de demostración.            |
+
 ## src/config/validation.ts
 
 Composición interna del módulo; consultar sus contratos de tipos.
@@ -922,6 +933,135 @@ Canjea código solo en backend con client secret y PKCE del proveedor cuando es 
 | Exportación      | Responsabilidad                                                                            |
 | ---------------- | ------------------------------------------------------------------------------------------ |
 | exchangeProvider | Canjea código solo en backend con client secret y PKCE del proveedor cuando es compatible. |
+
+## src/modules/auth/recovery.delivery.ts
+
+Procesa un correo pendiente. Los fallos no se exponen al request ni se imprimen.
+
+[Abrir fuente](../src/modules/auth/recovery.delivery.ts)
+
+| Exportación      | Responsabilidad                                                                  |
+| ---------------- | -------------------------------------------------------------------------------- |
+| dispatchRecovery | Procesa un correo pendiente. Los fallos no se exponen al request ni se imprimen. |
+
+## src/modules/auth/recovery.limiter.ts
+
+Límite compartido entre solicitudes y consumo de tokens por dirección de red.
+
+[Abrir fuente](../src/modules/auth/recovery.limiter.ts)
+
+| Exportación     | Responsabilidad                                                               |
+| --------------- | ----------------------------------------------------------------------------- |
+| recoveryLimiter | Límite compartido entre solicitudes y consumo de tokens por dirección de red. |
+
+## src/modules/auth/recovery.mailtrap.ts
+
+Envía exclusivamente a la bandeja Sandbox por HTTPS; no utiliza puertos SMTP.
+
+[Abrir fuente](../src/modules/auth/recovery.mailtrap.ts)
+
+| Exportación      | Responsabilidad                                                               |
+| ---------------- | ----------------------------------------------------------------------------- |
+| sendRecoveryMail | Envía exclusivamente a la bandeja Sandbox por HTTPS; no utiliza puertos SMTP. |
+
+## src/modules/auth/recovery.queue.repository.ts
+
+Cola con límite transaccional de tres solicitudes por correo y hora, exista o no.
+
+[Abrir fuente](../src/modules/auth/recovery.queue.repository.ts)
+
+| Exportación     | Responsabilidad                                                                    |
+| --------------- | ---------------------------------------------------------------------------------- |
+| enqueueRecovery | Cola con límite transaccional de tres solicitudes por correo y hora, exista o no.  |
+| claimRecovery   | Reclama un trabajo con arrendamiento recuperable después de reiniciar el servidor. |
+| finishDelivery  | Finaliza o reprograma sin guardar respuestas remotas que puedan contener secretos. |
+
+## src/modules/auth/recovery.repository.ts
+
+Consulta un token por hash; el bloqueo se toma después del usuario para evitar deadlocks.
+
+[Abrir fuente](../src/modules/auth/recovery.repository.ts)
+
+| Exportación     | Responsabilidad                                                                                 |
+| --------------- | ----------------------------------------------------------------------------------------------- |
+| findRecovery    | Consulta un token por hash; el bloqueo se toma después del usuario para evitar deadlocks.       |
+| lockRecovery    | Lee un trabajo después de bloquear primero la cuenta.                                           |
+| prepareRecovery | Asocia cuenta y versión de contraseña; el plazo nunca se renueva al reintentar.                 |
+| consumeRecovery | Inutiliza solicitudes antiguas de la cuenta al cambiar la contraseña.                           |
+| discardRecovery | Descarta correo inexistente, cuenta inactiva o trabajo vencido sin filtrar la causa al público. |
+
+## src/modules/auth/recovery.routes.ts
+
+Recuperación pública con límites por IP y correo y respuestas no almacenables.
+
+[Abrir fuente](../src/modules/auth/recovery.routes.ts)
+
+| Exportación          | Responsabilidad                                                                |
+| -------------------- | ------------------------------------------------------------------------------ |
+| createRecoveryRoutes | Recuperación pública con límites por IP y correo y respuestas no almacenables. |
+
+## src/modules/auth/recovery.schema.ts
+
+El retorno lo fija el servidor, jamás se acepta una URL del solicitante.
+
+[Abrir fuente](../src/modules/auth/recovery.schema.ts)
+
+| Exportación          | Responsabilidad                                                          |
+| -------------------- | ------------------------------------------------------------------------ |
+| forgotPasswordSchema | El retorno lo fija el servidor, jamás se acepta una URL del solicitante. |
+| resetPasswordSchema  | Solo el POST consume el token; abrir el enlace no cambia la cuenta.      |
+
+## src/modules/auth/recovery.service.ts
+
+Respuesta idéntica para correos conocidos, desconocidos o limitados; no hace lookup de cuentas.
+
+[Abrir fuente](../src/modules/auth/recovery.service.ts)
+
+| Exportación     | Responsabilidad                                                                                   |
+| --------------- | ------------------------------------------------------------------------------------------------- |
+| requestRecovery | Respuesta idéntica para correos conocidos, desconocidos o limitados; no hace lookup de cuentas.   |
+| resetPassword   | Consume el enlace una vez, cambia bcrypt y revoca JWT/refresh anteriores en la misma transacción. |
+
+## src/modules/auth/recovery.time.ts
+
+MariaDB entrega strings UTC sin sufijo; nunca se interpretan en la zona local del servidor.
+
+[Abrir fuente](../src/modules/auth/recovery.time.ts)
+
+| Exportación     | Responsabilidad                                                                             |
+| --------------- | ------------------------------------------------------------------------------------------- |
+| recoveryExpired | MariaDB entrega strings UTC sin sufijo; nunca se interpretan en la zona local del servidor. |
+
+## src/modules/auth/recovery.token.ts
+
+Reconstruye el mismo secreto en los reintentos sin guardar el enlace en la base.
+
+[Abrir fuente](../src/modules/auth/recovery.token.ts)
+
+| Exportación   | Responsabilidad                                                                  |
+| ------------- | -------------------------------------------------------------------------------- |
+| recoveryToken | Reconstruye el mismo secreto en los reintentos sin guardar el enlace en la base. |
+
+## src/modules/auth/recovery.types.ts
+
+Trabajo privado; nunca se serializa en una respuesta HTTP.
+
+[Abrir fuente](../src/modules/auth/recovery.types.ts)
+
+| Exportación    | Responsabilidad                                                             |
+| -------------- | --------------------------------------------------------------------------- |
+| RecoveryJob    | Trabajo privado; nunca se serializa en una respuesta HTTP.                  |
+| RecoverySender | Puerto de entrega inyectable para pruebas sin consumir el cupo de Mailtrap. |
+
+## src/modules/auth/recovery.worker.ts
+
+Trabajador duradero: el cierre del proceso deja el trabajo disponible tras vencer el bloqueo.
+
+[Abrir fuente](../src/modules/auth/recovery.worker.ts)
+
+| Exportación         | Responsabilidad                                                                               |
+| ------------------- | --------------------------------------------------------------------------------------------- |
+| startRecoveryWorker | Trabajador duradero: el cierre del proceso deja el trabajo disponible tras vencer el bloqueo. |
 
 ## src/modules/auth/session.repository.ts
 

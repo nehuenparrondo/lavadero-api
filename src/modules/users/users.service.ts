@@ -35,7 +35,7 @@ export async function updateOwnProfile(current: Actor, input: z.infer<typeof pro
     firstName: input.firstName ?? user.firstName,
     lastName: input.lastName ?? user.lastName,
     phone: input.phone === undefined ? user.phone : input.phone,
-    avatarUrl: input.avatarUrl === undefined ? user.avatarUrl : input.avatarUrl,
+    avatarUrl: user.avatarUrl,
   });
   return getProfile(current.id);
 }

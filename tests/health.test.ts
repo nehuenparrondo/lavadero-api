@@ -43,3 +43,24 @@ test('JSON mal formado devuelve 400', async () => {
     .send('{')
     .expect(400);
 });
+test('Entradas grandes y propiedades de prototipo se rechazan sin filtrar el body', async () => {
+  const large = await request(app)
+    .post('/api/v1/auth/login')
+    .send({ email: 'a@example.invalid', password: 'x'.repeat(34000) })
+    .expect(413);
+  assert.equal(large.body.error.code, 'BODY_TOO_LARGE');
+  const invalid = await request(app)
+    .post('/api/v1/auth/login')
+    .set('Content-Type', 'application/json')
+    .send('{"email":"a@example.invalid","password":"a","__proto__":{"isAdmin":true}}')
+    .expect(400);
+  assert.equal(invalid.body.error.code, 'VALIDATION_ERROR');
+  assert.equal(Object.prototype.hasOwnProperty.call(Object.prototype, 'isAdmin'), false);
+});
+test('Helmet protege el contenido y no expone la tecnología del servidor', async () => {
+  const result = await request(app).get('/health').expect(200);
+  assert.equal(result.headers['x-content-type-options'], 'nosniff');
+  assert.equal(result.headers['x-frame-options'], 'SAMEORIGIN');
+  assert.ok(result.headers['content-security-policy']?.includes("object-src 'none'"));
+  assert.equal(result.headers['x-powered-by'], undefined);
+});

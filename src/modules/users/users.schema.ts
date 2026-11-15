@@ -10,7 +10,6 @@ export const profileSchema = z
     firstName: z.string().trim().min(1).max(80).optional(),
     lastName: z.string().trim().max(80).optional(),
     phone: z.string().max(30).nullable().optional(),
-    avatarUrl: z.url().max(2048).startsWith('https://').nullable().optional(),
   })
   .strict();
 /** Alta por administrador con rol explícito opcional. */

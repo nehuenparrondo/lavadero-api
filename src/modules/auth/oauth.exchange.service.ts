@@ -1,4 +1,5 @@
 import type { z } from 'zod';
+import { getProvider } from '../../config/oauth.js';
 import { AppError } from '../../errors/AppError.js';
 import type { Executor } from '../../utils/db.js';
 import { comparePassword } from '../../utils/password.js';
@@ -50,6 +51,7 @@ export async function exchange(input: z.infer<typeof oauthExchangeSchema>) {
     const grant = await repo.lockGrant(hash, connection);
     assertGrantChallenge(grant?.codeChallenge, input.codeVerifier);
     if (!grant) throw new AppError(401, 'INVALID_OAUTH_CODE', 'El acceso social venció.');
+    if (grant.linkProvider) getProvider(grant.linkProvider);
     const identity = await findUser(String(grant.userId), connection, true);
     if (!identity || !identity.isActive || identity.deletedAt)
       throw new AppError(403, 'ACCOUNT_DISABLED', 'Cuenta desactivada.');

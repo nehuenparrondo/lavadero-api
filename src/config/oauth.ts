@@ -37,7 +37,8 @@ const providers = {
 export function providerAvailability() {
   return Object.entries(providers).map(([provider, v]) => ({
     provider,
-    enabled: Boolean(v.clientId && v.clientSecret && authEnv.PUBLIC_API_URL),
+    enabled:
+      provider === 'google' && Boolean(v.clientId && v.clientSecret && authEnv.PUBLIC_API_URL),
   }));
 }
 /** Configuración de proveedor. @throws AppError 503 si no fue habilitado.
@@ -46,6 +47,12 @@ export function providerAvailability() {
  * @throws Error - Cuando no se cumple una precondición indicada en esta operación.
  */
 export function getProvider(provider: Provider) {
+  if (provider !== 'google')
+    throw new AppError(
+      410,
+      'OAUTH_REMOVED',
+      'Este acceso fue retirado. Usá Google o recuperá tu contraseña por correo.',
+    );
   const value = providers[provider];
   if (!value.clientId || !value.clientSecret || !authEnv.PUBLIC_API_URL)
     throw new AppError(

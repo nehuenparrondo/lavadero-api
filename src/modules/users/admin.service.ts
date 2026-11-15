@@ -84,6 +84,6 @@ function mergedProfile(user: Identity, input: z.infer<typeof adminPatchSchema>) 
     firstName: input.firstName ?? user.firstName,
     lastName: input.lastName ?? user.lastName,
     phone: input.phone === undefined ? user.phone : input.phone,
-    avatarUrl: input.avatarUrl === undefined ? user.avatarUrl : input.avatarUrl,
+    avatarUrl: user.avatarUrl,
   };
 }

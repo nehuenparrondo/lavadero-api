@@ -1,3 +1,5 @@
+> Estado actual, 15/11/2026: solo Google está habilitado. Discord y GitHub fueron retirados del cliente y del servidor (410). Los detalles anteriores se conservan abajo como referencia histórica; no habilitarlos. Ver security-recovery.md.
+
 # Configuración y defensa del flujo OAuth
 
 La app usa AuthSession + PKCE S256. Solo el backend conoce los secretos. Configurar

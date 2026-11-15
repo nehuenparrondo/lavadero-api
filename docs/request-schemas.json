@@ -60,6 +60,36 @@
     "required": ["email", "password", "firstName", "lastName"],
     "additionalProperties": false
   },
+  "forgotPasswordSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string",
+        "maxLength": 254,
+        "format": "email",
+        "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+      }
+    },
+    "required": ["email"],
+    "additionalProperties": false
+  },
+  "resetPasswordSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "token": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{64}$"
+      },
+      "newPassword": {
+        "type": "string",
+        "minLength": 12
+      }
+    },
+    "required": ["token", "newPassword"],
+    "additionalProperties": false
+  },
   "adminPatchSchema": {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -78,19 +108,6 @@
           {
             "type": "string",
             "maxLength": 30
-          },
-          {
-            "type": "null"
-          }
-        ]
-      },
-      "avatarUrl": {
-        "anyOf": [
-          {
-            "type": "string",
-            "maxLength": 2048,
-            "format": "starts_with",
-            "pattern": "^https:\\/\\/.*"
           },
           {
             "type": "null"
@@ -183,19 +200,6 @@
           {
             "type": "string",
             "maxLength": 30
-          },
-          {
-            "type": "null"
-          }
-        ]
-      },
-      "avatarUrl": {
-        "anyOf": [
-          {
-            "type": "string",
-            "maxLength": 2048,
-            "format": "starts_with",
-            "pattern": "^https:\\/\\/.*"
           },
           {
             "type": "null"

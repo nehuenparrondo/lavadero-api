@@ -29,6 +29,7 @@ export function createApp(options: AppOptions) {
     unknown
   >;
   app.disable('x-powered-by');
+  app.set('query parser', 'simple');
   if (process.env.NODE_ENV === 'production') app.set('trust proxy', 1);
   app.use(helmet(), createCors(options.origins), express.json({ limit: '32kb' }));
   app.use(createHealthRoutes(options.checkDatabase));

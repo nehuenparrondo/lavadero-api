@@ -27,6 +27,16 @@ const sqlErrors: Record<string, { code: string; message: string }> = {
  * @returns `{ status: number; error: { code: string; message: string; fields: { path: string; message: string; }[]; }; } | { status: number; error: { code: string; message: string; }; }`.
  */
 export function publicError(error: unknown) {
+  if (
+    error &&
+    typeof error === 'object' &&
+    'type' in error &&
+    error.type === 'entity.too.large'
+  )
+    return {
+      status: 413,
+      error: { code: 'BODY_TOO_LARGE', message: 'La solicitud supera el tamaño permitido.' },
+    };
   if (error instanceof ZodError) return validationError(error);
   if (error instanceof AppError)
     return { status: error.status, error: { code: error.code, message: error.message } };

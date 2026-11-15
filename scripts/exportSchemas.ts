@@ -1,6 +1,7 @@
 import { writeFile } from 'node:fs/promises';
 import { z } from 'zod';
 import * as auth from '../src/modules/auth/auth.schema.js';
+import * as recovery from '../src/modules/auth/recovery.schema.js';
 import * as users from '../src/modules/users/users.schema.js';
 import * as vehicles from '../src/modules/vehicles/vehicles.schema.js';
 import * as services from '../src/modules/services/services.schema.js';
@@ -16,6 +17,7 @@ import { walkInSchema } from '../src/modules/appointments/walkIn.schema.js';
 /** Esquemas de entrada OpenAPI obtenidos de las mismas validaciones que ejecuta Express. */
 const schemas = {
   ...auth,
+  ...recovery,
   ...users,
   ...vehicles,
   ...services,

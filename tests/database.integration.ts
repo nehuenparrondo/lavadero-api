@@ -114,6 +114,8 @@ test('todas las tablas de negocio usan los nombres españoles y conservan sus cl
     "SELECT TABLE_NAME name FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_TYPE='BASE TABLE'",
   );
   const expected = [
+    'limites_recuperacion',
+    'recuperaciones_clave',
     'roles',
     'usuarios',
     'cuentas_sociales',

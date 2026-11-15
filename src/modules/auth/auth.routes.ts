@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { createRecoveryRoutes } from './recovery.routes.js';
 import { rateLimit } from 'express-rate-limit';
 import { validate } from '../../middlewares/validate.js';
 import { endpoint } from '../../utils/http.js';
@@ -21,6 +22,7 @@ export function createAuthRoutes() {
       },
     }),
   );
+  router.use(createRecoveryRoutes());
   router.post(
     '/register',
     validate(schema.registerSchema),

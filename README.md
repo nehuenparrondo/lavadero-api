@@ -73,3 +73,7 @@ Ver [cancelaciones, observaciones y mejora de interfaz](docs/cancellation-notice
 Panel administrativo: [ingresos sin turno, asistencia laboral, usuarios y gráficos semanales](docs/admin-panel.md).
 
 [Cliente y empleado: calendario, agenda, limpieza, cobro y reclamos](docs/client-employee-flow.md).
+
+## Seguridad y acceso actual
+
+Ingreso con Google o correo y contraseña. Discord y GitHub fueron retirados. Perfil sin fotos. Recuperación mediante Mailtrap Sandbox, sin entrega a casillas reales. Ver [seguridad y recuperación](docs/security-recovery.md) para configuración, pruebas y límites.

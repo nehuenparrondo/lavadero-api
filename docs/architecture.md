@@ -39,8 +39,7 @@ separan fecha del trabajo y fecha real de pago para evitar sumar ingresos dos ve
 AuthSession genera state y PKCE S256. El backend conserva su propio state de proveedor,
 intercambia el código con el secreto y exige email verificado. El retorno móvil contiene
 un grant de 60 segundos, de un uso y ligado al PKCE, nunca access tokens en la URL.
-Solo se aceptan redirect URIs exactas de una allowlist. Google y GitHub usan además
-PKCE en el tramo proveedor; Discord usa el secreto backend. Ningún secreto viaja a Expo.
+Solo se aceptan redirect URIs exactas de una allowlist. Google usa además PKCE en el tramo proveedor. Discord y GitHub se retiraron; sus endpoints devuelven 410. Ningún secreto viaja a Expo.
 
 ## Persistencia y despliegue
 
@@ -56,7 +55,7 @@ flowchart LR
   App[App Expo Android / Web] <-->|HTTPS REST v1 + JWT| API[Express en Render]
   API <-->|SQL parametrizado + TLS| DB[(MariaDB alwaysdata)]
   App -->|AuthSession + PKCE| Browser[Navegador del sistema]
-  Browser <-->|Consentimiento| Providers[Google / Discord / GitHub]
+  Browser <-->|Consentimiento| Providers[Google]
   Providers -->|Callback HTTPS| API
   API -->|Grant efímero + state| App
 ```

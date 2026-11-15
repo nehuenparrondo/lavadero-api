@@ -61,6 +61,7 @@ export async function callback(
   provider: Provider,
   input: { state: string; code?: string | undefined; error?: string | undefined },
 ) {
+  getProvider(provider);
   const state = await transaction((connection) =>
     repo.takeState(tokenHash(input.state), connection),
   );
