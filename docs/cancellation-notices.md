@@ -19,7 +19,7 @@ Una cancelación del propio cliente conserva su motivo, pero no genera un aviso 
 | Devolución del administrador | `partes_lavado.review_note`                     | Motivo de devolución a corrección y revisor.                                                  |
 | Reclamos y respuestas        | `mensajes_cliente.body`, `reply`                | Mensaje del cliente y respuesta administrativa con sus autores.                               |
 
-La migración **015_cancellation_notices.sql** agrega solo el campo de lectura y su índice. El motivo y las observaciones ya existían en la base. La migración es reintentable después de un corte y no elimina ni copia filas. El sistema conserva 24 tablas españolas.
+La migración **015_cancellation_notices.sql** agrega solo el campo de lectura y su índice. El motivo y las observaciones ya existían en la base. La migración es reintentable después de un corte y no elimina ni copia filas. El sistema conserva 25 tablas españolas.
 
 ## API y autorización
 
@@ -38,3 +38,6 @@ El estado de lectura pertenece al usuario titular de ese turno. No depende de co
 En la app, `useCancellationNotices` coordina la API y `ClientCancellationNotices` presenta los avisos. `AppointmentCancellation` conserva el motivo en el detalle. Los formularios comparten `appointmentFields`; el texto largo valida espacios, limita longitud y muestra contador. El borrador de una observación solo se limpia después de guardar esa observación: una consulta automática o una nota de otro empleado no lo reemplazan.
 
 `tests/cancellation.integration.ts` comprueba el texto exacto en MariaDB, autor, historial atómico, permisos, límites, persistencia al reingresar y lectura idempotente. La revisión de navegador cubre notificación automática entre cliente/admin, notas del empleado, conservación del borrador y presentación de escritorio, teléfono y tema oscuro. Se prueba en la base escolar/QA; no se cancelan reservas reales para generar capturas.
+
+
+Ver [panel administrativo actualizado: ingreso presencial, cuentas, asistencia y semanas](admin-panel.md).

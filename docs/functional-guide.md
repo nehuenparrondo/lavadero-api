@@ -51,7 +51,7 @@ El proveedor devuelve un código a la API. La API comprueba que el retorno perte
 
 La configuración inicial es de lunes a sábado, de 09:30 a 16:30, en la zona `America/Argentina/Buenos_Aires`, con capacidad para un auto a la vez. La grilla de cinco minutos indica cada cuánto se ofrecen posibles inicios. Interior dura 30 minutos, exterior 35 y completo 40 según el catálogo inicial. El administrador puede ajustar la operación en **Configuración**. [Pantalla de reserva](https://github.com/nehuenparrondo/lavadero-app/blob/main/src/screens/client/BookingScreen.tsx) · [Disponibilidad](https://github.com/nehuenparrondo/lavadero-api/blob/main/src/modules/appointments/availability.service.ts) · [Guardado de reserva](https://github.com/nehuenparrondo/lavadero-api/blob/main/src/modules/appointments/booking.service.ts) · [Regla de horario](https://github.com/nehuenparrondo/lavadero-api/blob/main/src/modules/appointments/schedule.ts)
 
-La reserva actualiza su disponibilidad automáticamente cada 10 segundos; las agendas y bandejas, cada 15 segundos mientras están visibles. El refresco conserva formularios y filtros sin agregar botones Actualizar. En Administración, Lavados pendientes muestra primero las solicitudes más recientes, incluso para fechas futuras. Los filtros rápidos ofrecen Hoy, Todas las fechas, Nuevas solicitudes y Por verificar; los filtros avanzados permiten buscar cliente, empleado y estado.
+La reserva actualiza su disponibilidad automáticamente cada 10 segundos; las agendas y bandejas, cada 15 segundos mientras están visibles. El refresco conserva formularios y filtros sin agregar botones Actualizar. En Administración, Lavados pendientes muestra primero las solicitudes más recientes, incluso para fechas futuras. Los filtros rápidos ofrecen Hoy, Todas las fechas, Nuevas solicitudes; los filtros avanzados permiten buscar cliente, empleado y estado.
 
 ## Tarifas, cobros y reportes
 
@@ -76,7 +76,7 @@ El cobro registra dinero recibido en efectivo o por transferencia. Antes de guar
 | `configuracion_negocio`, `horarios_atencion`                   | Zona horaria, capacidad, plazo de cancelación y horario de cada día.                           |
 | `estados_oauth`, `autorizaciones_oauth`, `schema_migrations`   | Solicitudes sociales temporales, códigos de acceso de un uso y registro de cambios de la base. |
 
-En el panel de alwaysdata se administra el servicio. Para consultar filas, usá DBeaver con el controlador MariaDB, el acceso escolar y TLS verificado. El diccionario completo incluye 24 tablas españolas; la copia anterior en Aiven quedó como respaldo. Para cambiar datos del negocio, usá las pantallas administrativas: aplican las validaciones del servidor y conservan el historial correspondiente. [Modelo y columnas de la base](https://github.com/nehuenparrondo/lavadero-api/blob/main/docs/database.md)
+En el panel de alwaysdata se administra el servicio. Para consultar filas, usá DBeaver con el controlador MariaDB, el acceso escolar y TLS verificado. El diccionario completo incluye 25 tablas españolas; la copia anterior en Aiven quedó como respaldo. Para cambiar datos del negocio, usá las pantallas administrativas: aplican las validaciones del servidor y conservan el historial correspondiente. [Modelo y columnas de la base](https://github.com/nehuenparrondo/lavadero-api/blob/main/docs/database.md)
 
 ## Dónde editar y cómo publicar
 
@@ -90,8 +90,11 @@ En el panel de alwaysdata se administra el servicio. Para consultar filas, usá 
 
 El cliente puede reclamar desde Inicio y enviar una devolución desde un turno verificado. Administración consulta y responde esos mensajes en su bandeja. La devolución se liga al parte que registró el responsable, con su nombre y descripción del trabajo. En Asistencia, un administrador ficha la primera llegada de cada empleado y puede consultar otros días. [Flujo y archivos](https://github.com/nehuenparrondo/lavadero-api/blob/main/docs/work-operations.md)
 
-La base operativa es MariaDB en alwaysdata. Para abrir desarrollo con DBeaver, seguí la [guía del gestor SQL](mariadb.md). Ver [ubicación, migraciones y las 24 tablas](https://github.com/nehuenparrondo/lavadero-api/blob/main/docs/mariadb.md).
+La base operativa es MariaDB en alwaysdata. Para abrir desarrollo con DBeaver, seguí la [guía del gestor SQL](mariadb.md). Ver [ubicación, migraciones y las 25 tablas](https://github.com/nehuenparrondo/lavadero-api/blob/main/docs/mariadb.md).
 
 ## Cancelaciones visibles en Inicio
 
 El cliente recibe avisos persistentes con fecha, vehículo y motivo. Entendido guarda la lectura en MariaDB sin borrar la cancelación. Las observaciones conservan texto completo, autor y fecha; consultar cambios no descarta borradores. Ver [campos, rutas y pruebas](cancellation-notices.md).
+
+
+Ver [panel administrativo actualizado: ingreso presencial, cuentas, asistencia y semanas](admin-panel.md).

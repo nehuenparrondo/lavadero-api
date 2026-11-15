@@ -15,7 +15,7 @@ npm run check
 npm run dev
 ```
 
-Las **15 migraciones** construyen 24 tablas con nombres españoles y guardan sus checksums en `migraciones_esquema`. El segundo arranque no repite migraciones. Conservar intactos los archivos históricos y agregar una migración nueva para cada cambio. El migrador adapta la sintaxis histórica de MySQL a MariaDB.
+Las **16 migraciones** construyen 25 tablas con nombres españoles y guardan sus checksums en `migraciones_esquema`. El segundo arranque no repite migraciones. Conservar intactos los archivos históricos y agregar una migración nueva para cada cambio. El migrador adapta la sintaxis histórica de MySQL a MariaDB.
 
 `database/schema.sql` es una alternativa para construir una base nueva; no mezclarla con el migrador porque no registra su historial. Las semillas cargan roles, estados, categorías, servicios, tarifas y horario inicial. El administrador se crea desde `SEED_ADMIN_EMAIL` y `SEED_ADMIN_PASSWORD` si no existe; repetir la semilla no cambia su contraseña. No ejecutar semillas sobre una copia de producción.
 
@@ -32,3 +32,6 @@ Producción requiere `NODE_ENV=production`, conexión SQL, TLS activo y un `JWT_
 Abrir `/health`, `/ready`, `/api/docs/` y `/api/openapi.json`. Iniciar sesión y consultar `/api/v1/users/me` con el token de acceso. Las pruebas de base y aceptación requieren `NODE_ENV=test`, migraciones/semillas y credenciales de QA. Nunca ejecutarlas contra producción.
 
 Para otra computadora, instalar Node y DBeaver desde sus sitios oficiales, clonar ambos repositorios y configurar los archivos de entorno privados con el acceso escolar. El frontend solo recibe la URL pública de la API. El [gestor SQL](mariadb.md#gestor-sql) permite inspeccionar desarrollo sin publicar credenciales.
+
+
+Ver [panel administrativo actualizado: ingreso presencial, cuentas, asistencia y semanas](admin-panel.md).

@@ -27,9 +27,9 @@ Las operaciones que cambian el trabajo bloquean la fila del turno. Cambiar el es
 
 ## Fichajes y cuentas
 
-`GET /api/v1/attendance?date=AAAA-MM-DD` muestra el plantel activo y las llegadas de hoy, o el registro de la fecha consultada. `POST /api/v1/attendance/:id/arrival` requiere la fecha actual del negocio para evitar fichar accidentalmente en una vista vieja. La hora se guarda en UTC con el administrador que observó la llegada. La clave primaria de `employee_attendance` conserva el primer fichaje del día.
+`GET /api/v1/attendance?date=AAAA-MM-DD` muestra el plantel activo y las llegadas de hoy, o el registro de la fecha consultada. `POST /api/v1/attendance/:id/arrival` requiere la fecha actual del negocio para evitar fichar accidentalmente en una vista vieja. La hora se guarda en UTC con el administrador que observó la llegada. La clave primaria de `asistencia_empleados` conserva el primer fichaje del día.
 
-Cada persona usa registro público o inicio social. Un administrador asigna el rol Empleado a la cuenta registrada desde Usuarios. Los cambios de rol invalidan las sesiones anteriores.
+El cliente puede registrarse o ingresar con una cuenta social. Administración puede crear clientes o empleados desde Usuarios; al editar se conserva el rol. El fichaje requiere, además de la fecha actual, día y horario laboral vigentes. Ver [reglas completas del panel](admin-panel.md).
 
 ## Código
 
